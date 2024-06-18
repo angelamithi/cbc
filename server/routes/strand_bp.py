@@ -10,13 +10,13 @@ strand_bp = Blueprint('strand_bp', __name__)
 api = Api(strand_bp)
 
 post_args = reqparse.RequestParser()
-post_args.add_argument('school_id', type=str, required=True, help='School Id is required')
+
 post_args.add_argument('strand_name', type=str, required=True, help='Strand Name is required')
 post_args.add_argument('subject_id', type=str, required=True, help='Subject Id is required')
 post_args.add_argument('grade_id', type=str, required=True, help='Grade Id is required')
 
 patch_args = reqparse.RequestParser()
-patch_args.add_argument('school_id', type=str)
+
 patch_args.add_argument('strand_name', type=str)
 patch_args.add_argument('subject_id', type=str)
 patch_args.add_argument('grade_id', type=str)
@@ -33,12 +33,12 @@ class StrandDetails(Resource):
         data = post_args.parse_args()
 
         # Check if the strand already exists
-        existing_strand = Strand.query.filter_by(school_id=data['school_id'], strand_name=data['strand_name'],
+        existing_strand = Strand.query.filter_by(strand_name=data['strand_name'],
                                                  subject_id=data['subject_id'], grade_id=data['grade_id']).first()
         if existing_strand:
             return make_response(jsonify({"error": "Strand already exists for this school, subject, and grade"}), 409)
 
-        new_strand = Strand(school_id=data['school_id'], strand_name=data['strand_name'],
+        new_strand = Strand(strand_name=data['strand_name'],
                             subject_id=data['subject_id'], grade_id=data['grade_id'])
         db.session.add(new_strand)
         db.session.commit()

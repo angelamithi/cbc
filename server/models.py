@@ -30,13 +30,7 @@ class School(db.Model):
     staffs = db.relationship('Staff', backref='school')
     parents = db.relationship('Parent', backref='school')
     subjects = db.relationship('Subject', backref='school')
-    strands = db.relationship('Strand', backref='school')
-    sub_strands = db.relationship('SubStrand', backref='school')
-    learning_outcomes = db.relationship('LearningOutcome', backref='school')
-    assessment_rubics = db.relationship('AssessmentRubic', backref='school')
     departments = db.relationship('Department', backref='school')
-    years = db.relationship('Year', backref='school')
-    terms = db.relationship('Term', backref='school')
     reports = db.relationship('Report', backref='school')
 
 
@@ -148,7 +142,6 @@ class Subject(db.Model):
 class Strand(db.Model):
     __tablename__ = 'strands'
     id = db.Column(db.String, primary_key=True, default=generate_uuid)
-    school_id = db.Column(db.String, db.ForeignKey('schools.id'), nullable=False)
     strand_name = db.Column(db.String)
     subject_id = db.Column(db.String, db.ForeignKey('subjects.id'), nullable=False)
     grade_id = db.Column(db.String, db.ForeignKey('grades.id'), nullable=False)
@@ -161,7 +154,6 @@ class Strand(db.Model):
 class SubStrand(db.Model):
     __tablename__ = "substrands"
     id = db.Column(db.String, primary_key=True, default=generate_uuid)
-    school_id = db.Column(db.String, db.ForeignKey('schools.id'), nullable=False)
     substrand_name = db.Column(db.String)
     strand_id = db.Column(db.String, db.ForeignKey('strands.id'), nullable=False)
     subject_id = db.Column(db.String, db.ForeignKey('subjects.id'), nullable=False)
@@ -174,7 +166,6 @@ class SubStrand(db.Model):
 class LearningOutcome(db.Model):
     __tablename__ = "learning_outcomes"
     id = db.Column(db.String, primary_key=True, default=generate_uuid)
-    school_id = db.Column(db.String, db.ForeignKey('schools.id'), nullable=False)
     learning_outcomes = db.Column(db.String)
     grade_id = db.Column(db.String, db.ForeignKey('grades.id'), nullable=False)
     subject_id = db.Column(db.String, db.ForeignKey('subjects.id'), nullable=False)
@@ -187,7 +178,6 @@ class LearningOutcome(db.Model):
 class AssessmentRubic(db.Model):
     __tablename__ = "assessment_rubics"
     id = db.Column(db.String, primary_key=True, default=generate_uuid)
-    school_id = db.Column(db.String, db.ForeignKey('schools.id'), nullable=False)
     assessment_rubics = db.Column(db.String)
     assessment_rubic_mark=db.Column(db.Integer)
     grade_id = db.Column(db.String, db.ForeignKey('grades.id'), nullable=False)
@@ -210,7 +200,6 @@ class Department(db.Model):
 class Year(db.Model):
     __tablename__ = "years"
     id = db.Column(db.String, primary_key=True, default=generate_uuid)
-    school_id = db.Column(db.String, db.ForeignKey('schools.id'), nullable=False)
     year_name = db.Column(db.Integer)
     reports = db.relationship('Report', backref='year')
 
@@ -218,7 +207,6 @@ class Year(db.Model):
 class Term(db.Model):
     __tablename__ = "terms"
     id = db.Column(db.String, primary_key=True, default=generate_uuid)
-    school_id = db.Column(db.String, db.ForeignKey('schools.id'), nullable=False)
     term_name = db.Column(db.String)
     reports = db.relationship('Report', backref='term')
 

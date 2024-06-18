@@ -10,7 +10,6 @@ assessment_rubic_bp = Blueprint('assessment_rubic_bp', __name__)
 api = Api(assessment_rubic_bp)
 
 post_args = reqparse.RequestParser()
-post_args.add_argument('school_id', type=str, required=True, help='School Id is required')
 post_args.add_argument('assessment_rubics', type=str, required=True, help='Assessment Rubrics is required')
 post_args.add_argument('assessment_rubic_mark', type=int, required=True, help='Assessment Rubric Mark is required')
 post_args.add_argument('grade_id', type=str, required=True, help='Grade Id is required')
@@ -20,7 +19,7 @@ post_args.add_argument('sub_strand_id', type=str, required=True, help='SubStrand
 post_args.add_argument('learning_outcome_id', type=str, required=True, help='Learning Outcome Id is required')
 
 patch_args = reqparse.RequestParser()
-patch_args.add_argument('school_id', type=str)
+
 patch_args.add_argument('assessment_rubics', type=str)
 patch_args.add_argument('assessment_rubic_mark', type=int)
 patch_args.add_argument('grade_id', type=str)
@@ -41,15 +40,14 @@ class AssessmentRubicDetails(Resource):
         data = post_args.parse_args()
 
         # Check if the assessment rubric already exists
-        existing_assessment_rubic = AssessmentRubic.query.filter_by(school_id=data['school_id'],
-                                                                    assessment_rubics=data['assessment_rubics'],
+        existing_assessment_rubic = AssessmentRubic.query.filter_by(                                                                    assessment_rubics=data['assessment_rubics'],
                                                                     grade_id=data['grade_id'], subject_id=data['subject_id'],
                                                                     strand_id=data['strand_id'], sub_strand_id=data['sub_strand_id'],
                                                                     learning_outcome_id=data['learning_outcome_id']).first()
         if existing_assessment_rubic:
             return make_response(jsonify({"error": "Assessment Rubric already exists for this school, grade, subject, strand, sub-strand, and learning outcome"}), 409)
 
-        new_assessment_rubic = AssessmentRubic(school_id=data['school_id'], assessment_rubics=data['assessment_rubics'],
+        new_assessment_rubic = AssessmentRubic(assessment_rubics=data['assessment_rubics'],
                                                assessment_rubic_mark=data['assessment_rubic_mark'], grade_id=data['grade_id'],
                                                subject_id=data['subject_id'], strand_id=data['strand_id'], sub_strand_id=data['sub_strand_id'],
                                                learning_outcome_id=data['learning_outcome_id'])

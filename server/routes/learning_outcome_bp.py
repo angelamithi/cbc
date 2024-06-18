@@ -10,7 +10,7 @@ learning_outcome_bp = Blueprint('learning_outcome_bp', __name__)
 api = Api(learning_outcome_bp)
 
 post_args = reqparse.RequestParser()
-post_args.add_argument('school_id', type=str, required=True, help='School Id is required')
+
 post_args.add_argument('learning_outcomes', type=str, required=True, help='Learning Outcomes is required')
 post_args.add_argument('grade_id', type=str, required=True, help='Grade Id is required')
 post_args.add_argument('subject_id', type=str, required=True, help='Subject Id is required')
@@ -18,7 +18,7 @@ post_args.add_argument('strand_id', type=str, required=True, help='Strand Id is 
 post_args.add_argument('sub_strand_id', type=str, required=True, help='SubStrand Id is required')
 
 patch_args = reqparse.RequestParser()
-patch_args.add_argument('school_id', type=str)
+
 patch_args.add_argument('learning_outcomes', type=str)
 patch_args.add_argument('grade_id', type=str)
 patch_args.add_argument('subject_id', type=str)
@@ -37,14 +37,14 @@ class LearningOutcomeDetails(Resource):
         data = post_args.parse_args()
 
         # Check if the learning outcome already exists
-        existing_learning_outcome = LearningOutcome.query.filter_by(school_id=data['school_id'],
+        existing_learning_outcome = LearningOutcome.query.filter_by(
                                                                     learning_outcomes=data['learning_outcomes'],
                                                                     grade_id=data['grade_id'], subject_id=data['subject_id'],
                                                                     strand_id=data['strand_id'], sub_strand_id=data['sub_strand_id']).first()
         if existing_learning_outcome:
             return make_response(jsonify({"error": "Learning Outcome already exists for this school, grade, subject, strand, and sub-strand"}), 409)
 
-        new_learning_outcome = LearningOutcome(school_id=data['school_id'], learning_outcomes=data['learning_outcomes'],
+        new_learning_outcome = LearningOutcome(learning_outcomes=data['learning_outcomes'],
                                                grade_id=data['grade_id'], subject_id=data['subject_id'], strand_id=data['strand_id'],
                                                sub_strand_id=data['sub_strand_id'])
         db.session.add(new_learning_outcome)

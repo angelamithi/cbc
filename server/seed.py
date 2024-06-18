@@ -192,21 +192,22 @@ def seed_database():
 
                 # Seed data for Strands
         strand_data = [
-            {"strand_name": "LISTENING AND SPEAKING", "subject_id": subjects[0].id, "grade_id": grades[1].id, "school_id": "school_id_1"},
-            {"strand_name": "READING", "subject_id": subjects[0].id, "grade_id": grades[1].id, "school_id": "school_id_1"},
-            {"strand_name": "THINGS FOUND AT SCHOOL", "subject_id": subjects[1].id, "grade_id": grades[1].id, "school_id": "school_id_1"},
-            {"strand_name": "ACTIVITIES AT SCHOOL", "subject_id": subjects[1].id, "grade_id": grades[1].id, "school_id": "school_id_1"},
-            {"strand_name": "KUSIKILIZA NA KUZUNGUMZA", "subject_id": subjects[2].id, "grade_id": grades[1].id, "school_id": "school_id_1"},
-            {"strand_name": "KUSOMA", "subject_id": subjects[2].id, "grade_id": grades[1].id, "school_id": "school_id_1"},
-            {"strand_name": "NUMBERS", "subject_id": subjects[3].id, "grade_id": grades[1].id, "school_id": "school_id_1"},
-            {"strand_name": "MEASUREMENT", "subject_id": subjects[3].id, "grade_id": grades[1].id, "school_id": "school_id_1"},
-            {"strand_name": "SOCIAL ENVIRONMENT", "subject_id": subjects[4].id, "grade_id": grades[1].id, "school_id": "school_id_1"},
-            {"strand_name": "NATURAL ENVIRONMENT", "subject_id": subjects[4].id, "grade_id": grades[1].id, "school_id": "school_id_1"},
-            {"strand_name": "CREATION", "subject_id": subjects[5].id, "grade_id": grades[1].id, "school_id": "school_id_1"},
-            {"strand_name": "THE HOLY BIBLE", "subject_id": subjects[5].id, "grade_id": grades[1].id, "school_id": "school_id_1"},
-            {"strand_name": "CREATING AND EXPLORATION", "subject_id": subjects[6].id, "grade_id": grades[1].id, "school_id": "school_id_1"},
-            {"strand_name": "PERFORMANCE AND DISPLAY", "subject_id": subjects[6].id, "grade_id": grades[1].id, "school_id": "school_id_1"},                
-        ]
+        {"strand_name": "LISTENING AND SPEAKING", "subject_id": subjects[0].id, "grade_id": grades[1].id},
+        {"strand_name": "READING", "subject_id": subjects[0].id, "grade_id": grades[1].id},
+        {"strand_name": "THINGS FOUND AT SCHOOL", "subject_id": subjects[1].id, "grade_id": grades[1].id},
+        {"strand_name": "ACTIVITIES AT SCHOOL", "subject_id": subjects[1].id, "grade_id": grades[1].id},
+        {"strand_name": "KUSIKILIZA NA KUZUNGUMZA", "subject_id": subjects[2].id, "grade_id": grades[1].id},
+        {"strand_name": "KUSOMA", "subject_id": subjects[2].id, "grade_id": grades[1].id},
+        {"strand_name": "NUMBERS", "subject_id": subjects[3].id, "grade_id": grades[1].id},
+        {"strand_name": "MEASUREMENT", "subject_id": subjects[3].id, "grade_id": grades[1].id},
+        {"strand_name": "SOCIAL ENVIRONMENT", "subject_id": subjects[4].id, "grade_id": grades[1].id},
+        {"strand_name": "NATURAL ENVIRONMENT", "subject_id": subjects[4].id, "grade_id": grades[1].id},
+        {"strand_name": "CREATION", "subject_id": subjects[5].id, "grade_id": grades[1].id},
+        {"strand_name": "THE HOLY BIBLE", "subject_id": subjects[5].id, "grade_id": grades[1].id},
+        {"strand_name": "CREATING AND EXPLORATION", "subject_id": subjects[6].id, "grade_id": grades[1].id},
+        {"strand_name": "PERFORMANCE AND DISPLAY", "subject_id": subjects[6].id, "grade_id": grades[1].id},                
+    ]
+
 
         strands = []
         for strand_info in strand_data:
@@ -218,21 +219,22 @@ def seed_database():
 
                 # Seed data for SubStrands
         substrand_data = [
-            {"substrand_name": "Pronunciation and Vocabulary", "strand_id": strands[0].id, "subject_id": subjects[0].id, "grade_id": grades[1].id, "school_id": "school_id_1"},
-            {"substrand_name": "Fluency", "strand_id": strands[1].id, "subject_id": subjects[0].id, "grade_id": grades[1].id, "school_id": "school_id_1"},
-            {"substrand_name": "LISTENING Listening to Instructions", "strand_id": strands[2].id, "subject_id": subjects[1].id, "grade_id": grades[1].id, "school_id": "school_id_1"},
-            {"substrand_name": "LISTENING Simple instructions", "strand_id": strands[3].id, "subject_id": subjects[1].id, "grade_id": grades[1].id, "school_id": "school_id_1"},
-            {"substrand_name": "Kusikiliza na Kuzungumza", "strand_id": strands[4].id, "subject_id": subjects[2].id, "grade_id": grades[1].id, "school_id": "school_id_1"},
-            {"substrand_name": "Kusoma Ufahamu", "strand_id": strands[5].id, "subject_id": subjects[2].id, "grade_id": grades[1].id, "school_id": "school_id_1"},
-            {"substrand_name": "Number Concept", "strand_id": strands[6].id, "subject_id": subjects[3].id, "grade_id": grades[1].id, "school_id": "school_id_1"},
-            {"substrand_name": "Length", "strand_id": strands[7].id, "subject_id": subjects[3].id, "grade_id": grades[1].id, "school_id": "school_id_1"},
-            {"substrand_name": "OUR HOME", "strand_id": strands[8].id, "subject_id": subjects[4].id, "grade_id": grades[1].id, "school_id": "school_id_1"},
-            {"substrand_name": "WEATHER", "strand_id": strands[9].id, "subject_id": subjects[4].id, "grade_id": grades[1].id, "school_id": "school_id_1"},
-            {"substrand_name": "Self-Awareness", "strand_id": strands[10].id, "subject_id": subjects[5].id, "grade_id": grades[1].id, "school_id": "school_id_1"},
-            {"substrand_name": "The Holy Bible as a guide in daily lives", "strand_id": strands[11].id, "subject_id": subjects[5].id, "grade_id": grades[1].id, "school_id": "school_id_1"},
-            {"substrand_name": "Creating and Exploration", "strand_id": strands[12].id, "subject_id": subjects[6].id, "grade_id": grades[1].id, "school_id": "school_id_1"},
-            {"substrand_name": "Performance and Display", "strand_id": strands[13].id, "subject_id": subjects[6].id, "grade_id": grades[1].id, "school_id": "school_id_1"}, 
-        ]
+        {"substrand_name": "Pronunciation and Vocabulary", "strand_id": strands[0].id, "subject_id": subjects[0].id, "grade_id": grades[1].id},
+        {"substrand_name": "Fluency", "strand_id": strands[1].id, "subject_id": subjects[0].id, "grade_id": grades[1].id},
+        {"substrand_name": "LISTENING Listening to Instructions", "strand_id": strands[2].id, "subject_id": subjects[1].id, "grade_id": grades[1].id},
+        {"substrand_name": "LISTENING Simple instructions", "strand_id": strands[3].id, "subject_id": subjects[1].id, "grade_id": grades[1].id},
+        {"substrand_name": "Kusikiliza na Kuzungumza", "strand_id": strands[4].id, "subject_id": subjects[2].id, "grade_id": grades[1].id},
+        {"substrand_name": "Kusoma Ufahamu", "strand_id": strands[5].id, "subject_id": subjects[2].id, "grade_id": grades[1].id},
+        {"substrand_name": "Number Concept", "strand_id": strands[6].id, "subject_id": subjects[3].id, "grade_id": grades[1].id},
+        {"substrand_name": "Length", "strand_id": strands[7].id, "subject_id": subjects[3].id, "grade_id": grades[1].id},
+        {"substrand_name": "OUR HOME", "strand_id": strands[8].id, "subject_id": subjects[4].id, "grade_id": grades[1].id},
+        {"substrand_name": "WEATHER", "strand_id": strands[9].id, "subject_id": subjects[4].id, "grade_id": grades[1].id},
+        {"substrand_name": "Self-Awareness", "strand_id": strands[10].id, "subject_id": subjects[5].id, "grade_id": grades[1].id},
+        {"substrand_name": "The Holy Bible as a guide in daily lives", "strand_id": strands[11].id, "subject_id": subjects[5].id, "grade_id": grades[1].id},
+        {"substrand_name": "Creating and Exploration", "strand_id": strands[12].id, "subject_id": subjects[6].id, "grade_id": grades[1].id},
+        {"substrand_name": "Performance and Display", "strand_id": strands[13].id, "subject_id": subjects[6].id, "grade_id": grades[1].id}, 
+    ]
+
 
         substrands = []
         for substrand_info in substrand_data:
@@ -243,37 +245,38 @@ def seed_database():
 
                 # Seed data for LearningOutcomes
         learning_outcome_data = [
-            {"learning_outcomes": "Distinguish words with the target sound in conversations.", "grade_id": grades[1].id, "subject_id": subjects[0].id,
-            "strand_id": strands[0].id, "sub_strand_id": substrands[0].id, "school_id": "school_id_1"},
-            {"learning_outcomes": "Recognize the target blend during reading.", "grade_id": grades[1].id, "subject_id": subjects[0].id,
-            "strand_id": strands[1].id, "sub_strand_id": substrands[1].id, "school_id": "school_id_1"},
-            {"learning_outcomes": "Respond to simple sequenced instructions related to items found in school.", "grade_id": grades[1].id, "subject_id": subjects[1].id,
-            "strand_id": strands[2].id, "sub_strand_id": substrands[2].id, "school_id": "school_id_1"},
-            {"learning_outcomes": "Respond to simple instructions related to school activities.", "grade_id": grades[1].id, "subject_id": subjects[1].id,
-            "strand_id": strands[3].id, "sub_strand_id": substrands[3].id, "school_id": "school_id_1"},
+    {"learning_outcomes": "Distinguish words with the target sound in conversations.", "grade_id": grades[1].id, "subject_id": subjects[0].id,
+    "strand_id": strands[0].id, "sub_strand_id": substrands[0].id},
+    {"learning_outcomes": "Recognize the target blend during reading.", "grade_id": grades[1].id, "subject_id": subjects[0].id,
+    "strand_id": strands[1].id, "sub_strand_id": substrands[1].id},
+    {"learning_outcomes": "Respond to simple sequenced instructions related to items found in school.", "grade_id": grades[1].id, "subject_id": subjects[1].id,
+    "strand_id": strands[2].id, "sub_strand_id": substrands[2].id},
+    {"learning_outcomes": "Respond to simple instructions related to school activities.", "grade_id": grades[1].id, "subject_id": subjects[1].id,
+    "strand_id": strands[3].id, "sub_strand_id": substrands[3].id},
 
-            {"learning_outcomes": "Kutambua maamkuzi na maagano ya nyakati za siku.", "grade_id": grades[1].id, "subject_id": subjects[2].id,
-            "strand_id": strands[4].id, "sub_strand_id": substrands[4].id, "school_id": "school_id_1"},
-            {"learning_outcomes": "Kutambua msamiati kuhusu suala lengwa katika kifungu chepesi cha ufahamu.", "grade_id": grades[1].id, "subject_id": subjects[2].id,
-            "strand_id": strands[5].id, "sub_strand_id": substrands[5].id, "school_id": "school_id_1"},
-            {"learning_outcomes": "Read numbers 1-100 in symbols, Represent numbers 1-100 using concrete objects in the environment.", "grade_id": grades[1].id, "subject_id": subjects[3].id,
-            "strand_id": strands[6].id, "sub_strand_id": substrands[6].id, "school_id": "school_id_1"},
-            {"learning_outcomes": "Measure length using fixed units, Identify the metre as a unit of measuring length, Measure length in metres.", "grade_id": grades[1].id, "subject_id": subjects[3].id,
-            "strand_id": strands[7].id, "sub_strand_id": substrands[7].id, "school_id": "school_id_1"},
-            {"learning_outcomes": "Differentiate between personal and common items used at home.", "grade_id": grades[1].id, "subject_id": subjects[4].id,
-            "strand_id": strands[8].id, "sub_strand_id": substrands[8].id, "school_id": "school_id_1"},
-            {"learning_outcomes": "Identify weather conditions at different times of the day.", "grade_id": grades[1].id, "subject_id": subjects[4].id,
-            "strand_id": strands[9].id, "sub_strand_id": substrands[9].id, "school_id": "school_id_1"},
-            {"learning_outcomes": "State what they like about themselves as God’s creation, Appreciate their physical appearance as uniquely created by God, State different chores they do at home as service to God", "grade_id": grades[1].id, "subject_id": subjects[5].id,
-            "strand_id": strands[10].id, "sub_strand_id": substrands[10].id, "school_id": "school_id_1"},
-            {"learning_outcomes": "Identify reasons for reading the Bible to strengthen their faith in God, State how often they read the Bible as a family to seek God’s guidance", "grade_id": grades[1].id, "subject_id": subjects[5].id,
-            "strand_id": strands[11].id, "sub_strand_id": substrands[11].id, "school_id": "school_id_1"},
-            {"learning_outcomes": "Identify basic shapes, sing action songs, make body movement formations, model and draw basic shapes.", "grade_id": grades[1].id, "subject_id": subjects[6].id,
-            "strand_id": strands[12].id, "sub_strand_id": substrands[12].id, "school_id": "school_id_1"},
-            {"learning_outcomes": "Identify different directions of turning, make simple costumes, perform turning in different directions, and sing songs while making patterns using turning.", "grade_id": grades[1].id, "subject_id": subjects[6].id,
-            "strand_id": strands[13].id, "sub_strand_id": substrands[13].id, "school_id": "school_id_1"},
+    {"learning_outcomes": "Kutambua maamkuzi na maagano ya nyakati za siku.", "grade_id": grades[1].id, "subject_id": subjects[2].id,
+    "strand_id": strands[4].id, "sub_strand_id": substrands[4].id},
+    {"learning_outcomes": "Kutambua msamiati kuhusu suala lengwa katika kifungu chepesi cha ufahamu.", "grade_id": grades[1].id, "subject_id": subjects[2].id,
+    "strand_id": strands[5].id, "sub_strand_id": substrands[5].id},
+    {"learning_outcomes": "Read numbers 1-100 in symbols, Represent numbers 1-100 using concrete objects in the environment.", "grade_id": grades[1].id, "subject_id": subjects[3].id,
+    "strand_id": strands[6].id, "sub_strand_id": substrands[6].id},
+    {"learning_outcomes": "Measure length using fixed units, Identify the metre as a unit of measuring length, Measure length in metres.", "grade_id": grades[1].id, "subject_id": subjects[3].id,
+    "strand_id": strands[7].id, "sub_strand_id": substrands[7].id},
+    {"learning_outcomes": "Differentiate between personal and common items used at home.", "grade_id": grades[1].id, "subject_id": subjects[4].id,
+    "strand_id": strands[8].id, "sub_strand_id": substrands[8].id},
+    {"learning_outcomes": "Identify weather conditions at different times of the day.", "grade_id": grades[1].id, "subject_id": subjects[4].id,
+    "strand_id": strands[9].id, "sub_strand_id": substrands[9].id},
+    {"learning_outcomes": "State what they like about themselves as God’s creation, Appreciate their physical appearance as uniquely created by God, State different chores they do at home as service to God", "grade_id": grades[1].id, "subject_id": subjects[5].id,
+    "strand_id": strands[10].id, "sub_strand_id": substrands[10].id},
+    {"learning_outcomes": "Identify reasons for reading the Bible to strengthen their faith in God, State how often they read the Bible as a family to seek God’s guidance", "grade_id": grades[1].id, "subject_id": subjects[5].id,
+    "strand_id": strands[11].id, "sub_strand_id": substrands[11].id},
+    {"learning_outcomes": "Identify basic shapes, sing action songs, make body movement formations, model and draw basic shapes.", "grade_id": grades[1].id, "subject_id": subjects[6].id,
+    "strand_id": strands[12].id, "sub_strand_id": substrands[12].id},
+    {"learning_outcomes": "Identify different directions of turning, make simple costumes, perform turning in different directions, and sing songs while making patterns using turning.", "grade_id": grades[1].id, "subject_id": subjects[6].id,
+    "strand_id": strands[13].id, "sub_strand_id": substrands[13].id},
 
-        ]
+]
+
 
         learning_outcomes = []
         for learning_outcome_info in learning_outcome_data:
@@ -285,141 +288,88 @@ def seed_database():
 
         # Seed data for AssessmentRubics
         assessment_rubic_data = [
-            {"assessment_rubics": "E.E: Distinguishes all words with the target sound in conversations effortlessly.", "assessment_rubic_mark": 4, "grade_id": grades[1].id, "subject_id": subjects[0].id,
-            "strand_id": strands[0].id, "sub_strand_id": substrands[0].id, "learning_outcome_id": learning_outcomes[0].id,"school_id": "school_id_1"},
-            {"assessment_rubics": "M.E: Distinguishes words with the target sound in conversations effortlessly", "assessment_rubic_mark": 3, "grade_id": grades[1].id, "subject_id": subjects[0].id,
-            "strand_id": strands[0].id, "sub_strand_id": substrands[0].id, "learning_outcome_id": learning_outcomes[0].id,"school_id": "school_id_1"},
-            {"assessment_rubics": "A.E: Distinguishes some words with the target sound in conversations effortlessly", "assessment_rubic_mark": 2, "grade_id": grades[1].id, "subject_id": subjects[0].id,
-            "strand_id": strands[0].id, "sub_strand_id": substrands[0].id, "learning_outcome_id": learning_outcomes[0].id,"school_id": "school_id_1"},
-            {"assessment_rubics": "B.E: Distinguishes some words with the target sound in conversations with some help.", "assessment_rubic_mark": 1, "grade_id": grades[1].id, "subject_id": subjects[0].id,
-            "strand_id": strands[0].id, "sub_strand_id": substrands[0].id, "learning_outcome_id": learning_outcomes[0].id,"school_id": "school_id_1"},
-            {"assessment_rubics": "E.E: Recognizes the target blend and its sound for ease of reading easily.", "assessment_rubic_mark": 4, "grade_id": grades[1].id, "subject_id": subjects[0].id,
-            "strand_id": strands[1].id, "sub_strand_id": substrands[1].id, "learning_outcome_id": learning_outcomes[1].id,"school_id": "school_id_1"},
-            {"assessment_rubics": "M.E: Recognises the target blend and its sound for ease of reading.", "assessment_rubic_mark": 3, "grade_id": grades[1].id, "subject_id": subjects[0].id,
-            "strand_id": strands[1].id, "sub_strand_id": substrands[1].id, "learning_outcome_id": learning_outcomes[1].id,"school_id": "school_id_1"},
-            {"assessment_rubics": "A.E: Recognises the target blend and its sound occasionally for ease of reading.", "assessment_rubic_mark": 2, "grade_id": grades[1].id, "subject_id": subjects[0].id,
-            "strand_id": strands[1].id, "sub_strand_id": substrands[1].id, "learning_outcome_id": learning_outcomes[1].id,"school_id": "school_id_1"},
-            {"assessment_rubics": "B.E: Recognises the target blend and its sound for ease of reading with assistance.", "assessment_rubic_mark": 1, "grade_id": grades[1].id, "subject_id": subjects[0].id,
-            "strand_id": strands[1].id, "sub_strand_id": substrands[1].id, "learning_outcome_id": learning_outcomes[1].id,"school_id": "school_id_1"},
+        {"assessment_rubics": "E.E: Distinguishes all words with the target sound in conversations effortlessly.", "assessment_rubic_mark": 4, "grade_id": grades[1].id, "subject_id": subjects[0].id,
+        "strand_id": strands[0].id, "sub_strand_id": substrands[0].id, "learning_outcome_id": learning_outcomes[0].id},
+        {"assessment_rubics": "M.E: Distinguishes words with the target sound in conversations effortlessly", "assessment_rubic_mark": 3, "grade_id": grades[1].id, "subject_id": subjects[0].id,
+        "strand_id": strands[0].id, "sub_strand_id": substrands[0].id, "learning_outcome_id": learning_outcomes[0].id},
+        {"assessment_rubics": "A.E: Distinguishes some words with the target sound in conversations effortlessly", "assessment_rubic_mark": 2, "grade_id": grades[1].id, "subject_id": subjects[0].id,
+        "strand_id": strands[0].id, "sub_strand_id": substrands[0].id, "learning_outcome_id": learning_outcomes[0].id},
+        {"assessment_rubics": "B.E: Distinguishes some words with the target sound in conversations with some help.", "assessment_rubic_mark": 1, "grade_id": grades[1].id, "subject_id": subjects[0].id,
+        "strand_id": strands[0].id, "sub_strand_id": substrands[0].id, "learning_outcome_id": learning_outcomes[0].id},
+        {"assessment_rubics": "E.E: Recognizes the target blend and its sound for ease of reading easily.", "assessment_rubic_mark": 4, "grade_id": grades[1].id, "subject_id": subjects[0].id,
+        "strand_id": strands[1].id, "sub_strand_id": substrands[1].id, "learning_outcome_id": learning_outcomes[1].id},
+        {"assessment_rubics": "M.E: Recognises the target blend and its sound for ease of reading.", "assessment_rubic_mark": 3, "grade_id": grades[1].id, "subject_id": subjects[0].id,
+        "strand_id": strands[1].id, "sub_strand_id": substrands[1].id, "learning_outcome_id": learning_outcomes[1].id},
+        {"assessment_rubics": "A.E: Recognises the target blend and its sound occasionally for ease of reading.", "assessment_rubic_mark": 2, "grade_id": grades[1].id, "subject_id": subjects[0].id,
+        "strand_id": strands[1].id, "sub_strand_id": substrands[1].id, "learning_outcome_id": learning_outcomes[1].id},
+        {"assessment_rubics": "B.E: Recognises the target blend and its sound for ease of reading with assistance.", "assessment_rubic_mark": 1, "grade_id": grades[1].id, "subject_id": subjects[0].id,
+        "strand_id": strands[1].id, "sub_strand_id": substrands[1].id, "learning_outcome_id": learning_outcomes[1].id},
 
 
-            {"assessment_rubics": "E.E: Perfectly responds to simple sequenced instructions related to items found in school.", "assessment_rubic_mark": 4, "grade_id": grades[1].id, "subject_id": subjects[1].id,
-            "strand_id": strands[2].id, "sub_strand_id": substrands[2].id, "learning_outcome_id": learning_outcomes[2].id,"school_id": "school_id_1"},
-            {"assessment_rubics": "M.E: Responds to simple sequenced instructions related to items found in school.", "assessment_rubic_mark": 3, "grade_id": grades[1].id, "subject_id": subjects[1].id,
-            "strand_id": strands[2].id, "sub_strand_id": substrands[2].id, "learning_outcome_id": learning_outcomes[2].id,"school_id": "school_id_1"},
-            {"assessment_rubics": "A.E: Responds to some simple sequenced instructions related to items found in school.", "assessment_rubic_mark": 2, "grade_id": grades[1].id, "subject_id": subjects[1].id,
-            "strand_id": strands[2].id, "sub_strand_id": substrands[2].id, "learning_outcome_id": learning_outcomes[2].id,"school_id": "school_id_1"},
-            {"assessment_rubics": "B.E: Responds with difficulties to some simple sequenced instructions related to items found in school.", "assessment_rubic_mark": 1, "grade_id": grades[1].id, "subject_id": subjects[1].id,
-            "strand_id": strands[2].id, "sub_strand_id": substrands[2].id, "learning_outcome_id": learning_outcomes[2].id,"school_id": "school_id_1"},
+        {"assessment_rubics": "E.E: Perfectly responds to simple sequenced instructions related to items found in school.", "assessment_rubic_mark": 4, "grade_id": grades[1].id, "subject_id": subjects[1].id,
+        "strand_id": strands[2].id, "sub_strand_id": substrands[2].id, "learning_outcome_id": learning_outcomes[2].id},
+        {"assessment_rubics": "M.E: Responds to simple sequenced instructions related to items found in school.", "assessment_rubic_mark": 3, "grade_id": grades[1].id, "subject_id": subjects[1].id,
+        "strand_id": strands[2].id, "sub_strand_id": substrands[2].id, "learning_outcome_id": learning_outcomes[2].id},
+        {"assessment_rubics": "A.E: Responds to some simple sequenced instructions related to items found in school.", "assessment_rubic_mark": 2, "grade_id": grades[1].id, "subject_id": subjects[1].id,
+        "strand_id": strands[2].id, "sub_strand_id": substrands[2].id, "learning_outcome_id": learning_outcomes[2].id},
+        {"assessment_rubics": "B.E: Responds with difficulties to some simple sequenced instructions related to items found in school.", "assessment_rubic_mark": 1, "grade_id": grades[1].id, "subject_id": subjects[1].id,
+        "strand_id": strands[2].id, "sub_strand_id": substrands[2].id, "learning_outcome_id": learning_outcomes[2].id},
 
 
-            {"assessment_rubics": "E.E: Effectively responds to simple instructions related to school activities.", "assessment_rubic_mark": 4, "grade_id": grades[1].id, "subject_id": subjects[1].id,
-            "strand_id": strands[3].id, "sub_strand_id": substrands[3].id, "learning_outcome_id": learning_outcomes[3].id,"school_id": "school_id_1"},
-            {"assessment_rubics": "M.E: Responds to simple instructions related to school activities.", "assessment_rubic_mark": 3, "grade_id": grades[1].id, "subject_id": subjects[1].id,
-            "strand_id": strands[3].id, "sub_strand_id": substrands[3].id, "learning_outcome_id": learning_outcomes[3].id,"school_id": "school_id_1"},
-            {"assessment_rubics": "A.E: Responds to some simple instructions related to school activities.", "assessment_rubic_mark": 2, "grade_id": grades[1].id, "subject_id": subjects[1].id,
-            "strand_id": strands[3].id, "sub_strand_id": substrands[3].id, "learning_outcome_id": learning_outcomes[3].id,"school_id": "school_id_1"},
-            {"assessment_rubics": "B.E: Responds with difficulties to simple instructions related to school activities.", "assessment_rubic_mark": 1, "grade_id": grades[1].id, "subject_id": subjects[1].id,
-            "strand_id": strands[3].id, "sub_strand_id": substrands[3].id, "learning_outcome_id": learning_outcomes[3].id,"school_id": "school_id_1"},
+        {"assessment_rubics": "E.E: Effectively responds to simple instructions related to school activities.", "assessment_rubic_mark": 4, "grade_id": grades[1].id, "subject_id": subjects[1].id,
+        "strand_id": strands[3].id, "sub_strand_id": substrands[3].id, "learning_outcome_id": learning_outcomes[3].id},
+        {"assessment_rubics": "M.E: Responds to simple instructions related to school activities.", "assessment_rubic_mark": 3, "grade_id": grades[1].id, "subject_id": subjects[1].id,
+        "strand_id": strands[3].id, "sub_strand_id": substrands[3].id, "learning_outcome_id": learning_outcomes[3].id},
+        {"assessment_rubics": "A.E: Responds to some simple instructions related to school activities.", "assessment_rubic_mark": 2, "grade_id": grades[1].id, "subject_id": subjects[1].id,
+        "strand_id": strands[3].id, "sub_strand_id": substrands[3].id, "learning_outcome_id": learning_outcomes[3].id},
+        {"assessment_rubics": "B.E: Responds with difficulties to simple instructions related to school activities.", "assessment_rubic_mark": 1, "grade_id": grades[1].id, "subject_id": subjects[1].id,
+        "strand_id": strands[3].id, "sub_strand_id": substrands[3].id, "learning_outcome_id": learning_outcomes[3].id},
 
+        {"assessment_rubics": "KZM: Anatambua maamkuzi na maagano ya nyakati za siku kwa wepesi", "assessment_rubic_mark": 4, "grade_id": grades[1].id, "subject_id": subjects[2].id, "strand_id": strands[4].id, "sub_strand_id": substrands[4].id, "learning_outcome_id": learning_outcomes[4].id},
+        {"assessment_rubics": "KFM: Anatambua maamkuzi na maagano ya nyakati za siku", "assessment_rubic_mark": 3, "grade_id": grades[1].id, "subject_id": subjects[2].id, "strand_id": strands[4].id, "sub_strand_id": substrands[4].id, "learning_outcome_id": learning_outcomes[4].id},
+        {"assessment_rubics": "KKM: Anatambua baadhi ya maamkuzi na maagano ya nyakati za siku.", "assessment_rubic_mark": 2, "grade_id": grades[1].id, "subject_id": subjects[2].id, "strand_id": strands[4].id, "sub_strand_id": substrands[4].id, "learning_outcome_id": learning_outcomes[4].id},
+        {"assessment_rubics": "MM: Anatambua maamkuzi na maagano ya nyakati za siku kwa kusaidiwa", "assessment_rubic_mark": 1, "grade_id": grades[1].id, "subject_id": subjects[2].id, "strand_id": strands[5].id, "sub_strand_id": substrands[5].id, "learning_outcome_id": learning_outcomes[4].id},
+        {"assessment_rubics": "KZM: Anatambua msamiati kuhusu suala lengwa katika kifungu chepesi cha ufahamu kwa urahisi", "assessment_rubic_mark": 4, "grade_id": grades[1].id, "subject_id": subjects[2].id, "strand_id": strands[5].id, "sub_strand_id": substrands[5].id, "learning_outcome_id": learning_outcomes[5].id},
+        {"assessment_rubics": "KFM: Anatambua msamiati kuhusu suala lengwa katika kifungu chepesi cha ufahamu", "assessment_rubic_mark": 3, "grade_id": grades[1].id, "subject_id": subjects[2].id, "strand_id": strands[5].id, "sub_strand_id": substrands[5].id, "learning_outcome_id": learning_outcomes[5].id},
+        {"assessment_rubics": "KKM: Anatambua baadhi ya msamiati kuhusu suala lengwa katika kifungu chepesi cha ufahamu", "assessment_rubic_mark": 2, "grade_id": grades[1].id, "subject_id": subjects[2].id, "strand_id": strands[5].id, "sub_strand_id": substrands[5].id, "learning_outcome_id": learning_outcomes[5].id},
+        {"assessment_rubics": "MM: Anatambua msamiati kuhusu suala lengwa katika kifungu chepesi cha ufahamu kwa kusaidiwa.", "assessment_rubic_mark": 1, "grade_id": grades[1].id, "subject_id": subjects[2].id, "strand_id": strands[5].id, "sub_strand_id": substrands[5].id, "learning_outcome_id": learning_outcomes[5].id},
+        {"assessment_rubics": "E E: Correctly: reads numbers more than 100 in symbols, represents numbers more than 100 using concrete objects.", "assessment_rubic_mark": 4, "grade_id": grades[1].id, "subject_id": subjects[3].id, "strand_id": strands[6].id, "sub_strand_id": substrands[6].id, "learning_outcome_id": learning_outcomes[6].id},
+        {"assessment_rubics": "M E: Correctly: reads numbers 1-100 in symbols, represents numbers 1-100 using concrete objects. ", "assessment_rubic_mark": 3, "grade_id": grades[1].id, "subject_id": subjects[3].id, "strand_id": strands[6].id, "sub_strand_id": substrands[6].id, "learning_outcome_id": learning_outcomes[6].id},
+        {"assessment_rubics": "A E: Inconsistently: reads numbers 1-100 in symbols, represents numbers 1-100 using concrete objects.", "assessment_rubic_mark": 2, "grade_id": grades[1].id, "subject_id": subjects[3].id, "strand_id": strands[6].id, "sub_strand_id": substrands[6].id, "learning_outcome_id": learning_outcomes[6].id},
+        {"assessment_rubics": "B E: Major inaccuracies in: reading numbers 1-100 in symbols, representing numbers 1-100 using concrete objects.", "assessment_rubic_mark": 1, "grade_id": grades[1].id, "subject_id": subjects[3].id, "strand_id": strands[6].id, "sub_strand_id": substrands[6].id, "learning_outcome_id": learning_outcomes[6].id},
+        {"assessment_rubics": "E E: Correctly: measures length using fixed units, identifies the metre as a unit of measuring length and measures length in metres with ease.", "assessment_rubic_mark": 4, "grade_id": grades[1].id, "subject_id": subjects[3].id, "strand_id": strands[7].id, "sub_strand_id": substrands[7].id, "learning_outcome_id": learning_outcomes[7].id},
+        {"assessment_rubics": "M E: Correctly: measures length using fixed units, identifies the metre as a unit of measuring length and measures length in metres.", "assessment_rubic_mark": 3, "grade_id": grades[1].id, "subject_id": subjects[3].id, "strand_id": strands[7].id, "sub_strand_id": substrands[7].id, "learning_outcome_id": learning_outcomes[7].id},
+        {"assessment_rubics": "A E: Inconsistently: measures length using fixed units, identifies the metre as a unit of measuring length and measures length in metres.", "assessment_rubic_mark": 2, "grade_id": grades[1].id, "subject_id": subjects[3].id, "strand_id": strands[7].id, "sub_strand_id": substrands[7].id, "learning_outcome_id": learning_outcomes[7].id},
+        {"assessment_rubics": "B E: Major inaccuracies in: measuring length using fixed units, identifying the metre as a unit of measuring length and measuring length in metres.", "assessment_rubic_mark": 1, "grade_id": grades[1].id, "subject_id": subjects[3].id, "strand_id": strands[7].id, "sub_strand_id": substrands[7].id, "learning_outcome_id": learning_outcomes[7].id},
+        {"assessment_rubics": "E E: Differentiates between personal and common items used at home with ease.", "assessment_rubic_mark": 4, "grade_id": grades[1].id, "subject_id": subjects[4].id, "strand_id": strands[8].id, "sub_strand_id": substrands[8].id, "learning_outcome_id": learning_outcomes[8].id},
+        {"assessment_rubics": "M E: Differentiates between personal and common items used at home with ease.", "assessment_rubic_mark": 3, "grade_id": grades[1].id, "subject_id": subjects[4].id, "strand_id": strands[8].id, "sub_strand_id": substrands[8].id, "learning_outcome_id": learning_outcomes[8].id},
+        {"assessment_rubics": "A E: Is able to differentiate between personal and common items used at home with assistance.", "assessment_rubic_mark": 2, "grade_id": grades[1].id, "subject_id": subjects[4].id, "strand_id": strands[8].id, "sub_strand_id": substrands[8].id, "learning_outcome_id": learning_outcomes[8].id},
+        {"assessment_rubics": "B E: Has difficulties differentiating between personal and common items used at home.", "assessment_rubic_mark": 1, "grade_id": grades[1].id, "subject_id": subjects[4].id, "strand_id": strands[8].id, "sub_strand_id": substrands[8].id, "learning_outcome_id": learning_outcomes[8].id},
+    
+        {"assessment_rubics": "E E: Precisely identifies weather conditions at different times of the day.", "assessment_rubic_mark": 4, "grade_id": grades[1].id, "subject_id": subjects[4].id,"strand_id": strands[9].id, "sub_strand_id": substrands[9].id, "learning_outcome_id": learning_outcomes[9].id},
+        {"assessment_rubics": "M E: Identifies weather conditions at different times of the day.", "assessment_rubic_mark": 3, "grade_id": grades[1].id, "subject_id": subjects[4].id,"strand_id": strands[9].id, "sub_strand_id": substrands[9].id, "learning_outcome_id": learning_outcomes[9].id},
+        {"assessment_rubics": "A E: Identifies weather conditions at different times of the day with assistance.", "assessment_rubic_mark": 2, "grade_id": grades[1].id, "subject_id": subjects[4].id,"strand_id": strands[9].id, "sub_strand_id": substrands[9].id, "learning_outcome_id": learning_outcomes[9].id},
+        {"assessment_rubics": "B E: inconsistently identifies weather conditions at different times of the day.", "assessment_rubic_mark": 1, "grade_id": grades[1].id, "subject_id": subjects[4].id,"strand_id": strands[9].id, "sub_strand_id": substrands[9].id, "learning_outcome_id": learning_outcomes[9].id},
 
+        {"assessment_rubics": "E E: Correctly and consistently appreciates self and others and participates in different chores.", "assessment_rubic_mark": 4, "grade_id": grades[1].id, "subject_id": subjects[5].id,"strand_id": strands[10].id, "sub_strand_id": substrands[10].id, "learning_outcome_id": learning_outcomes[10].id},
+        {"assessment_rubics": "M E: Correctly appreciates self and others and participates in different chores.", "assessment_rubic_mark": 3, "grade_id": grades[1].id, "subject_id": subjects[5].id,"strand_id": strands[10].id, "sub_strand_id": substrands[10].id, "learning_outcome_id": learning_outcomes[10].id},
+        {"assessment_rubics": "A E: Occasionally respects self and others and sometimes participates in different chores.", "assessment_rubic_mark": 2, "grade_id": grades[1].id, "subject_id": subjects[5].id,"strand_id": strands[10].id, "sub_strand_id": substrands[10].id, "learning_outcome_id": learning_outcomes[10].id},
+        {"assessment_rubics": "B E: Hardly respects self or others.", "assessment_rubic_mark": 1, "grade_id": grades[1].id, "subject_id": subjects[5].id,"strand_id": strands[10].id, "sub_strand_id": substrands[10].id, "learning_outcome_id": learning_outcomes[10].id}, 
+        {"assessment_rubics": "E E: Effectively and regularly reads the Bible.", "assessment_rubic_mark": 4, "grade_id": grades[1].id, "subject_id": subjects[5].id,"strand_id": strands[11].id, "sub_strand_id": substrands[11].id, "learning_outcome_id": learning_outcomes[11].id},
+        {"assessment_rubics": "M E: Regularly reads the Bible", "assessment_rubic_mark": 3, "grade_id": grades[1].id, "subject_id": subjects[5].id,"strand_id": strands[11].id, "sub_strand_id": substrands[11].id, "learning_outcome_id": learning_outcomes[11].id},
+        {"assessment_rubics": "A E: Once in a while reads the Bible.", "assessment_rubic_mark": 2, "grade_id": grades[1].id, "subject_id": subjects[5].id,"strand_id": strands[11].id, "sub_strand_id": substrands[11].id, "learning_outcome_id": learning_outcomes[11].id},
+        {"assessment_rubics": "B E: Hardly reads the Bible.", "assessment_rubic_mark": 1, "grade_id": grades[1].id, "subject_id": subjects[5].id,"strand_id": strands[11].id, "sub_strand_id": substrands[11].id, "learning_outcome_id": learning_outcomes[11].id},
 
+        {"assessment_rubics": "E E: Identifies all basic shapes, expressively sings action songs, creatively makes body movement formations, models and draws basic shapes.", "assessment_rubic_mark": 4, "grade_id": grades[1].id, "subject_id": subjects[6].id,"strand_id": strands[12].id, "sub_strand_id": substrands[12].id, "learning_outcome_id": learning_outcomes[12].id},
+        {"assessment_rubics": "M E: Identifies all basic shapes, sings action songs, makes body movement formations, models and draws basic shapes.", "assessment_rubic_mark": 3, "grade_id": grades[1].id, "subject_id": subjects[6].id,"strand_id": strands[12].id, "sub_strand_id": substrands[12].id, "learning_outcome_id": learning_outcomes[12].id},
+        {"assessment_rubics": "A E: Identifies a few basic shapes, sings action songs, makes body movement formations, models and draws basic shapes.", "assessment_rubic_mark": 2, "grade_id": grades[1].id, "subject_id": subjects[6].id,"strand_id": strands[12].id, "sub_strand_id": substrands[12].id, "learning_outcome_id": learning_outcomes[12].id},
+        {"assessment_rubics": "B E: Identifies basic shapes only with assistance, sings action songs only given cues, makes body movement formations, models and draws basic shapes.", "assessment_rubic_mark": 1, "grade_id": grades[1].id, "subject_id": subjects[6].id,"strand_id": strands[12].id, "sub_strand_id": substrands[12].id, "learning_outcome_id": learning_outcomes[12].id},
 
-
-
-
-            {"assessment_rubics": "KZM: Anatambua maamkuzi na maagano ya nyakati za siku kwa wepesi", "assessment_rubic_mark": 4, "grade_id": grades[1].id, "subject_id": subjects[2].id,
-            "strand_id": strands[4].id, "sub_strand_id": substrands[4].id, "learning_outcome_id": learning_outcomes[4].id,"school_id": "school_id_1"},
-            {"assessment_rubics": "KFM: Anatambua maamkuzi na maagano ya nyakati za siku", "assessment_rubic_mark": 3, "grade_id": grades[1].id, "subject_id": subjects[2].id,
-            "strand_id": strands[4].id, "sub_strand_id": substrands[4].id, "learning_outcome_id": learning_outcomes[4].id,"school_id": "school_id_1"},
-            {"assessment_rubics": "KKM: Anatambua baadhi ya maamkuzi na maagano ya nyakati za siku.", "assessment_rubic_mark": 2, "grade_id": grades[1].id, "subject_id": subjects[2].id,
-            "strand_id": strands[4].id, "sub_strand_id": substrands[4].id, "learning_outcome_id": learning_outcomes[4].id,"school_id": "school_id_1"},
-            {"assessment_rubics": "MM: Anatambua maamkuzi na maagano ya nyakati za siku kwa kusaidiwa", "assessment_rubic_mark": 1, "grade_id": grades[1].id, "subject_id": subjects[2].id,
-            "strand_id": strands[5].id, "sub_strand_id": substrands[5].id, "learning_outcome_id": learning_outcomes[4].id,"school_id": "school_id_1"},
-            {"assessment_rubics": "KZM: Anatambua msamiati kuhusu suala lengwa katika kifungu chepesi cha ufahamu kwa urahisi", "assessment_rubic_mark": 4, "grade_id": grades[1].id, "subject_id": subjects[2].id,
-             
-            "strand_id": strands[5].id, "sub_strand_id": substrands[5].id, "learning_outcome_id": learning_outcomes[5].id,"school_id": "school_id_1"},
-            {"assessment_rubics": "KFM: Anatambua msamiati kuhusu suala lengwa katika kifungu chepesi cha ufahamu", "assessment_rubic_mark": 3, "grade_id": grades[1].id, "subject_id": subjects[2].id,
-            "strand_id": strands[5].id, "sub_strand_id": substrands[5].id, "learning_outcome_id": learning_outcomes[5].id,"school_id": "school_id_1"},
-            {"assessment_rubics": "KKM: Anatambua baadhi ya msamiati kuhusu suala lengwa katika kifungu chepesi cha ufahamu", "assessment_rubic_mark": 2, "grade_id": grades[1].id, "subject_id": subjects[2].id,
-            "strand_id": strands[5].id, "sub_strand_id": substrands[5].id, "learning_outcome_id": learning_outcomes[5].id,"school_id": "school_id_1"},
-            {"assessment_rubics": "MM: Anatambua msamiati kuhusu suala lengwa katika kifungu chepesi cha ufahamu kwa kusaidiwa.", "assessment_rubic_mark": 1, "grade_id": grades[1].id, "subject_id": subjects[2].id,
-            "strand_id": strands[5].id, "sub_strand_id": substrands[5].id, "learning_outcome_id": learning_outcomes[5].id,"school_id": "school_id_1"},
-            {"assessment_rubics": "E E: Correctly: reads numbers more than 100 in symbols, represents numbers more than 100 using concrete objects.", "assessment_rubic_mark": 4, "grade_id": grades[1].id, "subject_id": subjects[3].id,
-             
-            "strand_id": strands[6].id, "sub_strand_id": substrands[6].id, "learning_outcome_id": learning_outcomes[6].id,"school_id": "school_id_1"},
-            {"assessment_rubics": "M E: Correctly: reads numbers 1-100 in symbols, represents numbers 1-100 using concrete objects. ", "assessment_rubic_mark": 3, "grade_id": grades[1].id, "subject_id": subjects[3].id,
-            "strand_id": strands[6].id, "sub_strand_id": substrands[6].id, "learning_outcome_id": learning_outcomes[6].id,"school_id": "school_id_1"},
-            {"assessment_rubics": "A E: Inconsistently: reads numbers 1-100 in symbols, represents numbers 1-100 using concrete objects.", "assessment_rubic_mark": 2, "grade_id": grades[1].id, "subject_id": subjects[3].id,
-            "strand_id": strands[6].id, "sub_strand_id": substrands[6].id, "learning_outcome_id": learning_outcomes[6].id,"school_id": "school_id_1"},
-            {"assessment_rubics": "B E: Major inaccuracies in: reading numbers 1-100 in symbols, representing numbers 1-100 using concrete objects.", "assessment_rubic_mark": 1, "grade_id": grades[1].id, "subject_id": subjects[3].id,
-            "strand_id": strands[6].id, "sub_strand_id": substrands[6].id, "learning_outcome_id": learning_outcomes[6].id,"school_id": "school_id_1"},
-
-            {"assessment_rubics": "E E: Correctly: measures length using fixed units, identifies the metre as a unit of measuring length and measures length in metres with ease.", "assessment_rubic_mark": 4, "grade_id": grades[1].id, "subject_id": subjects[3].id,
-            "strand_id": strands[7].id, "sub_strand_id": substrands[7].id, "learning_outcome_id": learning_outcomes[7].id,"school_id": "school_id_1"},
-            {"assessment_rubics": "M E: Correctly: measures length using fixed units, identifies the metre as a unit of measuring length and measures length in metres.", "assessment_rubic_mark": 3, "grade_id": grades[1].id, "subject_id": subjects[3].id,
-            "strand_id": strands[7].id, "sub_strand_id": substrands[7].id, "learning_outcome_id": learning_outcomes[7].id,"school_id": "school_id_1"},
-            {"assessment_rubics": "A E: Inconsistently: measures length using fixed units, identifies the metre as a unit of measuring length and measures length in metres.", "assessment_rubic_mark": 2, "grade_id": grades[1].id, "subject_id": subjects[3].id,
-            "strand_id": strands[7].id, "sub_strand_id": substrands[7].id, "learning_outcome_id": learning_outcomes[7].id,"school_id": "school_id_1"},
-            {"assessment_rubics": "B E: Major inaccuracies in: measuring length using fixed units, identifying the metre as a unit of measuring length and measuring length in metres.", "assessment_rubic_mark": 1, "grade_id": grades[1].id, "subject_id": subjects[3].id,
-            "strand_id": strands[7].id, "sub_strand_id": substrands[7].id, "learning_outcome_id": learning_outcomes[7].id,"school_id": "school_id_1"},
-
-            {"assessment_rubics": "E E: Differentiates between personal and common items used at home with ease.", "assessment_rubic_mark": 4, "grade_id": grades[1].id, "subject_id": subjects[4].id,
-            "strand_id": strands[8].id, "sub_strand_id": substrands[8].id, "learning_outcome_id": learning_outcomes[8].id,"school_id": "school_id_1"},
-            {"assessment_rubics": "M E: Differentiates between personal and common items used at home with ease.", "assessment_rubic_mark": 3, "grade_id": grades[1].id, "subject_id": subjects[4].id,
-            "strand_id": strands[8].id, "sub_strand_id": substrands[8].id, "learning_outcome_id": learning_outcomes[8].id,"school_id": "school_id_1"},
-            {"assessment_rubics": "A E: Is able to differentiate between personal and common items used at home with assistance.", "assessment_rubic_mark": 2, "grade_id": grades[1].id, "subject_id": subjects[4].id,
-            "strand_id": strands[8].id, "sub_strand_id": substrands[8].id, "learning_outcome_id": learning_outcomes[8].id,"school_id": "school_id_1"},
-            {"assessment_rubics": "B E: Has difficulties differentiating between personal and common items used at home.", "assessment_rubic_mark": 1, "grade_id": grades[1].id, "subject_id": subjects[4].id,
-            "strand_id": strands[8].id, "sub_strand_id": substrands[8].id, "learning_outcome_id": learning_outcomes[8].id,"school_id": "school_id_1"},
-
-            {"assessment_rubics": "E E: Precisely identifies weather conditions at different times of the day.", "assessment_rubic_mark": 4, "grade_id": grades[1].id, "subject_id": subjects[4].id,
-            "strand_id": strands[9].id, "sub_strand_id": substrands[9].id, "learning_outcome_id": learning_outcomes[9].id,"school_id": "school_id_1"},
-            {"assessment_rubics": "M E: Identifies weather conditions at different times of the day.", "assessment_rubic_mark": 3, "grade_id": grades[1].id, "subject_id": subjects[4].id,
-            "strand_id": strands[9].id, "sub_strand_id": substrands[9].id, "learning_outcome_id": learning_outcomes[9].id,"school_id": "school_id_1"},
-            {"assessment_rubics": "A E: Identifies weather conditions at different times of the day with assistance.", "assessment_rubic_mark": 2, "grade_id": grades[1].id, "subject_id": subjects[4].id,
-            "strand_id": strands[9].id, "sub_strand_id": substrands[9].id, "learning_outcome_id": learning_outcomes[9].id,"school_id": "school_id_1"},
-            {"assessment_rubics": "B E: inconsistently identifies weather conditions at different times of the day.", "assessment_rubic_mark": 1, "grade_id": grades[1].id, "subject_id": subjects[4].id,
-            "strand_id": strands[9].id, "sub_strand_id": substrands[9].id, "learning_outcome_id": learning_outcomes[9].id,"school_id": "school_id_1"},
-
-            {"assessment_rubics": "E E: Correctly and consistently appreciates self and others and participates in different chores.", "assessment_rubic_mark": 4, "grade_id": grades[1].id, "subject_id": subjects[5].id,
-            "strand_id": strands[10].id, "sub_strand_id": substrands[10].id, "learning_outcome_id": learning_outcomes[10].id,"school_id": "school_id_1"},
-            {"assessment_rubics": "M E: Correctly appreciates self and others and participates in different chores.", "assessment_rubic_mark": 3, "grade_id": grades[1].id, "subject_id": subjects[5].id,
-            "strand_id": strands[10].id, "sub_strand_id": substrands[10].id, "learning_outcome_id": learning_outcomes[10].id,"school_id": "school_id_1"},
-            {"assessment_rubics": "A E: Occasionally respects self and others and sometimes participates in different chores.", "assessment_rubic_mark": 2, "grade_id": grades[1].id, "subject_id": subjects[5].id,
-            "strand_id": strands[10].id, "sub_strand_id": substrands[10].id, "learning_outcome_id": learning_outcomes[10].id,"school_id": "school_id_1"},
-            {"assessment_rubics": "B E:Hardly respects self or others.", "assessment_rubic_mark": 1, "grade_id": grades[1].id, "subject_id": subjects[5].id,
-            "strand_id": strands[10].id, "sub_strand_id": substrands[10].id, "learning_outcome_id": learning_outcomes[10].id,"school_id": "school_id_1"},
-
-            {"assessment_rubics": "E E: Effectively and regularly reads the Bible.", "assessment_rubic_mark": 4, "grade_id": grades[1].id, "subject_id": subjects[5].id,
-            "strand_id": strands[11].id, "sub_strand_id": substrands[11].id, "learning_outcome_id": learning_outcomes[11].id,"school_id": "school_id_1"},
-            {"assessment_rubics": "M E: Regularly reads the Bible", "assessment_rubic_mark": 3, "grade_id": grades[1].id, "subject_id": subjects[5].id,
-            "strand_id": strands[11].id, "sub_strand_id": substrands[11].id, "learning_outcome_id": learning_outcomes[11].id,"school_id": "school_id_1"},
-            {"assessment_rubics": "A E:Once in a while reads the Bible.", "assessment_rubic_mark": 2, "grade_id": grades[1].id, "subject_id": subjects[5].id,
-            "strand_id": strands[11].id, "sub_strand_id": substrands[11].id, "learning_outcome_id": learning_outcomes[11].id,"school_id": "school_id_1"},
-            {"assessment_rubics": "B E:Hardly reads the Bible.", "assessment_rubic_mark": 1, "grade_id": grades[1].id, "subject_id": subjects[5].id,
-            "strand_id": strands[11].id, "sub_strand_id": substrands[11].id, "learning_outcome_id": learning_outcomes[11].id,"school_id": "school_id_1"},
-
-            {"assessment_rubics": "E E: Identifies all basic shapes, expressively sings action songs, creatively makes body movement formations, models and draws basic shapes.", "assessment_rubic_mark": 4, "grade_id": grades[1].id, "subject_id": subjects[6].id,
-            "strand_id": strands[12].id, "sub_strand_id": substrands[12].id, "learning_outcome_id": learning_outcomes[12].id,"school_id": "school_id_1"},
-            {"assessment_rubics": "M E: Identifies all basic shapes, sings action songs, makes body movement formations, models and draws basic shapes.", "assessment_rubic_mark": 3, "grade_id": grades[1].id, "subject_id": subjects[6].id,
-            "strand_id": strands[12].id, "sub_strand_id": substrands[12].id, "learning_outcome_id": learning_outcomes[12].id,"school_id": "school_id_1"},
-            {"assessment_rubics": "A E: Identifies a few basic shapes, sings action songs, makes body movement formations, models and draws basic shapes.", "assessment_rubic_mark": 2, "grade_id": grades[1].id, "subject_id": subjects[6].id,
-            "strand_id": strands[12].id, "sub_strand_id": substrands[12].id, "learning_outcome_id": learning_outcomes[12].id,"school_id": "school_id_1"},
-            {"assessment_rubics": "B E: Identifies basic shapes only with assistance, sings action songs only given cues, makes body movement formations, models and draws basic shapes.", "assessment_rubic_mark": 1, "grade_id": grades[1].id, "subject_id": subjects[6].id,
-            "strand_id": strands[12].id, "sub_strand_id": substrands[12].id, "learning_outcome_id": learning_outcomes[12].id,"school_id": "school_id_1"},
-
-            {"assessment_rubics": "E E: Identifies a variety of directions of turning, make simple costumes with a good finish, perform turning in different directions, and expressively sing songs while making patterns using turning.", "assessment_rubic_mark": 1, "grade_id": grades[1].id, "subject_id": subjects[6].id,
-            "strand_id": strands[13].id, "sub_strand_id": substrands[13].id, "learning_outcome_id": learning_outcomes[13].id,"school_id": "school_id_1"},
-            {"assessment_rubics": "M E: Identities different directions of turning, make simple costumes, perform turning in different directions, and sing songs while making patterns using turning.", "assessment_rubic_mark": 1, "grade_id": grades[1].id, "subject_id": subjects[6].id,
-            "strand_id": strands[13].id, "sub_strand_id": substrands[13].id, "learning_outcome_id": learning_outcomes[13].id,"school_id": "school_id_1"},
-            {"assessment_rubics": "A E: Identifies some directions of turning, make simple costumes, perform turning in different directions, and sing songs while making patterns using turning with few challenges.", "assessment_rubic_mark": 1, "grade_id": grades[1].id, "subject_id": subjects[6].id,
-            "strand_id": strands[13].id, "sub_strand_id": substrands[13].id, "learning_outcome_id": learning_outcomes[13].id,"school_id": "school_id_1"},
-            {"assessment_rubics": "B E: Identifies very few directions of turning, make simple costumes, perform turning in different directions, and sing songs while making patterns using turning with many challenges.", "assessment_rubic_mark": 1, "grade_id": grades[1].id, "subject_id": subjects[6].id,
-            "strand_id": strands[13].id, "sub_strand_id": substrands[13].id, "learning_outcome_id": learning_outcomes[13].id,"school_id": "school_id_1"},
-
-            
-        ]
+        {"assessment_rubics": "E E: Identifies a variety of directions of turning, make simple costumes with a good finish, perform turning in different directions, and expressively sing songs while making patterns using turning.", "assessment_rubic_mark": 1, "grade_id": grades[1].id, "subject_id": subjects[6].id,"strand_id": strands[13].id, "sub_strand_id": substrands[13].id, "learning_outcome_id": learning_outcomes[13].id},
+        {"assessment_rubics": "M E: Identities different directions of turning, make simple costumes, perform turning in different directions, and sing songs while making patterns using turning.", "assessment_rubic_mark": 1, "grade_id": grades[1].id, "subject_id": subjects[6].id,"strand_id": strands[13].id, "sub_strand_id": substrands[13].id, "learning_outcome_id": learning_outcomes[13].id},
+        {"assessment_rubics": "A E: Identifies some directions of turning, make simple costumes, perform turning in different directions, and sing songs while making patterns using turning with few challenges.", "assessment_rubic_mark": 1, "grade_id": grades[1].id, "subject_id": subjects[6].id,"strand_id": strands[13].id, "sub_strand_id": substrands[13].id, "learning_outcome_id": learning_outcomes[13].id},
+        {"assessment_rubics": "B E: Identifies very few directions of turning, make simple costumes, perform turning in different directions, and sing songs while making patterns using turning with many challenges.", "assessment_rubic_mark": 1, "grade_id": grades[1].id, "subject_id": subjects[6].id, "strand_id": strands[13].id, "sub_strand_id": substrands[13].id, "learning_outcome_id": learning_outcomes[13].id}]
+        
         assessment_rubics = []
         for assessment_rubic_info in assessment_rubic_data:
             assessment_rubic = AssessmentRubic(**assessment_rubic_info)
@@ -441,8 +391,8 @@ def seed_database():
 
         # Seed data for Years
         year_data = [
-            {"year_name": 2023,"school_id": "school_id_1"},
-            {"year_name": 2024,"school_id": "school_id_1"},
+            {"year_name": 2023},
+            {"year_name": 2024},
         ]
         years = []
         for year_info in year_data:
@@ -453,9 +403,9 @@ def seed_database():
 
         # Seed data for Terms
         term_data = [
-            {"term_name": "Term 1","school_id": "school_id_1"},
-            {"term_name": "Term 2","school_id": "school_id_1"},
-            {"term_name": "Term 3","school_id": "school_id_1"},
+            {"term_name": "Term 1"},
+            {"term_name": "Term 2"},
+            {"term_name": "Term 3"},
         ]
         terms = []
         for term_info in term_data:

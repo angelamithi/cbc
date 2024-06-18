@@ -1,4 +1,4 @@
-from flask import Blueprint, make_response, jsonify
+from flask import Blueprint, make_response, jsonify,session
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 from flask_restful import Api, Resource, abort, reqparse
 from flask_jwt_extended import jwt_required, get_jwt_identity
@@ -45,13 +45,24 @@ patch_args.add_argument('stream_id', type=str)
 
 
 
+def get_school_id_from_session():
+    return session.get('school_id')
+
 class StudentDetails(Resource):
     @jwt_required()
     def get(self):
-        student_details = Student.query.all()
-        result = studentSchema.dump(student_details, many=True)
+        # Function to get school_id from session
+        school_id = get_school_id_from_session()
+        if not school_id:
+            return jsonify({'error': 'School ID not found in session'}), 401
+
+        students_details = Student.query.filter_by(school_id=school_id).all()
+        result = studentSchema.dump(students_details, many=True)
         response = make_response(jsonify(result), 200)
         return response
+   
+
+
 
   
     @admin_required()
@@ -79,25 +90,35 @@ class StudentDetails(Resource):
 api.add_resource(StudentDetails, '/students')
 
 
-
 class StudentById(Resource):
     @jwt_required()
     def get(self, id):
-        single_student =Student.query.filter_by(id=id).first()
+        # Retrieve the school_id from the session
+        school_id = get_school_id_from_session()
+        if not school_id:
+            return jsonify({'error': 'School ID not found in session'}), 401
+
+        # Query for the student by id and school_id
+        single_student = Student.query.filter_by(school_id=school_id, id=id).first()
 
         if not single_student:
-            return make_response(jsonify({"error": f"Student with id {id} does not exist"}), 404)
-
+            return make_response(jsonify({"error": f"Student with id {id} does not exist in the specified school"}), 404)
         else:
             result = studentSchema.dump(single_student)
             return make_response(jsonify(result), 200)
 
     @superAdmin_required()
     def delete(self, id):
-        single_student = Student.query.filter_by(id=id).first()
+        # Retrieve the school_id from the session
+        school_id = get_school_id_from_session()
+        if not school_id:
+            return jsonify({'error': 'School ID not found in session'}), 401
+
+        # Query for the student by id and school_id
+        single_student = Student.query.filter_by(school_id=school_id, id=id).first()
 
         if not single_student:
-            return make_response(jsonify({"error": f"Student with id {id} does not exist"}), 404)
+            return make_response(jsonify({"error": f"Student with id {id} does not exist in the specified school"}), 404)
 
         db.session.delete(single_student)
         db.session.commit()
@@ -106,20 +127,24 @@ class StudentById(Resource):
 
     @admin_required()
     def patch(self, id):
-        single_student = Student.query.filter_by(id=id).first()
+        # Retrieve the school_id from the session
+        school_id = get_school_id_from_session()
+        if not school_id:
+            return jsonify({'error': 'School ID not found in session'}), 401
+
+        # Query for the student by id and school_id
+        single_student = Student.query.filter_by(school_id=school_id, id=id).first()
 
         if not single_student:
-            return make_response(jsonify({"error": f"Student with id {id} does not exist"}), 404)
+            return make_response(jsonify({"error": f"Student with id {id} does not exist in the specified school"}), 404)
 
         data = patch_args.parse_args()
-       
+
         for key, value in data.items():
             if value is None:
                 continue
             setattr(single_student, key, value)
         db.session.commit()
-
-        
 
         result = studentSchema.dump(single_student)
         return make_response(jsonify(result), 200)
