@@ -34,7 +34,8 @@ class Login(Resource):
                 abort(404, detail="Designation not found for this staff member")
 
             access_token = create_access_token(identity=staff.id, additional_claims={
-                "designation": designation.designation_code
+                "designation": designation.designation_code,
+                "school_id": staff.school_id
                 # "permissions": designation.permissions
             })
             result = staffSchema.dump(staff)

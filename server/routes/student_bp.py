@@ -1,7 +1,7 @@
 from flask import Blueprint, make_response, jsonify,session
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 from flask_restful import Api, Resource, abort, reqparse
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import jwt_required, get_jwt_identity,get_jwt
 from models import Student, db
 from serializer import studentSchema
 from auth import admin_required,superAdmin_required
@@ -46,46 +46,48 @@ patch_args.add_argument('stream_id', type=str)
 
 
 def get_school_id_from_session():
-    return session.get('school_id')
+    claims = get_jwt()
+    return claims.get("school_id")
 
 class StudentDetails(Resource):
     @jwt_required()
     def get(self):
-        # Function to get school_id from session
         school_id = get_school_id_from_session()
         if not school_id:
-            return jsonify({'error': 'School ID not found in session'}), 401
+            return make_response(jsonify({'error': 'School ID not found in session'}), 401)
 
         students_details = Student.query.filter_by(school_id=school_id).all()
         result = studentSchema.dump(students_details, many=True)
-        response = make_response(jsonify(result), 200)
-        return response
-   
+        return make_response(jsonify(result), 200)
 
-
-
-  
     @admin_required()
     def post(self):
         data = post_args.parse_args()
 
-        # error handling
-        student = Student.query.filter_by(admission_number=data.admission_number).first()
+        student = Student.query.filter_by(admission_number=data['admission_number']).first()
         if student:
             return make_response(jsonify({"error": "Student with the same admission number already exists"}), 409)
-
 
         joined_date = datetime.strptime(data["joined_date"], "%Y-%m-%d")
         date_of_birth = datetime.strptime(data["date_of_birth"], "%Y-%m-%d")
 
-        new_student = Student(school_id=data['school_id'], admission_number=data['admission_number'], joined_date=joined_date,date_of_birth=date_of_birth,
-                                first_name=data['first_name'], last_name=data['last_name'],birth_certificate_number=data['birth_certificate_number'],photo_url=data["photo_url"],grade_id=data['grade_id'],stream_id=data['stream_id'])
+        new_student = Student(
+            school_id=data['school_id'], 
+            admission_number=data['admission_number'],
+            joined_date=joined_date, 
+            date_of_birth=date_of_birth, 
+            first_name=data['first_name'],
+            last_name=data['last_name'], 
+            birth_certificate_number=data['birth_certificate_number'],
+            photo_url=data["photo_url"], 
+            grade_id=data['grade_id'], 
+            stream_id=data['stream_id']
+        )
         db.session.add(new_student)
         db.session.commit()
 
         result = studentSchema.dump(new_student)
         return make_response(jsonify(result), 201)
-
 
 api.add_resource(StudentDetails, '/students')
 
@@ -93,28 +95,24 @@ api.add_resource(StudentDetails, '/students')
 class StudentById(Resource):
     @jwt_required()
     def get(self, id):
-        # Retrieve the school_id from the session
         school_id = get_school_id_from_session()
         if not school_id:
-            return jsonify({'error': 'School ID not found in session'}), 401
+            return make_response(jsonify({'error': 'School ID not found in session'}), 401)
 
-        # Query for the student by id and school_id
         single_student = Student.query.filter_by(school_id=school_id, id=id).first()
 
         if not single_student:
             return make_response(jsonify({"error": f"Student with id {id} does not exist in the specified school"}), 404)
-        else:
-            result = studentSchema.dump(single_student)
-            return make_response(jsonify(result), 200)
+
+        result = studentSchema.dump(single_student)
+        return make_response(jsonify(result), 200)
 
     @superAdmin_required()
     def delete(self, id):
-        # Retrieve the school_id from the session
         school_id = get_school_id_from_session()
         if not school_id:
-            return jsonify({'error': 'School ID not found in session'}), 401
+            return make_response(jsonify({'error': 'School ID not found in session'}), 401)
 
-        # Query for the student by id and school_id
         single_student = Student.query.filter_by(school_id=school_id, id=id).first()
 
         if not single_student:
@@ -127,12 +125,10 @@ class StudentById(Resource):
 
     @admin_required()
     def patch(self, id):
-        # Retrieve the school_id from the session
         school_id = get_school_id_from_session()
         if not school_id:
-            return jsonify({'error': 'School ID not found in session'}), 401
+            return make_response(jsonify({'error': 'School ID not found in session'}), 401)
 
-        # Query for the student by id and school_id
         single_student = Student.query.filter_by(school_id=school_id, id=id).first()
 
         if not single_student:
@@ -148,6 +144,7 @@ class StudentById(Resource):
 
         result = studentSchema.dump(single_student)
         return make_response(jsonify(result), 200)
+
 
 
 api.add_resource(StudentById, '/students/<string:id>')
