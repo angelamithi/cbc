@@ -17,7 +17,7 @@ patch_args = reqparse.RequestParser()
 patch_args.add_argument('school_id', type=str)
 patch_args.add_argument('subject_name', type=str)
 
-class SubjectDetails(Resource):
+class Subjects(Resource):
     @jwt_required()
     def get(self):
         subjects = Subject.query.all()
@@ -40,7 +40,7 @@ class SubjectDetails(Resource):
         result = subjectSchema.dump(new_subject)
         return make_response(jsonify(result), 201)
 
-api.add_resource(SubjectDetails, '/subjects')
+api.add_resource(Subjects, '/subjects')
 
 class SubjectById(Resource):
     @jwt_required()

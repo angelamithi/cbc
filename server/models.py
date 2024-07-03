@@ -48,6 +48,7 @@ class Student(db.Model):
     grade_id = db.Column(db.String, db.ForeignKey('grades.id'), nullable=False)
     stream_id = db.Column(db.String, db.ForeignKey('streams.id'), nullable=False)
     parents = db.relationship('Parent', backref='student')
+    reports = db.relationship('Report', backref='student')
 
 
 class Category(db.Model):
@@ -147,8 +148,6 @@ class Strand(db.Model):
     grade_id = db.Column(db.String, db.ForeignKey('grades.id'), nullable=False)
     sub_strands = db.relationship('SubStrand', backref='strand')
     learning_outcomes = db.relationship('LearningOutcome', backref='strand')
-    assessment_rubics = db.relationship('AssessmentRubic', backref='strand')
-    reports = db.relationship('Report', backref='strand')
 
 
 class SubStrand(db.Model):
@@ -160,7 +159,7 @@ class SubStrand(db.Model):
     grade_id = db.Column(db.String, db.ForeignKey('grades.id'), nullable=False)
     learning_outcomes = db.relationship('LearningOutcome', backref='substrand')
     assessment_rubics = db.relationship('AssessmentRubic', backref='substrand')
-    reports = db.relationship('Report', backref='substrand')
+
 
 
 class LearningOutcome(db.Model):
@@ -172,7 +171,7 @@ class LearningOutcome(db.Model):
     strand_id = db.Column(db.String, db.ForeignKey('strands.id'), nullable=False)
     sub_strand_id = db.Column(db.String, db.ForeignKey('substrands.id'), nullable=False)
     assessment_rubics = db.relationship('AssessmentRubic', backref='learning_outcome')
-    reports = db.relationship('Report', backref='learning_outcome')
+
 
 
 class AssessmentRubic(db.Model):
@@ -186,6 +185,7 @@ class AssessmentRubic(db.Model):
     sub_strand_id = db.Column(db.String, db.ForeignKey('substrands.id'), nullable=False)
     learning_outcome_id = db.Column(db.String, db.ForeignKey('learning_outcomes.id'), nullable=False)
     reports = db.relationship('Report', backref='assessment_rubic')
+   
 
 
 class Department(db.Model):
@@ -208,29 +208,27 @@ class Term(db.Model):
     __tablename__ = "terms"
     id = db.Column(db.String, primary_key=True, default=generate_uuid)
     term_name = db.Column(db.String)
-    reports = db.relationship('Report', backref='term')
+    
 
 
 class Report(db.Model):
     __tablename__ = "reports"
-    id = db.Column(db.String, primary_key=True, default=generate_uuid)
+    id = db.Column(db.String, primary_key=True,default=generate_uuid)   
     school_id = db.Column(db.String, db.ForeignKey('schools.id'), nullable=False)
-    staff_id = db.Column(db.String, db.ForeignKey('staffs.id'), nullable=False)
-    year_id = db.Column(db.String, db.ForeignKey('years.id'), nullable=False)
-    term_id = db.Column(db.String, db.ForeignKey('terms.id'), nullable=False)
-    grade_id = db.Column(db.String, db.ForeignKey('grades.id'), nullable=False)
-    stream_id = db.Column(db.String, db.ForeignKey('streams.id'), nullable=False)
     student_id = db.Column(db.String, db.ForeignKey('students.id'), nullable=False)
     subject_id = db.Column(db.String, db.ForeignKey('subjects.id'), nullable=False)
-    strand_id = db.Column(db.String, db.ForeignKey('strands.id'), nullable=False)
-    substrand_id = db.Column(db.String, db.ForeignKey('substrands.id'), nullable=False)
-    learning_outcomes_id = db.Column(db.String, db.ForeignKey('learning_outcomes.id'), nullable=False)
-    assessment_rubics_id = db.Column(db.String, db.ForeignKey('assessment_rubics.id'), nullable=False)
-    single_mark = db.Column(db.Integer)
-    grade_ee = db.Column(db.Boolean, default=False)
-    grade_me = db.Column(db.Boolean, default=False)
-    grade_ae = db.Column(db.Boolean, default=False)
-    grade_be = db.Column(db.Boolean, default=False)
+    grade_id = db.Column(db.String, db.ForeignKey('grades.id'), nullable=False)
+    year_id = db.Column(db.String, db.ForeignKey('years.id'), nullable=False)
+    staff_id = db.Column(db.String, db.ForeignKey('staffs.id'), nullable=False)
+    stream_id = db.Column(db.String, db.ForeignKey('streams.id'), nullable=False)
+    assessment_rubic_id = db.Column(db.String, db.ForeignKey('assessment_rubics.id'), nullable=False)
+    grade_ee = db.Column(db.Boolean, nullable=False)
+    grade_me = db.Column(db.Boolean, nullable=False)
+    grade_ae = db.Column(db.Boolean, nullable=False)
+    grade_be = db.Column(db.Boolean, nullable=False)
+    single_mark = db.Column(db.Integer, nullable=False)
+   
+  
 
 
 class TokenBlocklist(db.Model):

@@ -69,8 +69,10 @@ class ParentDetails(Resource):
 
         result = parentSchema.dump(new_parent)
         return make_response(jsonify(result), 201)
-
+    
 api.add_resource(ParentDetails, '/parents')
+
+
 
 class ParentById(Resource):
     @jwt_required()

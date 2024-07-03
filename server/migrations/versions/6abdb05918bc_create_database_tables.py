@@ -1,8 +1,8 @@
 """create database tables
 
-Revision ID: 7ad5ae44b929
+Revision ID: 6abdb05918bc
 Revises: 
-Create Date: 2024-06-18 15:59:09.220853
+Create Date: 2024-07-03 13:13:24.535820
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '7ad5ae44b929'
+revision = '6abdb05918bc'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -203,33 +203,25 @@ def upgrade():
     op.create_table('reports',
     sa.Column('id', sa.String(), nullable=False),
     sa.Column('school_id', sa.String(), nullable=False),
-    sa.Column('staff_id', sa.String(), nullable=False),
-    sa.Column('year_id', sa.String(), nullable=False),
-    sa.Column('term_id', sa.String(), nullable=False),
-    sa.Column('grade_id', sa.String(), nullable=False),
-    sa.Column('stream_id', sa.String(), nullable=False),
     sa.Column('student_id', sa.String(), nullable=False),
     sa.Column('subject_id', sa.String(), nullable=False),
-    sa.Column('strand_id', sa.String(), nullable=False),
-    sa.Column('substrand_id', sa.String(), nullable=False),
-    sa.Column('learning_outcomes_id', sa.String(), nullable=False),
-    sa.Column('assessment_rubics_id', sa.String(), nullable=False),
-    sa.Column('single_mark', sa.Integer(), nullable=True),
-    sa.Column('grade_ee', sa.Boolean(), nullable=True),
-    sa.Column('grade_me', sa.Boolean(), nullable=True),
-    sa.Column('grade_ae', sa.Boolean(), nullable=True),
-    sa.Column('grade_be', sa.Boolean(), nullable=True),
-    sa.ForeignKeyConstraint(['assessment_rubics_id'], ['assessment_rubics.id'], name=op.f('fk_reports_assessment_rubics_id_assessment_rubics')),
+    sa.Column('grade_id', sa.String(), nullable=False),
+    sa.Column('year_id', sa.String(), nullable=False),
+    sa.Column('staff_id', sa.String(), nullable=False),
+    sa.Column('stream_id', sa.String(), nullable=False),
+    sa.Column('assessment_rubic_id', sa.String(), nullable=False),
+    sa.Column('grade_ee', sa.Boolean(), nullable=False),
+    sa.Column('grade_me', sa.Boolean(), nullable=False),
+    sa.Column('grade_ae', sa.Boolean(), nullable=False),
+    sa.Column('grade_be', sa.Boolean(), nullable=False),
+    sa.Column('single_mark', sa.Integer(), nullable=False),
+    sa.ForeignKeyConstraint(['assessment_rubic_id'], ['assessment_rubics.id'], name=op.f('fk_reports_assessment_rubic_id_assessment_rubics')),
     sa.ForeignKeyConstraint(['grade_id'], ['grades.id'], name=op.f('fk_reports_grade_id_grades')),
-    sa.ForeignKeyConstraint(['learning_outcomes_id'], ['learning_outcomes.id'], name=op.f('fk_reports_learning_outcomes_id_learning_outcomes')),
     sa.ForeignKeyConstraint(['school_id'], ['schools.id'], name=op.f('fk_reports_school_id_schools')),
     sa.ForeignKeyConstraint(['staff_id'], ['staffs.id'], name=op.f('fk_reports_staff_id_staffs')),
-    sa.ForeignKeyConstraint(['strand_id'], ['strands.id'], name=op.f('fk_reports_strand_id_strands')),
     sa.ForeignKeyConstraint(['stream_id'], ['streams.id'], name=op.f('fk_reports_stream_id_streams')),
     sa.ForeignKeyConstraint(['student_id'], ['students.id'], name=op.f('fk_reports_student_id_students')),
     sa.ForeignKeyConstraint(['subject_id'], ['subjects.id'], name=op.f('fk_reports_subject_id_subjects')),
-    sa.ForeignKeyConstraint(['substrand_id'], ['substrands.id'], name=op.f('fk_reports_substrand_id_substrands')),
-    sa.ForeignKeyConstraint(['term_id'], ['terms.id'], name=op.f('fk_reports_term_id_terms')),
     sa.ForeignKeyConstraint(['year_id'], ['years.id'], name=op.f('fk_reports_year_id_years')),
     sa.PrimaryKeyConstraint('id')
     )

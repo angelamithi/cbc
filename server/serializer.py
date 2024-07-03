@@ -124,14 +124,6 @@ class TermSchema(SQLAlchemyAutoSchema):
 
 termSchema = TermSchema()
 
-
-class ReportSchema(SQLAlchemyAutoSchema):
-    class Meta:
-        model = Report
-        include_fk = True
-
-reportSchema = ReportSchema()
-
 class CategorySchema(SQLAlchemyAutoSchema):
     class Meta:
         model = Category
@@ -146,3 +138,27 @@ class StreamSchema(SQLAlchemyAutoSchema):
         include_fk = True
 
 streamSchema = StreamSchema()
+
+
+class ReportSchema(SQLAlchemyAutoSchema):
+    class Meta:
+        model = Report
+        include_fk = True
+        load_instance = True
+
+    # school = fields.Nested(SchoolSchema)
+    # staff = fields.Nested(StaffSchema)
+    # year = fields.Nested(YearSchema)
+    # term = fields.Nested(TermSchema)
+    # grade = fields.Nested(GradeSchema)
+    # stream = fields.Nested(StreamSchema)
+    # student = fields.Nested(StudentSchema)
+    # subject = fields.Nested(SubjectSchema)
+    # strand = fields.Nested(StrandSchema)
+    # substrand = fields.Nested(SubStrandSchema)
+    # learning_outcome = fields.Nested(LearningOutcomeSchema, attribute="learning_outcomes")
+    # assessment_rubic = fields.Nested(AssessmentRubicSchema, attribute="assessment_rubics")
+
+reportSchema = ReportSchema()
+
+

@@ -14,10 +14,11 @@ from models import db
 from flask_jwt_extended import JWTManager
 from models import (School,Student, Parent, Department, Staff, Grade, Subject, Strand,
                     SubStrand, LearningOutcome, AssessmentRubic, Designation, Year, Term, Report,
-                    TokenBlocklist,Category,Stream,db)
+                    TokenBlocklist,Category,Stream,Parent,db)
 from dotenv import load_dotenv
 from flask_bcrypt import Bcrypt
 from routes.schools_bp import schools_bp
+from routes.parent_bp import parent_bp
 from routes.student_bp import student_bp
 from routes.grade_bp import grade_bp
 from routes.stream_bp import stream_bp
@@ -25,6 +26,7 @@ from routes.category_bp import category_bp
 from routes.staff_bp import staff_bp
 from routes.designation_bp import designation_bp
 from routes.subjects_bp import subjects_bp
+from routes.subject_details_bp import subject_details_bp
 from routes.strand_bp import strand_bp
 from routes.substrand_bp import substrand_bp
 from routes.learning_outcome_bp import learning_outcome_bp
@@ -92,6 +94,7 @@ def create_app():
     app.register_blueprint(staff_bp)
     app.register_blueprint(designation_bp)
     app.register_blueprint(subjects_bp)
+    app.register_blueprint(parent_bp)
     app.register_blueprint(strand_bp)
     app.register_blueprint(substrand_bp)
     app.register_blueprint(learning_outcome_bp)
@@ -101,6 +104,7 @@ def create_app():
     app.register_blueprint(term_bp)
     app.register_blueprint(department_bp)
     app.register_blueprint(reports_bp)
+    app.register_blueprint(subject_details_bp)
 
 
 

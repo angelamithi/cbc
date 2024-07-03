@@ -432,8 +432,6 @@ def seed_database():
         # Generate all possible combinations
         combinations = list(itertools.product(
             range(6),  # subjects index from 0 to 5
-            range(14), # strands index from 0 to 13
-            range(14), # substrands index from 0 to 13
             range(14)  # learning outcomes index from 0 to 13
         ))
 
@@ -448,20 +446,16 @@ def seed_database():
         # Seed data for reports
         reports_data = []
         for combo in combinations:
-            subject_idx, strand_idx, substrand_idx, learning_outcome_idx = combo
+            subject_idx,assessment_rubic_idx = combo
             grade_info = random.choice(grades_info)  # Randomly select a grade
             report_info = {
                 "staff_id": staffs[0].id,
                 "year_id": years[0].id,
-                "term_id": terms[0].id,
                 "grade_id": grades[1].id,
                 "stream_id":streams[0].id,
                 "student_id": students[0].id,                
                 "subject_id": subjects[subject_idx].id,
-                "strand_id": strands[strand_idx].id,
-                "substrand_id": substrands[substrand_idx].id,
-                "learning_outcomes_id": learning_outcomes[learning_outcome_idx].id,
-                "assessment_rubics_id": assessment_rubics[0].id,
+                "assessment_rubic_id":assessment_rubics[assessment_rubic_idx].id,
                 "single_mark": grade_info["single_mark"],
                 "grade_ee": grade_info["grade_ee"],
                 "grade_me": grade_info["grade_me"],
