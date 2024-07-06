@@ -3,7 +3,7 @@ from datetime import datetime, date
 from app import create_app
 from models import (School,Student, Parent, Department, Staff, Grade, Subject, Strand,
                     SubStrand, LearningOutcome, AssessmentRubic, Designation, Year, Term, Report,
-                    TokenBlocklist,Category,Stream,db)
+                    TokenBlocklist,Category,Stream,TeacherSubjectGradeStream,grade_stream,teacher_grade_stream,db)
 
 app = create_app()
 
@@ -27,6 +27,14 @@ def seed_database():
         Term.query.delete()
         Report.query.delete()
         Stream.query.delete()
+        TeacherSubjectGradeStream.query.delete()
+        stmt = teacher_grade_stream.delete()
+        db.session.execute(stmt)
+        db.session.commit()
+        stmt1 = grade_stream.delete()
+        db.session.execute(stmt1)
+        db.session.commit()
+       
         db.create_all()
 
         # Seed data for Categories
@@ -413,7 +421,37 @@ def seed_database():
             terms.append(term)
             db.session.add(term)
         db.session.commit()
-        #
+
+        db.session.execute(grade_stream.insert().values([
+        {'grade_id': grades[0].id, 'stream_id': streams[0].id},
+        {'grade_id': grades[1].id, 'stream_id': streams[0].id},
+        {'grade_id': grades[1].id, 'stream_id': streams[1].id},
+        # Add more entries as needed
+    ]))
+        db.session.commit()
+            #
+
+        # Seed teacher_grade_stream table
+        db.session.execute(teacher_grade_stream.insert().values([
+            {'staff_id': staffs[0].id, 'grade_id': grades[0].id, 'stream_id': streams[0].id},
+            {'staff_id': staffs[1].id, 'grade_id': grades[1].id, 'stream_id': streams[0].id},
+            {'staff_id': staffs[2].id, 'grade_id': grades[1].id, 'stream_id': streams[1].id},
+            # Add more entries as needed
+        ]))
+        db.session.commit()
+            #
+
+        # Seed TeacherSubjectGradeStream table (if applicable)
+        db.session.add(TeacherSubjectGradeStream(
+            staff_id=staffs[0].id,
+            subject_id=subjects[0].id,
+            grade_id=grades[0].id,
+            stream_id=streams[0].id
+        ))
+
+        # Commit the changes
+        db.session.commit()
+            #
 
         # Assuming you have already created and populated other tables like Staff, Year, Term, Grade, Student, Subject, Strand, SubStrand, LearningOutcome, AssessmentRubric
 

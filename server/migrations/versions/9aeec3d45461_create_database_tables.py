@@ -1,8 +1,8 @@
 """create database tables
 
-Revision ID: f0f397ffc1c5
+Revision ID: 9aeec3d45461
 Revises: 
-Create Date: 2024-07-06 11:09:08.043853
+Create Date: 2024-07-06 17:12:30.078834
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'f0f397ffc1c5'
+revision = '9aeec3d45461'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -114,6 +114,13 @@ def upgrade():
     sa.ForeignKeyConstraint(['school_id'], ['schools.id'], name=op.f('fk_grades_school_id_schools')),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_table('grade_stream',
+    sa.Column('grade_id', sa.String(), nullable=False),
+    sa.Column('stream_id', sa.String(), nullable=False),
+    sa.ForeignKeyConstraint(['grade_id'], ['grades.id'], name=op.f('fk_grade_stream_grade_id_grades')),
+    sa.ForeignKeyConstraint(['stream_id'], ['streams.id'], name=op.f('fk_grade_stream_stream_id_streams')),
+    sa.PrimaryKeyConstraint('grade_id', 'stream_id')
+    )
     op.create_table('strands',
     sa.Column('id', sa.String(), nullable=False),
     sa.Column('strand_name', sa.String(), nullable=True),
@@ -141,6 +148,27 @@ def upgrade():
     sa.ForeignKeyConstraint(['stream_id'], ['streams.id'], name=op.f('fk_students_stream_id_streams')),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('admission_number')
+    )
+    op.create_table('teacher_grade_stream',
+    sa.Column('staff_id', sa.String(), nullable=False),
+    sa.Column('grade_id', sa.String(), nullable=False),
+    sa.Column('stream_id', sa.String(), nullable=False),
+    sa.ForeignKeyConstraint(['grade_id'], ['grades.id'], name=op.f('fk_teacher_grade_stream_grade_id_grades')),
+    sa.ForeignKeyConstraint(['staff_id'], ['staffs.id'], name=op.f('fk_teacher_grade_stream_staff_id_staffs')),
+    sa.ForeignKeyConstraint(['stream_id'], ['streams.id'], name=op.f('fk_teacher_grade_stream_stream_id_streams')),
+    sa.PrimaryKeyConstraint('staff_id', 'grade_id', 'stream_id')
+    )
+    op.create_table('teacher_subject_grade_stream',
+    sa.Column('id', sa.String(), nullable=False),
+    sa.Column('staff_id', sa.String(), nullable=False),
+    sa.Column('subject_id', sa.String(), nullable=False),
+    sa.Column('grade_id', sa.String(), nullable=False),
+    sa.Column('stream_id', sa.String(), nullable=False),
+    sa.ForeignKeyConstraint(['grade_id'], ['grades.id'], name=op.f('fk_teacher_subject_grade_stream_grade_id_grades')),
+    sa.ForeignKeyConstraint(['staff_id'], ['staffs.id'], name=op.f('fk_teacher_subject_grade_stream_staff_id_staffs')),
+    sa.ForeignKeyConstraint(['stream_id'], ['streams.id'], name=op.f('fk_teacher_subject_grade_stream_stream_id_streams')),
+    sa.ForeignKeyConstraint(['subject_id'], ['subjects.id'], name=op.f('fk_teacher_subject_grade_stream_subject_id_subjects')),
+    sa.PrimaryKeyConstraint('id', 'staff_id', 'subject_id', 'grade_id', 'stream_id')
     )
     op.create_table('parents_details',
     sa.Column('id', sa.String(), nullable=False),
@@ -238,8 +266,11 @@ def downgrade():
     op.drop_table('learning_outcomes')
     op.drop_table('substrands')
     op.drop_table('parents_details')
+    op.drop_table('teacher_subject_grade_stream')
+    op.drop_table('teacher_grade_stream')
     op.drop_table('students')
     op.drop_table('strands')
+    op.drop_table('grade_stream')
     op.drop_table('grades')
     op.drop_table('departments')
     op.drop_table('staffs')

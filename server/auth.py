@@ -14,7 +14,7 @@ def superAdmin_required():
                 if claims["designation"] == 100:
                     return fn(*args, **kwargs)
             except KeyError:
-                return make_response(jsonify(msg="admin only!"), 403)
+                return make_response(jsonify(msg="Super admin only!"), 403)
         return decorator
     return wrapper
 

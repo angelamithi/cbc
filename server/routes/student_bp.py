@@ -1,8 +1,8 @@
-from flask import Blueprint, make_response, jsonify,session
+from flask import Blueprint, make_response, jsonify,session,request
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 from flask_restful import Api, Resource, abort, reqparse
 from flask_jwt_extended import jwt_required, get_jwt_identity,get_jwt
-from models import Student, db,Grade
+from models import Student, db,Grade,Staff
 from serializer import studentSchema
 from auth import admin_required,superAdmin_required
 from datetime import datetime
@@ -94,7 +94,60 @@ class StudentDetails(Resource):
 
 api.add_resource(StudentDetails, '/students')
 
+class StudentsByGrade(Resource):
+    @jwt_required()
+    def get(self, grade_id):
+        school_id = get_school_id_from_session()
+        if not school_id:
+            return make_response(jsonify({'error': 'School ID not found in session'}), 401)
 
+        students_details = Student.query.filter_by(school_id=school_id, grade_id=grade_id).all()
+        result = studentSchema.dump(students_details, many=True)
+        return make_response(jsonify(result), 200)
+api.add_resource(StudentsByGrade, '/students/grade/<string:grade_id>')
+
+class StudentsByGradeAndStream(Resource):
+    @jwt_required()
+    def get(self, grade_id, stream_id):
+        school_id = get_school_id_from_session()
+
+        if not school_id:
+            return make_response(jsonify({'error': 'School ID not found in session'}), 401)
+
+        # Query to fetch students of the specific grade and stream
+        students_details = Student.query.filter_by(school_id=school_id, grade_id=grade_id, stream_id=stream_id).all()
+
+        # Serialize the query result
+        result = studentSchema.dump(students_details, many=True)
+
+        return make_response(jsonify(result), 200)
+api.add_resource(StudentsByGradeAndStream, '/grades/<string:grade_id>/streams/<string:stream_id>/students')
+
+class TeacherStudentsByGradeAndStream(Resource):
+    @jwt_required()
+    def get(self, grade_id, stream_id):
+        current_user_id = get_jwt_identity()['id']
+
+        # Query the staff member (teacher) by their ID
+        teacher = Staff.query.get(current_user_id)
+
+        if not teacher:
+            return make_response(jsonify({'error': 'Teacher not found'}), 404)
+
+        # Check if the teacher is assigned to the specified grade and stream
+        assigned_grades = [grade.id for grade in teacher.assigned_grades]
+        assigned_streams = [stream.id for stream in teacher.assigned_streams]
+
+        if grade_id not in assigned_grades or stream_id not in assigned_streams:
+            return make_response(jsonify({'error': 'Unauthorized access to grade or stream'}), 403)
+
+        # Fetch students for the specific grade and stream
+        students_details = Student.query.filter_by(grade_id=grade_id, stream_id=stream_id).all()
+        result = studentSchema.dump(students_details, many=True)
+
+        return make_response(jsonify(result), 200)
+api.add_resource(TeacherStudentsByGradeAndStream, '/grades/<string:grade_id>/streams/<string:stream_id>/students')
+    
 class StudentById(Resource):
     @jwt_required()
     def get(self, id):
