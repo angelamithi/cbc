@@ -24,6 +24,7 @@ post_args.add_argument('guardian_last_name', type=str)
 post_args.add_argument('guardian_contact', type=str)
 post_args.add_argument('guardian_email', type=str)
 post_args.add_argument('student_id', type=str, required=True, help='Student Id is required')
+post_args.add_argument('status', type=str, required=True, help='Status is required')
 
 patch_args = reqparse.RequestParser()
 patch_args.add_argument('school_id', type=str)
@@ -40,6 +41,7 @@ patch_args.add_argument('guardian_last_name', type=str)
 patch_args.add_argument('guardian_contact', type=str)
 patch_args.add_argument('guardian_email', type=str)
 patch_args.add_argument('student_id', type=str)
+patch_args.add_argument('status', type=str)
 
 class ParentDetails(Resource):
     @jwt_required()
@@ -63,7 +65,7 @@ class ParentDetails(Resource):
                             fathers_last_name=data['fathers_last_name'], fathers_contact=data['fathers_contact'],
                             fathers_email=data['fathers_email'], guardian_first_name=data['guardian_first_name'],
                             guardian_last_name=data['guardian_last_name'], guardian_contact=data['guardian_contact'],
-                            guardian_email=data['guardian_email'], student_id=data['student_id'])
+                            guardian_email=data['guardian_email'], student_id=data['student_id'],status=data['status'])
         db.session.add(new_parent)
         db.session.commit()
 

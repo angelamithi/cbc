@@ -1,8 +1,8 @@
 """create database tables
 
-Revision ID: 6abdb05918bc
+Revision ID: f0f397ffc1c5
 Revises: 
-Create Date: 2024-07-03 13:13:24.535820
+Create Date: 2024-07-06 11:09:08.043853
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '6abdb05918bc'
+revision = 'f0f397ffc1c5'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -87,6 +87,7 @@ def upgrade():
     sa.Column('alternative_contact', sa.String(), nullable=True),
     sa.Column('email_address', sa.String(), nullable=True),
     sa.Column('password', sa.String(), nullable=False),
+    sa.Column('status', sa.String(), nullable=False),
     sa.Column('designation_id', sa.String(), nullable=False),
     sa.ForeignKeyConstraint(['designation_id'], ['designations.id'], name=op.f('fk_staffs_designation_id_designations')),
     sa.ForeignKeyConstraint(['school_id'], ['schools.id'], name=op.f('fk_staffs_school_id_schools')),
@@ -132,6 +133,7 @@ def upgrade():
     sa.Column('date_of_birth', sa.Date(), nullable=False),
     sa.Column('birth_certificate_number', sa.String(), nullable=True),
     sa.Column('photo_url', sa.String(), nullable=True),
+    sa.Column('status', sa.String(), nullable=False),
     sa.Column('grade_id', sa.String(), nullable=False),
     sa.Column('stream_id', sa.String(), nullable=False),
     sa.ForeignKeyConstraint(['grade_id'], ['grades.id'], name=op.f('fk_students_grade_id_grades')),
@@ -155,6 +157,7 @@ def upgrade():
     sa.Column('guardian_last_name', sa.String(), nullable=True),
     sa.Column('guardian_contact', sa.String(), nullable=True),
     sa.Column('guardian_email', sa.String(), nullable=True),
+    sa.Column('status', sa.String(), nullable=False),
     sa.Column('student_id', sa.String(), nullable=False),
     sa.ForeignKeyConstraint(['school_id'], ['schools.id'], name=op.f('fk_parents_details_school_id_schools')),
     sa.ForeignKeyConstraint(['student_id'], ['students.id'], name=op.f('fk_parents_details_student_id_students')),

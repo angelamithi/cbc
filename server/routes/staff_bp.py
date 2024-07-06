@@ -24,6 +24,7 @@ post_args.add_argument('alternative_contact', type=str)
 post_args.add_argument('email_address', type=str)
 post_args.add_argument('password', type=str, required=True, help='Password is required')
 post_args.add_argument('designation_id', type=str, required=True, help='Designation ID is required')
+post_args.add_argument('status', type=str, required=True, help='Status is required')
 
 patch_args = reqparse.RequestParser()
 patch_args.add_argument('school_id', type=str)
@@ -36,6 +37,7 @@ patch_args.add_argument('alternative_contact', type=str)
 patch_args.add_argument('email_address', type=str)
 patch_args.add_argument('password', type=str)
 patch_args.add_argument('designation_id', type=str)
+patch_args.add_argument('status', type=str)
 
 class StaffDetails(Resource):
     # @admin_required()
@@ -62,7 +64,7 @@ class StaffDetails(Resource):
                           first_name=data['first_name'], last_name=data['last_name'],
                           date_of_birth=date_of_birth, phone_number=data['phone_number'],
                           alternative_contact=data['alternative_contact'], email_address=data['email_address'],
-                          password=hashed_password, designation_id=data['designation_id'])
+                          password=hashed_password, designation_id=data['designation_id'],status=data['status'])
         db.session.add(new_staff)
         db.session.commit()
 

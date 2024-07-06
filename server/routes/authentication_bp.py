@@ -35,11 +35,15 @@ class Login(Resource):
 
             access_token = create_access_token(identity=staff.id, additional_claims={
                 "designation": designation.designation_code,
-                "school_id": staff.school_id
+                "school_id": staff.school_id,
+                "staff_id":staff.id,
+                "first_name":staff.first_name,
+                "last_name":staff.last_name
+
                 # "permissions": designation.permissions
             })
-            result = staffSchema.dump(staff)
-            return jsonify(access_token=access_token, staff=result)
+            # result = staffSchema.dump(staff)
+            return jsonify(access_token=access_token)
         else:
             abort(400, detail="Your password is incorrect")
 

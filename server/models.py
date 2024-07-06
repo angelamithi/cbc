@@ -45,6 +45,7 @@ class Student(db.Model):
     date_of_birth = db.Column(db.Date, nullable=False)
     birth_certificate_number = db.Column(db.String)
     photo_url = db.Column(db.String)
+    status=db.Column(db.String,nullable=False)
     grade_id = db.Column(db.String, db.ForeignKey('grades.id'), nullable=False)
     stream_id = db.Column(db.String, db.ForeignKey('streams.id'), nullable=False)
     parents = db.relationship('Parent', backref='student')
@@ -73,6 +74,8 @@ class Grade(db.Model):
     assessment_rubics = db.relationship('AssessmentRubic', backref='grade')
     reports = db.relationship('Report', backref='grade')
 
+  
+
 
 class Stream(db.Model):
     __tablename__ = 'streams'
@@ -81,6 +84,7 @@ class Stream(db.Model):
     stream_name = db.Column(db.String)
     students = db.relationship('Student', backref='stream')
     reports = db.relationship('Report', backref='stream')
+    
 
 
 class Staff(db.Model):
@@ -95,6 +99,7 @@ class Staff(db.Model):
     alternative_contact = db.Column(db.String)
     email_address = db.Column(db.String)
     password = db.Column(db.String, nullable=False)
+    status=db.Column(db.String, nullable=False)
     designation_id = db.Column(db.String, db.ForeignKey('designations.id'), nullable=False)
     grades = db.relationship('Grade', backref='staff')
     departments = db.relationship('Department', backref='staff')
@@ -125,6 +130,7 @@ class Parent(db.Model):
     guardian_last_name = db.Column(db.String)
     guardian_contact = db.Column(db.String)
     guardian_email = db.Column(db.String)
+    status=db.Column(db.String,nullable=False)
     student_id = db.Column(db.String, db.ForeignKey('students.id'), nullable=False)
 
 

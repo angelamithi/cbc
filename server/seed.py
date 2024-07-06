@@ -78,20 +78,20 @@ def seed_database():
                 # Seed data for Staff
         staff_data = [
             {"payroll_number": "PR001", "first_name": "Alice", "last_name": "Wanjiku", "date_of_birth": date(1985, 4, 12),
-            "phone_number": "1234567890", "alternative_contact": "0987654321", "email_address": "alice.wanjiku@example.com",
+            "phone_number": "1234567890", "alternative_contact": "0987654321", "email_address": "alice.wanjiku@example.com","status":"yes",
             "password": "hashed_password_1", "designation_id": designations[0].id, "school_id": "school_id_1"},
             {"payroll_number": "PR002", "first_name": "Mark", "last_name": "Mbithi", "date_of_birth": date(1979, 9, 25),
             "phone_number": "2345678901", "alternative_contact": "1987654321", "email_address": "mark.mbithi@yahoo.com",
-            "password": "hashed_password_2", "designation_id": designations[1].id, "school_id": "school_id_1"},
+            "password": "hashed_password_2", "designation_id": designations[1].id, "school_id": "school_id_1","status":"yes"},
             {"payroll_number": "PR003", "first_name": "Jane", "last_name": "Mbote", "date_of_birth": date(1987, 7, 20),
             "phone_number": "2547823940", "alternative_contact": "", "email_address": "jane.mbote@gmail.com",
-            "password": "hashed_password_3", "designation_id": designations[2].id, "school_id": "school_id_1"},
+            "password": "hashed_password_3", "designation_id": designations[2].id, "school_id": "school_id_1","status":"yes"},
             {"payroll_number": "PR004", "first_name": "Martin", "last_name": "Otieno", "date_of_birth": date(1989, 1, 27),
             "phone_number": "2543789001", "alternative_contact": "", "email_address": "martin.otieno@example.com",
-            "password": "hashed_password_4", "designation_id": designations[0].id, "school_id": "school_id_1"},
+            "password": "hashed_password_4", "designation_id": designations[0].id, "school_id": "school_id_1","status":"yes"},
             {"payroll_number": "PR005", "first_name": "Rose", "last_name": "Ndegwa", "date_of_birth": date(1967, 3, 1),
             "phone_number": "2545667891", "alternative_contact": "", "email_address": "rose.ndegwa@example.com",
-            "password": "hashed_password_4", "designation_id": designations[3].id, "school_id": "school_id_1"},
+            "password": "hashed_password_4", "designation_id": designations[3].id, "school_id": "school_id_1","status":"yes"},
         ]
 
         staffs = []
@@ -134,10 +134,10 @@ def seed_database():
         student_data = [
             {"admission_number": "ADM001", "joined_date": date(2020, 1, 15), "first_name": "Charles", "last_name": "Mbooni",
             "date_of_birth": date(2010, 5, 10), "birth_certificate_number": "BCN001", "photo_url": "photo1.jpg",
-            "grade_id": grades[1].id, "stream_id": streams[0].id, "school_id": "school_id_1"},
+            "grade_id": grades[1].id, "stream_id": streams[0].id, "school_id": "school_id_1","status":"yes"},
             {"admission_number": "ADM002", "joined_date": date(2021, 2, 20), "first_name": "Diana", "last_name": "Mwite",
             "date_of_birth": date(2011, 7, 14), "birth_certificate_number": "BCN002", "photo_url": "photo2.jpg",
-            "grade_id": grades[1].id, "stream_id": streams[1].id, "school_id": "school_id_1"}
+            "grade_id": grades[1].id, "stream_id": streams[1].id, "school_id": "school_id_1","status":"yes"}
         ]
 
         students = []
@@ -156,14 +156,14 @@ def seed_database():
             "fathers_email": "frank.brown@example.com",
             "guardian_first_name": "", "guardian_last_name": "", "guardian_contact": "5456789012",
             "guardian_email": "grace.brown@example.com",
-            "student_id": students[0].id, "school_id": "school_id_1"},
+            "student_id": students[0].id, "school_id": "school_id_1","status":"yes"},
             {"mothers_first_name": "", "mothers_last_name": "", "mothers_contact": "6456789012",
             "mothers_email": "hannah.miller@example.com",
             "fathers_first_name": "", "fathers_last_name": "", "fathers_contact": "7456789012",
             "fathers_email": "ian.miller@example.com",
             "guardian_first_name": "Jenny", "guardian_last_name": "Mwite", "guardian_contact": "8456789012",
             "guardian_email": "jenny.miller@example.com",
-            "student_id": students[1].id, "school_id": "school_id_1"},
+            "student_id": students[1].id, "school_id": "school_id_1","status":"yes"},
         ]
 
         for parent_info in parent_data:
