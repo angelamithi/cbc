@@ -121,32 +121,7 @@ class StudentsByGradeAndStream(Resource):
         result = studentSchema.dump(students_details, many=True)
 
         return make_response(jsonify(result), 200)
-api.add_resource(StudentsByGradeAndStream, '/grades/<string:grade_id>/streams/<string:stream_id>/students')
-
-class TeacherStudentsByGradeAndStream(Resource):
-    @jwt_required()
-    def get(self, grade_id, stream_id):
-        current_user_id = get_jwt_identity()['id']
-
-        # Query the staff member (teacher) by their ID
-        teacher = Staff.query.get(current_user_id)
-
-        if not teacher:
-            return make_response(jsonify({'error': 'Teacher not found'}), 404)
-
-        # Check if the teacher is assigned to the specified grade and stream
-        assigned_grades = [grade.id for grade in teacher.assigned_grades]
-        assigned_streams = [stream.id for stream in teacher.assigned_streams]
-
-        if grade_id not in assigned_grades or stream_id not in assigned_streams:
-            return make_response(jsonify({'error': 'Unauthorized access to grade or stream'}), 403)
-
-        # Fetch students for the specific grade and stream
-        students_details = Student.query.filter_by(grade_id=grade_id, stream_id=stream_id).all()
-        result = studentSchema.dump(students_details, many=True)
-
-        return make_response(jsonify(result), 200)
-api.add_resource(TeacherStudentsByGradeAndStream, '/grades/<string:grade_id>/streams/<string:stream_id>/students')
+api.add_resource(StudentsByGradeAndStream, '/students/grades/<string:grade_id>/streams/<string:stream_id>')
 
     
 class StudentById(Resource):
@@ -232,4 +207,4 @@ class PromoteStudent(Resource):
         
         return make_response(jsonify({"error": "Promotion failed. Next grade not found or other error occurred"}), 400)
 
-api.add_resource(PromoteStudent, '/students/<string:student_id>/promote')
+api.add_resource(PromoteStudent, '/promote/students/<string:student_id>')
