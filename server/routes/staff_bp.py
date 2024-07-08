@@ -25,6 +25,7 @@ post_args.add_argument('email_address', type=str)
 post_args.add_argument('password', type=str, required=True, help='Password is required')
 post_args.add_argument('designation_id', type=str, required=True, help='Designation ID is required')
 post_args.add_argument('status', type=str, required=True, help='Status is required')
+post_args.add_argument('photo_url', type=str, required=True, help='Photo is required')
 
 patch_args = reqparse.RequestParser()
 patch_args.add_argument('school_id', type=str)
@@ -38,6 +39,7 @@ patch_args.add_argument('email_address', type=str)
 patch_args.add_argument('password', type=str)
 patch_args.add_argument('designation_id', type=str)
 patch_args.add_argument('status', type=str)
+patch_args.add_argument('photo_url', type=str)
 
 
 post_args1 = reqparse.RequestParser()
@@ -95,7 +97,7 @@ class StaffDetails(Resource):
                           first_name=data['first_name'], last_name=data['last_name'],
                           date_of_birth=date_of_birth, phone_number=data['phone_number'],
                           alternative_contact=data['alternative_contact'], email_address=data['email_address'],
-                          password=hashed_password, designation_id=data['designation_id'],status=data['status'])
+                          password=hashed_password, designation_id=data['designation_id'],status=data['status'], photo_url=data['photo_url'])
         db.session.add(new_staff)
         db.session.commit()
 
@@ -124,6 +126,7 @@ class TeachersDetails(Resource):
                 'last_name': teacher.last_name,
                 'phone_number': teacher.phone_number,
                 'email_address': teacher.email_address,
+                'photo_url': teacher.photo_url,
                 'subjects_grades_streams': [{
                     'subject_id': sgs.subject_id,
                     'subject_name': sgs.subject.subject_name,
