@@ -134,7 +134,7 @@ class TeachersDetails(Resource):
                     'grade': sgs.grade.grade,
                     'stream_id': sgs.stream_id,
                     'stream': sgs.stream.stream_name
-                } for sgs in teacher.subjects_grades_streams]
+                } for sgs in teacher.teacher_subject_grade_streams]
             }
             teacher_list.append(teacher_data)
         

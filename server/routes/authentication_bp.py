@@ -38,7 +38,8 @@ class Login(Resource):
                 "school_id": staff.school_id,
                 "staff_id":staff.id,
                 "first_name":staff.first_name,
-                "last_name":staff.last_name
+                "last_name":staff.last_name,
+                "photo_url":staff.photo_url
 
                 # "permissions": designation.permissions
             })
@@ -47,7 +48,8 @@ class Login(Resource):
                 "school_id": staff.school_id,
                 "staff_id":staff.id,
                 "first_name":staff.first_name,
-                "last_name":staff.last_name
+                "last_name":staff.last_name,
+                "photo_url":staff.photo_url
 
                 # "permissions": designation.permissions
             })
@@ -77,7 +79,8 @@ class Refresh(Resource):
             "school_id": staff.school_id,
             "staff_id": staff.id,
             "first_name": staff.first_name,
-            "last_name": staff.last_name
+            "last_name": staff.last_name,
+            "photo_url":staff.photo_url
         })
 
         return jsonify(access_token=access_token)
