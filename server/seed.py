@@ -87,19 +87,19 @@ def seed_database():
         staff_data = [
             {"payroll_number": "PR001", "first_name": "Alice", "last_name": "Wanjiku", "date_of_birth": date(1985, 4, 12),
             "phone_number": "1234567890", "alternative_contact": "0987654321", "email_address": "alice.wanjiku@example.com","status":"yes",
-            "password": "hashed_password_1", "designation_id": designations[0].id, "school_id": "school_id_1"},
+            "password": "hashed_password_1", "designation_id": designations[0].id, "school_id": "school_id_1","photo_url":"photo1.jpg"},
             {"payroll_number": "PR002", "first_name": "Mark", "last_name": "Mbithi", "date_of_birth": date(1979, 9, 25),
             "phone_number": "2345678901", "alternative_contact": "1987654321", "email_address": "mark.mbithi@yahoo.com",
-            "password": "hashed_password_2", "designation_id": designations[1].id, "school_id": "school_id_1","status":"yes"},
+            "password": "hashed_password_2", "designation_id": designations[1].id, "school_id": "school_id_1","status":"yes","photo_url":"photo1.jpg"},
             {"payroll_number": "PR003", "first_name": "Jane", "last_name": "Mbote", "date_of_birth": date(1987, 7, 20),
             "phone_number": "2547823940", "alternative_contact": "", "email_address": "jane.mbote@gmail.com",
-            "password": "hashed_password_3", "designation_id": designations[2].id, "school_id": "school_id_1","status":"yes"},
+            "password": "hashed_password_3", "designation_id": designations[2].id, "school_id": "school_id_1","status":"yes","photo_url":"photo1.jpg"},
             {"payroll_number": "PR004", "first_name": "Martin", "last_name": "Otieno", "date_of_birth": date(1989, 1, 27),
             "phone_number": "2543789001", "alternative_contact": "", "email_address": "martin.otieno@example.com",
-            "password": "hashed_password_4", "designation_id": designations[0].id, "school_id": "school_id_1","status":"yes"},
+            "password": "hashed_password_4", "designation_id": designations[0].id, "school_id": "school_id_1","status":"yes","photo_url":"photo1.jpg"},
             {"payroll_number": "PR005", "first_name": "Rose", "last_name": "Ndegwa", "date_of_birth": date(1967, 3, 1),
             "phone_number": "2545667891", "alternative_contact": "", "email_address": "rose.ndegwa@example.com",
-            "password": "hashed_password_4", "designation_id": designations[3].id, "school_id": "school_id_1","status":"yes"},
+            "password": "hashed_password_4", "designation_id": designations[3].id, "school_id": "school_id_1","status":"yes","photo_url":"photo1.jpg"},
         ]
 
         staffs = []
@@ -112,9 +112,9 @@ def seed_database():
 
                 # Seed data for Grades
         grade_data = [
-            {"grade": "Grade 1", "class_teacher_id": staffs[0].id, "category_id": categories[0].id, "school_id": "school_id_1"},
-            {"grade": "Grade 2", "class_teacher_id": staffs[2].id, "category_id": categories[1].id, "school_id": "school_id_1"},
-            {"grade": "Grade 3", "class_teacher_id": staffs[1].id, "category_id": categories[0].id, "school_id": "school_id_1"}
+            {"grade": "Grade 1", "category_id": categories[0].id, "school_id": "school_id_1"},
+            {"grade": "Grade 2", "category_id": categories[1].id, "school_id": "school_id_1"},
+            {"grade": "Grade 3",  "category_id": categories[0].id, "school_id": "school_id_1"}
         ]
 
         grades = []

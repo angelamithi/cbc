@@ -36,6 +36,7 @@ from routes.year_bp import year_bp
 from routes.term_bp import term_bp
 from routes.authentication_bp import authentication_bp
 from routes.reports_bp import reports_bp
+from routes.change_password_bp import change_password_bp
 
 
 
@@ -61,7 +62,8 @@ def create_app():
     app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
     app.config['JWT_BLACKLIST_ENABLED'] = True
     app.config['JWT_BLACKLIST_TOKEN_CHECKS'] = ['access', 'refresh']
-    app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=24)
+    app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
+    app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=30)
 
 
     cloudinary_url = os.getenv('CLOUDINARY_URL')
@@ -105,6 +107,7 @@ def create_app():
     app.register_blueprint(department_bp)
     app.register_blueprint(reports_bp)
     app.register_blueprint(subject_details_bp)
+    app.register_blueprint(change_password_bp)
 
 
 

@@ -70,16 +70,16 @@ class Grade(db.Model):
     id = db.Column(db.String, primary_key=True, default=generate_uuid)
     school_id = db.Column(db.String, db.ForeignKey('schools.id'), nullable=False)
     grade = db.Column(db.String)
-    class_teacher_id = db.Column(db.String, db.ForeignKey('staffs.id'), nullable=False)
     category_id = db.Column(db.String, db.ForeignKey('categories.id'), nullable=False)
     students = db.relationship('Student', backref='grade')
     strands = db.relationship('Strand', backref='grade')
     substrands = db.relationship('SubStrand', backref='grade')
     learning_outcomes = db.relationship('LearningOutcome', backref='grade')
-    assessment_rubics = db.relationship('AssessmentRubic', backref='grade')
-    reports = db.relationship('Report', backref='grade')
-    streams = db.relationship('Stream', secondary=grade_stream, back_populates='grades')
-    subjects_teachers_streams = db.relationship('TeacherSubjectGradeStream', backref='grade')
+    assessment_rubrics = db.relationship('AssessmentRubic', backref='grade')
+    reports = db.relationship('Report', backref='grade')   
+    assigned_teachers = db.relationship('Staff', secondary='teacher_grade_stream', back_populates='assigned_grades')
+    streams = db.relationship('Grade', secondary=grade_stream, backref='grades')
+    teacher_subject_grade_streams = db.relationship('TeacherSubjectGradeStream', back_populates='grade')
 
 
 
@@ -90,24 +90,32 @@ class Stream(db.Model):
     stream_name = db.Column(db.String)
     students = db.relationship('Student', backref='stream')
     reports = db.relationship('Report', backref='stream')
-    grades = db.relationship('Grade', secondary=grade_stream, back_populates='streams')
-    grades_teachers_subjects = db.relationship('TeacherSubjectGradeStream', backref='stream')
+    assigned_teachers = db.relationship('Staff', secondary='teacher_grade_stream', back_populates='assigned_streams')
+    grades = db.relationship('Stream', secondary=grade_stream, backref='streams')
+    teacher_subject_grade_streams = db.relationship('TeacherSubjectGradeStream', back_populates='stream')
+    
 
 teacher_grade_stream = db.Table('teacher_grade_stream',
-                                
     db.Column('staff_id', db.String, db.ForeignKey('staffs.id'), primary_key=True),
     db.Column('grade_id', db.String, db.ForeignKey('grades.id'), primary_key=True),
     db.Column('stream_id', db.String, db.ForeignKey('streams.id'), primary_key=True)
 )
-
-
 class TeacherSubjectGradeStream(db.Model):
     __tablename__ = 'teacher_subject_grade_stream'
     id = db.Column(db.String, primary_key=True, default=generate_uuid)
-    staff_id = db.Column(db.String, db.ForeignKey('staffs.id'), primary_key=True)
-    subject_id = db.Column(db.String, db.ForeignKey('subjects.id'), primary_key=True)
-    grade_id = db.Column(db.String, db.ForeignKey('grades.id'), primary_key=True)
-    stream_id = db.Column(db.String, db.ForeignKey('streams.id'), primary_key=True)
+    staff_id = db.Column(db.String, db.ForeignKey('staffs.id'), nullable=False)
+    subject_id = db.Column(db.String, db.ForeignKey('subjects.id'), nullable=False)
+    grade_id = db.Column(db.String, db.ForeignKey('grades.id'), nullable=False)
+    stream_id = db.Column(db.String, db.ForeignKey('streams.id'), nullable=False)
+    
+    # Define relationships with back_populates
+    staff = db.relationship('Staff', back_populates='teacher_subject_grade_streams')
+    subject = db.relationship('Subject', back_populates='teacher_subject_grade_streams')
+    grade = db.relationship('Grade', back_populates='teacher_subject_grade_streams')
+    stream = db.relationship('Stream', back_populates='teacher_subject_grade_streams')
+
+   
+  
 
 class Staff(db.Model):
     __tablename__ = 'staffs'
@@ -122,10 +130,11 @@ class Staff(db.Model):
     email_address = db.Column(db.String)
     password = db.Column(db.String, nullable=False)
     status = db.Column(db.String, nullable=False)
+    photo_url = db.Column(db.String)
     designation_id = db.Column(db.String, db.ForeignKey('designations.id'), nullable=False)   
-    assigned_grades = db.relationship('Grade', secondary='teacher_grade_stream', backref='assigned_teachers')
-    assigned_streams = db.relationship('Stream', secondary='teacher_grade_stream', backref='assigned_teachers')
-    subjects_grades_streams = db.relationship('TeacherSubjectGradeStream', backref='teacher')
+    assigned_grades = db.relationship('Grade', secondary='teacher_grade_stream', back_populates='assigned_teachers')
+    assigned_streams = db.relationship('Stream', secondary='teacher_grade_stream', back_populates='assigned_teachers')
+    teacher_subject_grade_streams = db.relationship('TeacherSubjectGradeStream', back_populates='staff')
     reports = db.relationship('Report', backref='staff')
     
 
@@ -170,7 +179,7 @@ class Subject(db.Model):
     learning_outcomes = db.relationship('LearningOutcome', backref='subject')
     assessment_rubics = db.relationship('AssessmentRubic', backref='subject')
     reports = db.relationship('Report', backref='subject')
-    teachers_grades = db.relationship('TeacherSubjectGradeStream', backref='subject')
+    teacher_subject_grade_streams = db.relationship('TeacherSubjectGradeStream', back_populates='subject')
 
 
 class Strand(db.Model):

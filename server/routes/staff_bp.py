@@ -77,7 +77,7 @@ class StaffDetails(Resource):
         result = staffSchema.dump(staff, many=True)
         return make_response(jsonify(result), 200)
 
-    @admin_required()
+   
     def post(self):
         data = post_args.parse_args()
 
