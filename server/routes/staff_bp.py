@@ -51,6 +51,11 @@ post_args1.add_argument('grade_id', type=str, required=True, help='Grade ID is r
 post_args1.add_argument('stream_id', type=str, required=True, help='Stream ID is required')
 post_args1.add_argument('subject_id', type=str, required=True, help='Subject ID is required')
 
+post_args2 = reqparse.RequestParser()
+post_args2.add_argument('staff_id', type=str, required=True, help='Teacher ID is required')
+post_args2.add_argument('stream_id', type=str, required=True, help='Sream ID is required')
+post_args2.add_argument('grade_id', type=str, help='Grade ID is required', required=True)
+
 
 
 patch_args1 = reqparse.RequestParser()
@@ -130,6 +135,89 @@ class TeachersDetails(Resource):
         return make_response(jsonify(teacher_list), 200)
 
 api.add_resource(TeachersDetails, '/teachers')
+
+class GetClassTeachersDetails(Resource):
+   
+    @jwt_required()
+    def get(self, stream_id, grade_id):
+        # Fetch the specific TeacherSubjectGradeStream instance
+        school_id = get_school_id_from_session()
+        if not school_id:
+            return make_response(jsonify({'error': 'School ID not found in session'}), 401)
+        tsgs_instance = TeacherSubjectGradeStream.query.filter_by(
+            stream_id=stream_id, grade_id=grade_id
+        ).first()
+
+        if not tsgs_instance:
+            return {'message': 'Stream or Grade not found'}, 404
+
+        # Fetch the specific stream
+        stream = Stream.query.filter_by(id=stream_id, school_id=school_id).first()
+
+        if not stream:
+            return {'message': 'Stream not found in the specified school'}, 404
+
+        # Fetch the class teacher details from the stream
+        class_teacher = stream.class_teacher
+
+        if not class_teacher:
+            return {'message': 'Class teacher not found'}, 404
+
+        return {
+            'class_teacher_id': class_teacher.id,
+            'class_teacher_first_name': class_teacher.first_name,
+            'class_teacher_last_name': class_teacher.last_name,
+            'class_teacher_email': class_teacher.email_address,
+            'class_teacher_phone': class_teacher.phone_number,
+        }
+
+
+
+api.add_resource(GetClassTeachersDetails, '/class_teacher/<string:grade_id>/<string:stream_id>')
+
+
+# class AssignClassTeacher(Resource):
+#     def post(self):
+#         data = post_args.parse_args()
+#         stream_id = data['stream_id']
+#         staff_id = data['staff_id']
+#         grade_id = data['grade_id']
+        
+#         # Get the school_id from session (replace with your actual session logic)
+#         school_id = get_school_id_from_session()
+#         if not school_id:
+#             return jsonify({"message": "School ID not found in session"}), 400
+        
+#         # Validate stream
+#         stream = Stream.query.filter_by(id=stream_id, school_id=school_id, grade_id=grade_id).first()
+#         if not stream:
+#             return jsonify({"message": "Stream not found or does not belong to the school and grade"}), 404
+        
+#         # Validate teacher
+#         teacher = Staff.query.filter_by(id=staff_id, school_id=school_id).first()
+#         if not teacher:
+#             return jsonify({"message": "Teacher not found or does not belong to the school"}), 404
+        
+#         # Assign class teacher to stream for the specific grade
+#         teacher_subject_grade_stream = TeacherSubjectGradeStream.query.filter_by(
+#             staff_id=staff_id, grade_id=grade_id, stream_id=stream_id).first()
+        
+#         if not teacher_subject_grade_stream:
+#             teacher_subject_grade_stream = TeacherSubjectGradeStream(
+#                 staff_id=staff_id,
+#                 grade_id=grade_id,
+#                 stream_id=stream_id
+#             )
+#             db.session.add(teacher_subject_grade_stream)
+        
+#         stream.class_teacher_id = staff_id
+#         db.session.commit()
+        
+#         return jsonify({"message": "Class teacher assigned successfully"}), 200
+
+# # Register the resource with your API
+# api.add_resource(AssignClassTeacher, '/assign_class_teacher')
+
 
 
 class TeachersByGrade(Resource):

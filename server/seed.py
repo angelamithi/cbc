@@ -119,8 +119,8 @@ def seed_database():
 
                 # Seed data for Streams
         stream_data = [
-            {"stream_name": "A", "school_id": "school_id_1"},  # Replace school_id_1 with the actual school ID
-            {"stream_name": "B", "school_id": "school_id_1"}   # Replace school_id_2 with the actual school ID
+            {"stream_name": "A", "school_id": "school_id_1","class_teacher_id":staffs[2].id},  # Replace school_id_1 with the actual school ID
+            {"stream_name": "B", "school_id": "school_id_1","class_teacher_id":staffs[1].id}   # Replace school_id_2 with the actual school ID
         ]
 
         streams = []

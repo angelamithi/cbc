@@ -87,6 +87,8 @@ class Stream(db.Model):
     students = db.relationship('Student', backref='stream')
     reports = db.relationship('Report', backref='stream')
     teacher_subject_grade_streams=db.relationship('TeacherSubjectGradeStream',back_populates='stream')
+    class_teacher_id = db.Column(db.String, db.ForeignKey('staffs.id'))
+    class_teacher = db.relationship('Staff', back_populates='class_streams')
 
     # Add back_populates for other relationships if needed
 
@@ -126,6 +128,7 @@ class Staff(db.Model):
     designation_id = db.Column(db.String, db.ForeignKey('designations.id'), nullable=False)
     teacher_subject_grade_streams=db.relationship('TeacherSubjectGradeStream',back_populates='staff')
     reports = db.relationship('Report', backref='staff')
+    class_streams = db.relationship('Stream', back_populates='class_teacher')
 
 
 
