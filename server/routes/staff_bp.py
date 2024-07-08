@@ -179,7 +179,7 @@ class TeachersByGrade(Resource):
         
         return make_response(jsonify(teacher_list), 200)
 
-api.add_resource(TeachersByGrade, '/teachers/<string:grade_id>')
+api.add_resource(TeachersByGrade, '/teachers/grades/<string:grade_id>')
 
 
 class AssignTeacherSubject(Resource):
