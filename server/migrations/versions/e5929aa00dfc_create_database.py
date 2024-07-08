@@ -1,8 +1,8 @@
-"""create database tables
+"""create database
 
-Revision ID: 25e2e63f3f52
+Revision ID: e5929aa00dfc
 Revises: 
-Create Date: 2024-07-08 13:58:26.885999
+Create Date: 2024-07-08 20:19:45.548557
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '25e2e63f3f52'
+revision = 'e5929aa00dfc'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -113,13 +113,6 @@ def upgrade():
     sa.ForeignKeyConstraint(['school_id'], ['schools.id'], name=op.f('fk_departments_school_id_schools')),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_table('grade_stream',
-    sa.Column('grade_id', sa.String(), nullable=False),
-    sa.Column('stream_id', sa.String(), nullable=False),
-    sa.ForeignKeyConstraint(['grade_id'], ['grades.id'], name=op.f('fk_grade_stream_grade_id_grades')),
-    sa.ForeignKeyConstraint(['stream_id'], ['streams.id'], name=op.f('fk_grade_stream_stream_id_streams')),
-    sa.PrimaryKeyConstraint('grade_id', 'stream_id')
-    )
     op.create_table('strands',
     sa.Column('id', sa.String(), nullable=False),
     sa.Column('strand_name', sa.String(), nullable=True),
@@ -147,15 +140,6 @@ def upgrade():
     sa.ForeignKeyConstraint(['stream_id'], ['streams.id'], name=op.f('fk_students_stream_id_streams')),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('admission_number')
-    )
-    op.create_table('teacher_grade_stream',
-    sa.Column('staff_id', sa.String(), nullable=False),
-    sa.Column('grade_id', sa.String(), nullable=False),
-    sa.Column('stream_id', sa.String(), nullable=False),
-    sa.ForeignKeyConstraint(['grade_id'], ['grades.id'], name=op.f('fk_teacher_grade_stream_grade_id_grades')),
-    sa.ForeignKeyConstraint(['staff_id'], ['staffs.id'], name=op.f('fk_teacher_grade_stream_staff_id_staffs')),
-    sa.ForeignKeyConstraint(['stream_id'], ['streams.id'], name=op.f('fk_teacher_grade_stream_stream_id_streams')),
-    sa.PrimaryKeyConstraint('staff_id', 'grade_id', 'stream_id')
     )
     op.create_table('teacher_subject_grade_stream',
     sa.Column('id', sa.String(), nullable=False),
@@ -266,10 +250,8 @@ def downgrade():
     op.drop_table('substrands')
     op.drop_table('parents_details')
     op.drop_table('teacher_subject_grade_stream')
-    op.drop_table('teacher_grade_stream')
     op.drop_table('students')
     op.drop_table('strands')
-    op.drop_table('grade_stream')
     op.drop_table('departments')
     op.drop_table('staffs')
     op.drop_table('grades')

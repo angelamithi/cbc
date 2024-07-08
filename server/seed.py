@@ -3,7 +3,7 @@ from datetime import datetime, date
 from app import create_app
 from models import (School,Student, Parent, Department, Staff, Grade, Subject, Strand,
                     SubStrand, LearningOutcome, AssessmentRubic, Designation, Year, Term, Report,
-                    TokenBlocklist,Category,Stream,TeacherSubjectGradeStream,grade_stream,teacher_grade_stream,db)
+                    TokenBlocklist,Category,Stream,TeacherSubjectGradeStream,db)
 
 app = create_app()
 
@@ -28,14 +28,7 @@ def seed_database():
         Report.query.delete()
         Stream.query.delete()
         TeacherSubjectGradeStream.query.delete()
-        stmt = teacher_grade_stream.delete()
-        db.session.execute(stmt)
-        db.session.commit()
-        stmt1 = grade_stream.delete()
-        db.session.execute(stmt1)
-        db.session.commit()
        
-        db.create_all()
 
         # Seed data for Categories
 
@@ -71,9 +64,8 @@ def seed_database():
             {"designation_name": "Administrator", "designation_code": 101, "school_id": "school_id_1"},
             {"designation_name": "Teacher", "designation_code": 102, "school_id": "school_id_1"},
             {"designation_name": "Principal", "designation_code": 103, "school_id": "school_id_1"},
-            {"designation_name": "Department Head-Mathematics", "designation_code": 104, "school_id": "school_id_1"},
-            {"designation_name": "Department Head-English", "designation_code": 105, "school_id": "school_id_1"},
-            {"designation_name": "Department Head-Creatives", "designation_code": 106, "school_id": "school_id_1"},
+            {"designation_name": "Department Head", "designation_code": 104, "school_id": "school_id_1"},
+           
         ]
 
         designations = []
@@ -96,10 +88,10 @@ def seed_database():
             "password": "hashed_password_3", "designation_id": designations[2].id, "school_id": "school_id_1","status":"yes","photo_url":"photo1.jpg"},
             {"payroll_number": "PR004", "first_name": "Martin", "last_name": "Otieno", "date_of_birth": date(1989, 1, 27),
             "phone_number": "2543789001", "alternative_contact": "", "email_address": "martin.otieno@example.com",
-            "password": "hashed_password_4", "designation_id": designations[0].id, "school_id": "school_id_1","status":"yes","photo_url":"photo1.jpg"},
+            "password": "hashed_password_4", "designation_id": designations[2].id, "school_id": "school_id_1","status":"yes","photo_url":"photo1.jpg"},
             {"payroll_number": "PR005", "first_name": "Rose", "last_name": "Ndegwa", "date_of_birth": date(1967, 3, 1),
             "phone_number": "2545667891", "alternative_contact": "", "email_address": "rose.ndegwa@example.com",
-            "password": "hashed_password_4", "designation_id": designations[3].id, "school_id": "school_id_1","status":"yes","photo_url":"photo1.jpg"},
+            "password": "hashed_password_4", "designation_id": designations[2].id, "school_id": "school_id_1","status":"yes","photo_url":"photo1.jpg"},
         ]
 
         staffs = []
@@ -422,37 +414,23 @@ def seed_database():
             db.session.add(term)
         db.session.commit()
 
-        db.session.execute(grade_stream.insert().values([
-        {'grade_id': grades[0].id, 'stream_id': streams[0].id},
-        {'grade_id': grades[1].id, 'stream_id': streams[0].id},
-        {'grade_id': grades[1].id, 'stream_id': streams[1].id},
-        # Add more entries as needed
-    ]))
-        db.session.commit()
+       
+
+    
             #
-
-        # Seed teacher_grade_stream table
-        db.session.execute(teacher_grade_stream.insert().values([
-            {'staff_id': staffs[0].id, 'grade_id': grades[0].id, 'stream_id': streams[0].id},
-            {'staff_id': staffs[1].id, 'grade_id': grades[1].id, 'stream_id': streams[0].id},
-            {'staff_id': staffs[2].id, 'grade_id': grades[1].id, 'stream_id': streams[1].id},
-            # Add more entries as needed
-        ]))
+        teacher_grade_stream_subject_data = [
+            {'staff_id': staffs[0].id, 'grade_id': grades[0].id, 'stream_id': streams[0].id,'subject_id': subjects[0].id},
+            {'staff_id': staffs[1].id, 'grade_id': grades[1].id, 'stream_id': streams[0].id,'subject_id': subjects[0].id},
+            {'staff_id': staffs[2].id, 'grade_id': grades[1].id, 'stream_id': streams[1].id,'subject_id': subjects[0].id},
+        ]
+        teacher_grade_stream_subjects = []
+        for teacher_grade_stream_subject_info in teacher_grade_stream_subject_data:
+            teacher_grade_stream_subject = TeacherSubjectGradeStream(**teacher_grade_stream_subject_info)
+            teacher_grade_stream_subjects.append(teacher_grade_stream_subject)
+            db.session.add(teacher_grade_stream_subject)
         db.session.commit()
-            #
 
-        # Seed TeacherSubjectGradeStream table (if applicable)
-        db.session.add(TeacherSubjectGradeStream(
-            staff_id=staffs[0].id,
-            subject_id=subjects[0].id,
-            grade_id=grades[0].id,
-            stream_id=streams[0].id
-        ))
-
-        # Commit the changes
-        db.session.commit()
-            #
-
+       
         # Assuming you have already created and populated other tables like Staff, Year, Term, Grade, Student, Subject, Strand, SubStrand, LearningOutcome, AssessmentRubric
 
         # Fetch existing entries for foreign key references
