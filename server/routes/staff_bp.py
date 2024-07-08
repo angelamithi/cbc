@@ -180,47 +180,44 @@ class GetClassTeachersDetails(Resource):
 api.add_resource(GetClassTeachersDetails, '/class_teacher/<string:grade_id>/<string:stream_id>')
 
 
-# class AssignClassTeacher(Resource):
-#     def post(self):
-#         data = post_args.parse_args()
-#         stream_id = data['stream_id']
-#         staff_id = data['staff_id']
-#         grade_id = data['grade_id']
+class AssignClassTeacher(Resource):
+    def post(self):
+        data = post_args.parse_args()
+        stream_id = data['stream_id']
+        staff_id = data['staff_id']
+        grade_id = data['grade_id']
         
-#         # Get the school_id from session (replace with your actual session logic)
-#         school_id = get_school_id_from_session()
-#         if not school_id:
-#             return jsonify({"message": "School ID not found in session"}), 400
+        # Get the school_id from session (replace with your actual session logic)
+        school_id = get_school_id_from_session()
+        if not school_id:
+            return jsonify({"message": "School ID not found in session"}), 400
         
-#         # Validate stream
-#         stream = Stream.query.filter_by(id=stream_id, school_id=school_id, grade_id=grade_id).first()
-#         if not stream:
-#             return jsonify({"message": "Stream not found or does not belong to the school and grade"}), 404
-        
-#         # Validate teacher
-#         teacher = Staff.query.filter_by(id=staff_id, school_id=school_id).first()
-#         if not teacher:
-#             return jsonify({"message": "Teacher not found or does not belong to the school"}), 404
-        
-#         # Assign class teacher to stream for the specific grade
-#         teacher_subject_grade_stream = TeacherSubjectGradeStream.query.filter_by(
-#             staff_id=staff_id, grade_id=grade_id, stream_id=stream_id).first()
-        
-#         if not teacher_subject_grade_stream:
-#             teacher_subject_grade_stream = TeacherSubjectGradeStream(
-#                 staff_id=staff_id,
-#                 grade_id=grade_id,
-#                 stream_id=stream_id
-#             )
-#             db.session.add(teacher_subject_grade_stream)
-        
-#         stream.class_teacher_id = staff_id
-#         db.session.commit()
-        
-#         return jsonify({"message": "Class teacher assigned successfully"}), 200
+        if not (staff_id and grade_id and stream_id):
+            return jsonify({'error': 'Missing parameters'}), 400
+
+        # Fetch the staff member
+        staff = Staff.query.get(staff_id)
+        if not staff:
+            return jsonify({'error': 'Staff not found'}), 404
+
+        # Fetch the grade
+        grade = Grade.query.get(grade_id)
+        if not grade:
+            return jsonify({'error': 'Grade not found'}), 404
+
+        # Fetch the stream
+        stream = Stream.query.get(stream_id)
+        if not stream:
+            return jsonify({'error': 'Stream not found'}), 404
+
+        # Update the class_teacher_id in the Stream model
+        stream.class_teacher_id = staff_id
+        db.session.commit()
+
+        return jsonify({'message': 'Class teacher assigned successfully'}), 200
 
 # # Register the resource with your API
-# api.add_resource(AssignClassTeacher, '/assign_class_teacher')
+api.add_resource(AssignClassTeacher, '/assign_class_teacher')
 
 
 
