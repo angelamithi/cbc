@@ -142,6 +142,46 @@ class TeachersDetails(Resource):
 
 api.add_resource(TeachersDetails, '/teachers')
 
+class TeachersByGrade(Resource):
+    @admin_required()
+    def get(self, grade_id):
+        school_id = get_school_id_from_session()
+        if not school_id:
+            return make_response(jsonify({'error': 'School ID not found in session'}), 401)
+        
+        teachers = Staff.query.join(Designation).filter(
+            Designation.designation_code == 102,
+            Staff.school_id == school_id
+        ).all()
+        
+        teacher_list = []
+        for teacher in teachers:
+            subjects_grades_streams = [{
+                'subject_id': sgs.subject_id,
+                'subject_name': sgs.subject.subject_name,
+                'grade_id': sgs.grade_id,
+                'grade': sgs.grade.grade,
+                'stream_id': sgs.stream_id,
+                'stream': sgs.stream.stream_name
+            } for sgs in teacher.teacher_subject_grade_streams if sgs.grade_id == grade_id]
+            
+            if subjects_grades_streams:
+                teacher_data = {
+                    'id': teacher.id,
+                    'first_name': teacher.first_name,
+                    'last_name': teacher.last_name,
+                    'phone_number': teacher.phone_number,
+                    'email_address': teacher.email_address,
+                    'photo_url': teacher.photo_url,
+                    'subjects_grades_streams': subjects_grades_streams
+                }
+                teacher_list.append(teacher_data)
+        
+        return make_response(jsonify(teacher_list), 200)
+
+api.add_resource(TeachersByGrade, '/teachers/<string:grade_id>')
+
+
 class AssignTeacherSubject(Resource):
     @jwt_required()
     def post(self):
