@@ -89,6 +89,10 @@ class StaffDetails(Resource):
         existing_staff = Staff.query.filter_by(school_id=data['school_id'], payroll_number=data['payroll_number']).first()
         if existing_staff:
             return make_response(jsonify({"error": "Staff with the same payroll number already exists"}), 409)
+         # Check if designation_id exists
+        designation = Designation.query.filter_by(id=data['designation_id']).first()
+        if not designation:
+            return make_response(jsonify({"error": "Designation ID does not exist"}), 404)
         
         hashed_password = bcrypt.generate_password_hash(data['password']).decode('utf-8')
 
