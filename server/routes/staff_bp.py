@@ -2,8 +2,8 @@ from flask import Blueprint, make_response, jsonify
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 from flask_restful import Api, Resource, reqparse
 from flask_jwt_extended import jwt_required,get_jwt
-from models import Staff, db,Designation,Subject,Grade,Stream,TeacherSubjectGradeStream
-from serializer import staffSchema,gradeSchema,streamSchema,teacher_subject_grade_schema
+from models import Staff, db,Designation,Subject,Grade,Stream,TeacherSubjectGradeStream,GradeStreamClassTeacher
+from serializer import staffSchema,gradeSchema,streamSchema,teacher_subject_grade_schema,grade_stream_class_teacher_schema
 from auth import admin_required, superAdmin_required
 from datetime import datetime
 from flask_bcrypt import Bcrypt
@@ -65,6 +65,10 @@ patch_args1.add_argument('grade_id', type=str, required=True, help='Grade ID is 
 patch_args1.add_argument('stream_id', type=str, required=True, help='Stream ID is required')
 
 
+patch_args2 = reqparse.RequestParser()
+patch_args2.add_argument('stream_id', type=str, required=True, help='Stream ID is required')
+patch_args2.add_argument('staff_id', type=str, required=True, help='Staff ID is required')
+patch_args2.add_argument('grade_id', type=str, required=True, help='Grade ID is required')
 
 def get_school_id_from_session():
     claims = get_jwt()
@@ -141,28 +145,23 @@ class TeachersDetails(Resource):
 api.add_resource(TeachersDetails, '/teachers')
 
 class GetClassTeachersDetails(Resource):
-   
+
     @jwt_required()
     def get(self, stream_id, grade_id):
-        # Fetch the specific TeacherSubjectGradeStream instance
+        # Fetch the specific GradeStreamClassTeacher instance
         school_id = get_school_id_from_session()
         if not school_id:
             return make_response(jsonify({'error': 'School ID not found in session'}), 401)
-        tsgs_instance = TeacherSubjectGradeStream.query.filter_by(
+        
+        gsct_instance = GradeStreamClassTeacher.query.filter_by(
             stream_id=stream_id, grade_id=grade_id
         ).first()
 
-        if not tsgs_instance:
+        if not gsct_instance:
             return {'message': 'Stream or Grade not found'}, 404
 
-        # Fetch the specific stream
-        stream = Stream.query.filter_by(id=stream_id, school_id=school_id).first()
-
-        if not stream:
-            return {'message': 'Stream not found in the specified school'}, 404
-
-        # Fetch the class teacher details from the stream
-        class_teacher = stream.class_teacher
+        # Fetch the class teacher details from the staff model
+        class_teacher = Staff.query.filter_by(id=gsct_instance.staff_id, school_id=school_id).first()
 
         if not class_teacher:
             return {'message': 'Class teacher not found'}, 404
@@ -175,14 +174,18 @@ class GetClassTeachersDetails(Resource):
             'class_teacher_phone': class_teacher.phone_number,
         }
 
-
-
 api.add_resource(GetClassTeachersDetails, '/class_teacher/<string:grade_id>/<string:stream_id>')
 
 
+
+
+
+
+
 class AssignClassTeacher(Resource):
+    @jwt_required()
     def post(self):
-        data = post_args.parse_args()
+        data = post_args2.parse_args()
         stream_id = data['stream_id']
         staff_id = data['staff_id']
         grade_id = data['grade_id']
@@ -191,32 +194,48 @@ class AssignClassTeacher(Resource):
         school_id = get_school_id_from_session()
         if not school_id:
             return jsonify({"message": "School ID not found in session"}), 400
-        
-        if not (staff_id and grade_id and stream_id):
-            return jsonify({'error': 'Missing parameters'}), 400
 
-        # Fetch the staff member
-        staff = Staff.query.get(staff_id)
-        if not staff:
-            return jsonify({'error': 'Staff not found'}), 404
-
-        # Fetch the grade
-        grade = Grade.query.get(grade_id)
-        if not grade:
-            return jsonify({'error': 'Grade not found'}), 404
-
-        # Fetch the stream
-        stream = Stream.query.get(stream_id)
+        # Check if the stream exists
+        stream = Stream.query.filter_by(id=stream_id, school_id=school_id).first()
         if not stream:
-            return jsonify({'error': 'Stream not found'}), 404
+            return jsonify({"message": "Stream not found in the specified school"}), 404
 
-        # Update the class_teacher_id in the Stream model
-        stream.class_teacher_id = staff_id
+        # Check if the grade exists
+        grade = Grade.query.filter_by(id=grade_id, school_id=school_id).first()
+        if not grade:
+            return jsonify({"message": "Grade not found in the specified school"}), 404
+
+        # Check if the staff exists
+        staff = Staff.query.filter_by(id=staff_id, school_id=school_id).first()
+        if not staff:
+            return jsonify({"message": "Staff member not found in the specified school"}), 404
+
+        # Check if a class teacher is already assigned for this stream and grade
+        existing_assignment = GradeStreamClassTeacher.query.filter_by(
+            stream_id=stream_id, grade_id=grade_id
+        ).first()
+        
+        if existing_assignment:
+            return jsonify({"message": "Class teacher already assigned for this stream and grade"}), 400
+
+        # Create a new GradeStreamClassTeacher instance
+        new_assignment = GradeStreamClassTeacher(
+            staff_id=staff_id,
+            grade_id=grade_id,
+            stream_id=stream_id
+        )
+        
+        # Add and commit the new assignment to the database
+        db.session.add(new_assignment)
         db.session.commit()
 
-        return jsonify({'message': 'Class teacher assigned successfully'}), 200
+        return jsonify({
+            "message": "Class teacher assigned successfully",
+            "class_teacher_id": new_assignment.staff_id,
+            "stream_id": new_assignment.stream_id,
+            "grade_id": new_assignment.grade_id
+        }), 201
 
-# # Register the resource with your API
 api.add_resource(AssignClassTeacher, '/assign_class_teacher')
 
 
@@ -357,7 +376,7 @@ api.add_resource(AssignTeacherSubject, '/assign-teacher-subject')
 
 
 
-class UpdateTeacherAssignment(Resource):
+class UpdateSubjectTeacherAssignment(Resource):
      @jwt_required()
      def patch(self,id):
         
@@ -380,9 +399,32 @@ class UpdateTeacherAssignment(Resource):
 
            
 
-api.add_resource(UpdateTeacherAssignment, '/update-teacher-subject/<string:id>')
+api.add_resource(UpdateSubjectTeacherAssignment, '/update-teacher-subject/<string:id>')
 
+class UpdateClassTeacherAssignment(Resource):
+     @jwt_required()
+     def patch(self,id):
+        
+            school_id = get_school_id_from_session()
+            if not school_id:
+                return make_response(jsonify({'error': 'School ID not found in session'}), 401)
+            assignment = GradeStreamClassTeacher.query.get(id)
+            if not assignment:
+                return make_response(jsonify({"error": "Assignment not found"}), 404)
+            data = patch_args2.parse_args()
 
+            
+            for key, value in data.items():
+                if value is not None:
+                     setattr(assignment, key, value)
+
+            db.session.commit()
+            result = grade_stream_class_teacher_schema.dump(assignment)
+            return make_response(jsonify(result), 200)
+
+           
+
+api.add_resource(UpdateClassTeacherAssignment, '/update-class_teacher/<string:id>')
 
 
 

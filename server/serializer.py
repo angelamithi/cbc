@@ -6,7 +6,7 @@ from marshmallow_sqlalchemy import SQLAlchemyAutoSchema, auto_field, fields
 from marshmallow.fields import Nested
 from models import (School,Student, Parent, Department, Staff, Grade, Subject, Strand,
                     SubStrand, LearningOutcome, AssessmentRubic, Designation, Year, Term, Report,
-                    TokenBlocklist,Category,Stream,db,TeacherSubjectGradeStream)
+                    TokenBlocklist,Category,Stream,db,TeacherSubjectGradeStream,GradeStreamClassTeacher)
 
 serializer_bp = Blueprint('serializer_bp', __name__)
 ma = Marshmallow(serializer_bp)
@@ -146,6 +146,12 @@ class TeacherSubjectGradeSchema(SQLAlchemyAutoSchema):
 
 teacher_subject_grade_schema = TeacherSubjectGradeSchema()
 
+class GradeStreamClassTeacherSchema(SQLAlchemyAutoSchema):
+     class Meta:
+        model = GradeStreamClassTeacher
+        include_fk = True
+
+grade_stream_class_teacher_schema = GradeStreamClassTeacherSchema()
 
 
 

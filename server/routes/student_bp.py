@@ -3,7 +3,7 @@ from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 from flask_restful import Api, Resource, abort, reqparse
 from flask_jwt_extended import jwt_required, get_jwt_identity,get_jwt
 from models import Student, db,Grade,Staff
-from serializer import studentSchema
+from serializer import studentSchema,grade_stream_class_teacher_schema
 from auth import admin_required,superAdmin_required
 from datetime import datetime
 

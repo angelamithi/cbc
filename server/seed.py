@@ -3,7 +3,7 @@ from datetime import datetime, date
 from app import create_app
 from models import (School,Student, Parent, Department, Staff, Grade, Subject, Strand,
                     SubStrand, LearningOutcome, AssessmentRubic, Designation, Year, Term, Report,
-                    TokenBlocklist,Category,Stream,TeacherSubjectGradeStream,db)
+                    TokenBlocklist,Category,Stream,TeacherSubjectGradeStream,GradeStreamClassTeacher,db)
 
 app = create_app()
 
@@ -119,8 +119,8 @@ def seed_database():
 
                 # Seed data for Streams
         stream_data = [
-            {"stream_name": "A", "school_id": "school_id_1","class_teacher_id":staffs[2].id},  # Replace school_id_1 with the actual school ID
-            {"stream_name": "B", "school_id": "school_id_1","class_teacher_id":staffs[1].id}   # Replace school_id_2 with the actual school ID
+            {"stream_name": "A", "school_id": "school_id_1"},  # Replace school_id_1 with the actual school ID
+            {"stream_name": "B", "school_id": "school_id_1"}   # Replace school_id_2 with the actual school ID
         ]
 
         streams = []
@@ -430,7 +430,17 @@ def seed_database():
             db.session.add(teacher_grade_stream_subject)
         db.session.commit()
 
-       
+        grade_stream_class_teacher_data = [
+            {'staff_id': staffs[0].id, 'grade_id': grades[0].id, 'stream_id': streams[0].id},
+            {'staff_id': staffs[1].id, 'grade_id': grades[1].id, 'stream_id': streams[0].id},
+            {'staff_id': staffs[2].id, 'grade_id': grades[1].id, 'stream_id': streams[1].id},
+        ]
+        grade_stream_class_teachers = []
+        for grade_stream_class_teacher_info in grade_stream_class_teacher_data:
+            grade_stream_class_teacher = GradeStreamClassTeacher(**grade_stream_class_teacher_info)
+            grade_stream_class_teachers.append(grade_stream_class_teacher)
+            db.session.add(grade_stream_class_teacher)
+        db.session.commit()
         # Assuming you have already created and populated other tables like Staff, Year, Term, Grade, Student, Subject, Strand, SubStrand, LearningOutcome, AssessmentRubric
 
         # Fetch existing entries for foreign key references

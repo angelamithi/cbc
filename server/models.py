@@ -74,7 +74,8 @@ class Grade(db.Model):
     assessment_rubrics = db.relationship('AssessmentRubic', backref='grade')
     reports = db.relationship('Report', backref='grade')
     teacher_subject_grade_streams=db.relationship('TeacherSubjectGradeStream',back_populates='grade')
-
+    grade_stream_teacher=db.relationship('GradeStreamClassTeacher', back_populates='grade')
+  
 
 
 
@@ -87,11 +88,20 @@ class Stream(db.Model):
     students = db.relationship('Student', backref='stream')
     reports = db.relationship('Report', backref='stream')
     teacher_subject_grade_streams=db.relationship('TeacherSubjectGradeStream',back_populates='stream')
-    class_teacher_id = db.Column(db.String, db.ForeignKey('staffs.id'))
-    class_teacher = db.relationship('Staff', back_populates='class_streams')
+    grade_stream_teacher=db.relationship('GradeStreamClassTeacher', back_populates='stream')
 
     # Add back_populates for other relationships if needed
 
+class GradeStreamClassTeacher(db.Model):
+    __tablename__='grade_stream_class_teacher'
+    id = db.Column(db.String, primary_key=True, default=generate_uuid)
+    staff_id = db.Column(db.String, db.ForeignKey('staffs.id'), nullable=False)
+    grade_id = db.Column(db.String, db.ForeignKey('grades.id'), nullable=False)
+    stream_id = db.Column(db.String, db.ForeignKey('streams.id'), nullable=False)
+
+    staff = db.relationship('Staff', back_populates='grade_stream_teacher')
+    grade = db.relationship('Grade', back_populates='grade_stream_teacher')
+    stream = db.relationship('Stream', back_populates='grade_stream_teacher')
 
 
 class TeacherSubjectGradeStream(db.Model):
@@ -128,7 +138,7 @@ class Staff(db.Model):
     designation_id = db.Column(db.String, db.ForeignKey('designations.id'), nullable=False)
     teacher_subject_grade_streams=db.relationship('TeacherSubjectGradeStream',back_populates='staff')
     reports = db.relationship('Report', backref='staff')
-    class_streams = db.relationship('Stream', back_populates='class_teacher')
+    grade_stream_teacher=db.relationship('GradeStreamClassTeacher', back_populates='staff')
 
 
 
