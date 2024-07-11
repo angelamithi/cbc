@@ -21,7 +21,8 @@ post_args.add_argument("grade_id", type=str, required=True, help="Grade ID is re
 post_args.add_argument("year_id", type=str, required=True, help="Year ID is required")
 post_args.add_argument("staff_id", type=str, required=True, help="Staff ID is required")
 post_args.add_argument("stream_id", type=str, required=True, help="Stream ID is required")
-post_args.add_argument("assessment_rubic_id", type=str, required=True, help="Assessment Rubric ID is required")
+post_args.add_argument("assessment_rubic_id", type=str, help="Assessment Rubric ID")
+post_args.add_argument("assessment_rubic_ids", type=list, location='json', help="List of Assessment Rubric IDs")
 
 patch_args = reqparse.RequestParser()
 patch_args.add_argument("assessment_rubic_id", type=str, help="Assessment Rubric ID")
@@ -41,43 +42,54 @@ class CreateStudentReport(Resource):
             return make_response(jsonify({'error': 'School ID not found in session'}), 401)
         
         args = post_args.parse_args()
+        assessment_rubic_id = args.get('assessment_rubic_id')
+        assessment_rubic_ids = args.get('assessment_rubic_ids')
 
-        # Fetch the assessment rubric mark
-        assessment_rubic = AssessmentRubic.query.filter_by(id=args['assessment_rubic_id']).first()
-        if not assessment_rubic:
-            return make_response(jsonify({'error': 'Assessment Rubric not found'}), 404)
+        if not assessment_rubic_id and not assessment_rubic_ids:
+            return make_response(jsonify({'error': 'Assessment Rubric ID or Assessment Rubric IDs are required'}), 400)
+        
+        if assessment_rubic_id:
+            assessment_rubic_ids = [assessment_rubic_id]
 
-        single_mark = assessment_rubic.assessment_rubic_mark
+        reports = []
 
-        # Determine the grade flags based on the single mark
-        grade_ee = single_mark == 4
-        grade_me = single_mark == 3
-        grade_ae = single_mark == 2
-        grade_be = single_mark == 1
+        for assessment_rubic_id in assessment_rubic_ids:
+            assessment_rubic = AssessmentRubic.query.filter_by(id=assessment_rubic_id).first()
+            if not assessment_rubic:
+                return make_response(jsonify({'error': f'Assessment Rubric {assessment_rubic_id} not found'}), 404)
 
-        # Create a new report
-        new_report = Report(
-            school_id=school_id,
-            student_id=args['student_id'],
-            subject_id=args['subject_id'],
-            grade_id=args['grade_id'],
-            year_id=args['year_id'],
-            staff_id=args['staff_id'],
-            stream_id=args['stream_id'],
-            assessment_rubic_id=args['assessment_rubic_id'],
-            grade_ee=grade_ee,
-            grade_me=grade_me,
-            grade_ae=grade_ae,
-            grade_be=grade_be,
-            single_mark=single_mark  # Ensure this is an integer
-        )
+            single_mark = assessment_rubic.assessment_rubic_mark
 
-        db.session.add(new_report)
+            # Determine the grade flags based on the single mark
+            grade_ee = single_mark == 4
+            grade_me = single_mark == 3
+            grade_ae = single_mark == 2
+            grade_be = single_mark == 1
+
+            # Create a new report
+            new_report = Report(
+                school_id=school_id,
+                student_id=args['student_id'],
+                subject_id=args['subject_id'],
+                grade_id=args['grade_id'],
+                year_id=args['year_id'],
+                staff_id=args['staff_id'],
+                stream_id=args['stream_id'],
+                assessment_rubic_id=assessment_rubic_id,
+                grade_ee=grade_ee,
+                grade_me=grade_me,
+                grade_ae=grade_ae,
+                grade_be=grade_be,
+                single_mark=single_mark  # Ensure this is an integer
+            )
+
+            db.session.add(new_report)
+            reports.append(new_report)
+
         db.session.commit()
 
         # Serialize the data
-      
-        result = reportSchema.dump(new_report)
+        result = reportSchema.dump(reports, many=True)
 
         return make_response(jsonify(result), 201)
 
