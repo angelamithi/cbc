@@ -37,6 +37,7 @@ from routes.term_bp import term_bp
 from routes.authentication_bp import authentication_bp
 from routes.reports_bp import reports_bp
 from routes.change_password_bp import change_password_bp
+from routes.analytics_bp import  analytics_bp
 
 
 
@@ -108,6 +109,8 @@ def create_app():
     app.register_blueprint(reports_bp)
     app.register_blueprint(subject_details_bp)
     app.register_blueprint(change_password_bp)
+    app.register_blueprint(analytics_bp)
+
 
 
 
