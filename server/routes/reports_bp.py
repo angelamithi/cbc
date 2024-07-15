@@ -104,22 +104,17 @@ class RetrieveStudentReport(Resource):
         # Fetch student, grade, subject, and year details
         year = Year.query.get(year_id)
         grade = Grade.query.get(grade_id)
-        # stream = Stream.query.get(stream_id)
-        # staff_id = Staff.query.get(staff_id)
-        student = Student.query.get(student_id)        
+        student = Student.query.get(student_id)
         subject = Subject.query.get(subject_id)
-     
 
-        
         if not grade:
-             return make_response(jsonify({"message": "Invalid grade"}), 404)
+            return make_response(jsonify({"message": "Invalid grade"}), 404)
         if not subject:
-             return make_response(jsonify({"message": "Invalid subject"}), 404)
+            return make_response(jsonify({"message": "Invalid subject"}), 404)
         if not year:
-             return make_response(jsonify({"message": "Invalid year"}), 404)
-        if not student :
+            return make_response(jsonify({"message": "Invalid year"}), 404)
+        if not student:
             return make_response(jsonify({"message": "Invalid student"}), 404)
-
 
         # Fetch related data
         sub_strands = SubStrand.query.filter_by(subject_id=subject_id, grade_id=grade_id).all()
@@ -128,30 +123,42 @@ class RetrieveStudentReport(Resource):
         assessment_rubrics = AssessmentRubic.query.filter_by(subject_id=subject_id, grade_id=grade_id).all()
 
         # Fetch the report details for the student
-        reports = Report.query.filter_by(student_id=student_id, grade_id=grade_id, subject_id=subject_id, year_id=year_id).first()
+        report = Report.query.filter_by(student_id=student_id, grade_id=grade_id, subject_id=subject_id, year_id=year_id).first()
 
-        if not reports:
+        if not report:
             return make_response(jsonify({"message": "Report not found"}), 404)
-        
+
+        # Determine the type of grade
+        grade_type = None
+        if report.grade_ee == 1:
+            grade_type = "EE"
+        elif report.grade_me == 1:
+            grade_type = "ME"
+        elif report.grade_ae == 1:
+            grade_type = "AE"
+        elif report.grade_be == 1:
+            grade_type = "BE"
+
         # Serialize the data
-        result_report=reportSchema.dump(reports)
+        result_report = reportSchema.dump(report)
         result_strands = strandSchema.dump(strands, many=True)
-        result_sub_strands = subStrandSchema.dump(sub_strands, many=True)        
+        result_sub_strands = subStrandSchema.dump(sub_strands, many=True)
         result_learning_outcomes = learningOutcomeSchema.dump(learning_outcomes, many=True)
         result_assessment_rubrics = assessmentRubicSchema.dump(assessment_rubrics, many=True)
 
-        # Return the serialized data
+        # Return the serialized data with grade type
         return make_response(jsonify({
-            "reports":result_report,
+            "reports": result_report,
+            "grade_type": grade_type,
             "strands": result_strands,
-            "sub_strands": result_sub_strands,          
+            "sub_strands": result_sub_strands,
             "learning_outcomes": result_learning_outcomes,
             "assessment_rubrics": result_assessment_rubrics
         }), 200)
 
-      
 # Add the route for the API resource
 api.add_resource(RetrieveStudentReport, '/get_student_report/<string:grade_id>/<string:student_id>/<string:subject_id>/<string:year_id>')
+
 
 class UpdateStudentReport(Resource):
     @jwt_required()
