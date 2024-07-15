@@ -11,22 +11,7 @@ formative_reports_bp = Blueprint('formative_reports_bp', __name__)
 api = Api(formative_reports_bp)
 
 
-post_args = reqparse.RequestParser()
 
-
-post_args.add_argument("student_id", type=str, required=True, help="Student ID is required")
-post_args.add_argument("subject_id", type=str, required=True, help="Subject ID is required")
-post_args.add_argument("grade_id", type=str, required=True, help="Grade ID is required")
-post_args.add_argument("year_id", type=str, required=True, help="Year ID is required")
-post_args.add_argument("staff_id", type=str, required=True, help="Staff ID is required")
-post_args.add_argument("stream_id", type=str, required=True, help="Stream ID is required")
-post_args.add_argument("assessment_rubic_id", type=str, help="Assessment Rubric ID")
-post_args.add_argument("assessment_rubic_ids", type=list, location='json', help="List of Assessment Rubric IDs")
-
-patch_args = reqparse.RequestParser()
-patch_args.add_argument("assessment_rubic_id", type=str, help="Assessment Rubric ID")
-patch_args.add_argument("single_mark", type=str, help="Single Mark/Points required")
-patch_args.add_argument("updates", type=list, location='json', help="List of updates")
 
 def get_school_id_from_session():
     claims = get_jwt()
