@@ -146,15 +146,20 @@ class RetrieveStudentReport(Resource):
         result_learning_outcomes = learningOutcomeSchema.dump(learning_outcomes, many=True)
         result_assessment_rubrics = assessmentRubicSchema.dump(assessment_rubrics, many=True)
 
-        # Return the serialized data with grade type
+        # Add grade type to each learning outcome
+        for outcome in result_learning_outcomes:
+            outcome['grade_type'] = grade_type
+
+        # Return the serialized data with grade type in learning outcomes
         return make_response(jsonify({
             "reports": result_report,
-            "grade_type": grade_type,
             "strands": result_strands,
             "sub_strands": result_sub_strands,
             "learning_outcomes": result_learning_outcomes,
             "assessment_rubrics": result_assessment_rubrics
         }), 200)
+
+
 
 # Add the route for the API resource
 api.add_resource(RetrieveStudentReport, '/get_student_report/<string:grade_id>/<string:student_id>/<string:subject_id>/<string:year_id>')
