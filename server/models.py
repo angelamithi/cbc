@@ -31,7 +31,7 @@ class School(db.Model):
     parents = db.relationship('Parent', backref='school')
     subjects = db.relationship('Subject', backref='school')
     departments = db.relationship('Department', backref='school')
-    reports = db.relationship('Report', backref='school')
+    formative_reports = db.relationship('FormativeReport', backref='school')
 
 
 class Student(db.Model):
@@ -49,7 +49,7 @@ class Student(db.Model):
     grade_id = db.Column(db.String, db.ForeignKey('grades.id'), nullable=False)
     stream_id = db.Column(db.String, db.ForeignKey('streams.id'), nullable=False)
     parents = db.relationship('Parent', backref='student')
-    reports = db.relationship('Report', backref='student')
+    formative_reports = db.relationship('FormativeReport', backref='student')
 
 
 class Category(db.Model):
@@ -72,7 +72,7 @@ class Grade(db.Model):
     substrands = db.relationship('SubStrand', backref='grade')
     learning_outcomes = db.relationship('LearningOutcome', backref='grade')
     assessment_rubrics = db.relationship('AssessmentRubic', backref='grade')
-    reports = db.relationship('Report', backref='grade')
+    formative_reports = db.relationship('FormativeReport', backref='grade')
     teacher_subject_grade_streams=db.relationship('TeacherSubjectGradeStream',back_populates='grade')
     grade_stream_teacher=db.relationship('GradeStreamClassTeacher', back_populates='grade')
   
@@ -86,7 +86,7 @@ class Stream(db.Model):
     school_id = db.Column(db.String, db.ForeignKey('schools.id'), nullable=False)
     stream_name = db.Column(db.String)
     students = db.relationship('Student', backref='stream')
-    reports = db.relationship('Report', backref='stream')
+    formative_reports = db.relationship('FormativeReport', backref='stream')
     teacher_subject_grade_streams=db.relationship('TeacherSubjectGradeStream',back_populates='stream')
     grade_stream_teacher=db.relationship('GradeStreamClassTeacher', back_populates='stream')
 
@@ -137,7 +137,7 @@ class Staff(db.Model):
     photo_url = db.Column(db.String)
     designation_id = db.Column(db.String, db.ForeignKey('designations.id'), nullable=False)
     teacher_subject_grade_streams=db.relationship('TeacherSubjectGradeStream',back_populates='staff')
-    reports = db.relationship('Report', backref='staff')
+    formative_reports = db.relationship('FormativeReport', backref='staff')
     grade_stream_teacher=db.relationship('GradeStreamClassTeacher', back_populates='staff')
 
 
@@ -180,7 +180,7 @@ class Subject(db.Model):
     sub_strands = db.relationship('SubStrand', backref='subject')
     learning_outcomes = db.relationship('LearningOutcome', backref='subject')
     assessment_rubics = db.relationship('AssessmentRubic', backref='subject')
-    reports = db.relationship('Report', backref='subject')
+    formative_reports = db.relationship('FormativeReport', backref='subject')
     teacher_subject_grade_streams=db.relationship('TeacherSubjectGradeStream',back_populates='subject')
 
 
@@ -228,7 +228,7 @@ class AssessmentRubic(db.Model):
     strand_id = db.Column(db.String, db.ForeignKey('strands.id'), nullable=False)
     sub_strand_id = db.Column(db.String, db.ForeignKey('substrands.id'), nullable=False)
     learning_outcome_id = db.Column(db.String, db.ForeignKey('learning_outcomes.id'), nullable=False)
-    reports = db.relationship('Report', backref='assessment_rubic')
+    formative_reports = db.relationship('FormativeReport', backref='assessment_rubic')
    
 
 
@@ -245,7 +245,7 @@ class Year(db.Model):
     __tablename__ = "years"
     id = db.Column(db.String, primary_key=True, default=generate_uuid)
     year_name = db.Column(db.Integer)
-    reports = db.relationship('Report', backref='year')
+    formative_reports = db.relationship('FormativeReport', backref='year')
 
 
 class Term(db.Model):
@@ -255,8 +255,8 @@ class Term(db.Model):
     
 
 
-class Report(db.Model):
-    __tablename__ = "reports"
+class FormativeReport(db.Model):
+    __tablename__ = "formative_reports"
     id = db.Column(db.String, primary_key=True,default=generate_uuid)   
     school_id = db.Column(db.String, db.ForeignKey('schools.id'), nullable=False)
     student_id = db.Column(db.String, db.ForeignKey('students.id'), nullable=False)
@@ -266,10 +266,7 @@ class Report(db.Model):
     staff_id = db.Column(db.String, db.ForeignKey('staffs.id'), nullable=False)
     stream_id = db.Column(db.String, db.ForeignKey('streams.id'), nullable=False)
     assessment_rubic_id = db.Column(db.String, db.ForeignKey('assessment_rubics.id'), nullable=False)
-    grade_ee = db.Column(db.Boolean, nullable=False)
-    grade_me = db.Column(db.Boolean, nullable=False)
-    grade_ae = db.Column(db.Boolean, nullable=False)
-    grade_be = db.Column(db.Boolean, nullable=False)
+    is_selected = db.Column(db.Boolean, nullable=False)
     single_mark = db.Column(db.Integer, nullable=False)
    
   

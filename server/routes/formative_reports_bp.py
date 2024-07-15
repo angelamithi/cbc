@@ -2,14 +2,13 @@ from flask import Blueprint, make_response, jsonify,session,request
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 from flask_restful import Api, Resource, reqparse
 from flask_jwt_extended import jwt_required,get_jwt
-from models import Report,Student,db
-from serializer import reportSchema,subStrandSchema,strandSchema,learningOutcomeSchema,assessmentRubicSchema
+from serializer import formative_report_schema,subStrandSchema,strandSchema,learningOutcomeSchema,assessmentRubicSchema
 from auth import admin_required, superAdmin_required,teacher_required
-from models import Strand,SubStrand,LearningOutcome,AssessmentRubic,Grade,Subject,Staff,Stream,Year
+from models import Strand,SubStrand,LearningOutcome,AssessmentRubic,Grade,Subject,Staff,Stream,Year,FormativeReport,Student,db
 from sqlalchemy.orm import joinedload
 
-reports_bp = Blueprint('reports_bp', __name__)
-api = Api(reports_bp)
+formative_reports_bp = Blueprint('formative_reports_bp', __name__)
+api = Api(formative_reports_bp)
 
 
 post_args = reqparse.RequestParser()
@@ -35,7 +34,6 @@ def get_school_id_from_session():
 
 
 class RetrieveStudentReport(Resource):
-
     @jwt_required()
     def get(self, grade_id, student_id, subject_id, year_id):
         # Fetch student, grade, subject, and year details
@@ -57,49 +55,34 @@ class RetrieveStudentReport(Resource):
         strands = Strand.query.filter_by(subject_id=subject_id, grade_id=grade_id).all()
         sub_strands = SubStrand.query.filter_by(subject_id=subject_id, grade_id=grade_id).all()
         learning_outcomes = LearningOutcome.query.filter_by(subject_id=subject_id, grade_id=grade_id).all()
+
+        # Fetch assessment rubrics and filter for those related to the current subject and grade
         assessment_rubrics = AssessmentRubic.query.filter_by(subject_id=subject_id, grade_id=grade_id).all()
 
         # Fetch the report details for the student
-        report = Report.query.filter_by(student_id=student_id, grade_id=grade_id, subject_id=subject_id, year_id=year_id).first()
+        report = FormativeReport.query.filter_by(student_id=student_id, grade_id=grade_id, subject_id=subject_id, year_id=year_id).first()
 
         if not report:
             return make_response(jsonify({"message": "Report not found"}), 404)
 
-        # Serialize the data
-        result_report = reportSchema.dump(report)
-        result_strands = strandSchema.dump(strands, many=True)
-        result_sub_strands = subStrandSchema.dump(sub_strands, many=True)
-        result_learning_outcomes = learningOutcomeSchema.dump(learning_outcomes, many=True)
-        result_assessment_rubrics = assessmentRubicSchema.dump(assessment_rubrics, many=True)
-
-        # Construct a map for learning outcome to grade type for each assessment rubric
+        # Create a map for learning outcome to grade type (assessment_rubic_id) for each assessment rubric
         learning_outcome_grade_types = {}
-        for assessment_rubic in assessment_rubrics:
-            lo_id = assessment_rubic.learning_outcome_id
-            grade_type = None
-            report_for_rubic = Report.query.filter_by(
+        for rubric in assessment_rubrics:
+            report_for_rubic = FormativeReport.query.filter_by(
                 student_id=student_id,
                 grade_id=grade_id,
                 subject_id=subject_id,
                 year_id=year_id,
-                assessment_rubic_id=assessment_rubic.id  # Assuming there's a foreign key like this in Report
+                assessment_rubic_id=rubric.id
             ).first()
-            
-            if report_for_rubic:
-                if report_for_rubic.grade_ee == 1:
-                    grade_type = "EE"
-                elif report_for_rubic.grade_me == 1:
-                    grade_type = "ME"
-                elif report_for_rubic.grade_ae == 1:
-                    grade_type = "AE"
-                elif report_for_rubic.grade_be == 1:
-                    grade_type = "BE"
 
-            learning_outcome_grade_types[lo_id] = grade_type
+            if report_for_rubic and report_for_rubic.is_selected == 1:
+                learning_outcome_grade_types[rubric.learning_outcome_id] = rubric.id
 
-        # Add grade type to each learning outcome
-        for outcome in result_learning_outcomes:
-            outcome['grade_type'] = learning_outcome_grade_types.get(outcome['id'], None)
+        # Serialize the data
+        result_strands = strandSchema.dump(strands, many=True)
+        result_sub_strands = subStrandSchema.dump(sub_strands, many=True)
+        result_learning_outcomes = learningOutcomeSchema.dump(learning_outcomes, many=True)
 
         # Construct the nested response structure
         response_data = {
@@ -122,17 +105,13 @@ class RetrieveStudentReport(Resource):
                                             {
                                                 "learning_outcome_id": outcome['id'],
                                                 "learning_outcome_name": outcome['learning_outcomes'],
-                                                "grade_type": outcome['grade_type'],
+                                                "grade_type": learning_outcome_grade_types.get(outcome['id'], None),
                                                 "assessment_rubrics": [
                                                     {
                                                         "assessment_rubic_id": rubric.id,
                                                         "assessment_rubic_name": rubric.assessment_rubics,
+                                                        "assessment_rubic_mark": rubric.assessment_rubic_mark
                                                         # Add other attributes you need from AssessmentRubic
-                                                        # Fetch from report_for_rubic.grade_ee, etc.
-                                                        "grade_ee": report_for_rubic.grade_ee if report_for_rubic else None,
-                                                        "grade_me": report_for_rubic.grade_me if report_for_rubic else None,
-                                                        "grade_ae": report_for_rubic.grade_ae if report_for_rubic else None,
-                                                        "grade_be": report_for_rubic.grade_be if report_for_rubic else None
                                                     }
                                                     for rubric in assessment_rubrics
                                                     if rubric.learning_outcome_id == outcome['id']
@@ -156,6 +135,8 @@ class RetrieveStudentReport(Resource):
 
         # Return the serialized data
         return make_response(jsonify(response_data), 200)
+
+
 
 # Add the route for the API resource
 api.add_resource(RetrieveStudentReport, '/get_student_report/<string:grade_id>/<string:student_id>/<string:subject_id>/<string:year_id>')

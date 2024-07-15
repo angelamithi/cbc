@@ -2,7 +2,7 @@ from flask import Blueprint,jsonify, make_response,session
 from flask_jwt_extended import jwt_required,get_jwt
 from flask_restful import Resource, Api,reqparse
 from sqlalchemy.sql import func,case
-from models import Subject,Report,db,Student,Grade,Year,SubStrand,AssessmentRubic,Strand,Staff,TeacherSubjectGradeStream,LearningOutcome
+from models import Subject,FormativeReport,db,Student,Grade,Year,SubStrand,AssessmentRubic,Strand,Staff,TeacherSubjectGradeStream,LearningOutcome
 
 analytics_bp = Blueprint('analytics_bp', __name__)
 api = Api(analytics_bp)

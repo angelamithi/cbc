@@ -10,10 +10,9 @@ from flask_cors import CORS,cross_origin
 from flask_marshmallow import Marshmallow
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 from datetime import datetime,timedelta
-from models import db
 from flask_jwt_extended import JWTManager
 from models import (School,Student, Parent, Department, Staff, Grade, Subject, Strand,
-                    SubStrand, LearningOutcome, AssessmentRubic, Designation, Year, Term, Report,
+                    SubStrand, LearningOutcome, AssessmentRubic, Designation, Year, Term, FormativeReport,
                     TokenBlocklist,Category,Stream,Parent,db)
 from dotenv import load_dotenv
 from flask_bcrypt import Bcrypt
@@ -35,7 +34,7 @@ from routes.department_bp import department_bp
 from routes.year_bp import year_bp
 from routes.term_bp import term_bp
 from routes.authentication_bp import authentication_bp
-from routes.reports_bp import reports_bp
+from routes.formative_reports_bp import formative_reports_bp
 from routes.change_password_bp import change_password_bp
 from routes.analytics_bp import  analytics_bp
 
@@ -106,7 +105,7 @@ def create_app():
     app.register_blueprint(year_bp)
     app.register_blueprint(term_bp)
     app.register_blueprint(department_bp)
-    app.register_blueprint(reports_bp)
+    app.register_blueprint(formative_reports_bp)
     app.register_blueprint(subject_details_bp)
     app.register_blueprint(change_password_bp)
     app.register_blueprint(analytics_bp)

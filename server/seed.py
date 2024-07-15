@@ -2,7 +2,7 @@ import itertools,random
 from datetime import datetime, date
 from app import create_app
 from models import (School,Student, Parent, Department, Staff, Grade, Subject, Strand,
-                    SubStrand, LearningOutcome, AssessmentRubic, Designation, Year, Term, Report,
+                    SubStrand, LearningOutcome, AssessmentRubic, Designation, Year, Term,FormativeReport,
                     TokenBlocklist,Category,Stream,TeacherSubjectGradeStream,GradeStreamClassTeacher,db)
 
 app = create_app()
@@ -25,7 +25,7 @@ def seed_database():
         Designation.query.delete()
         Year.query.delete()
         Term.query.delete()
-        Report.query.delete()
+        FormativeReport.query.delete()
         Stream.query.delete()
         TeacherSubjectGradeStream.query.delete()
        
@@ -455,49 +455,31 @@ def seed_database():
         learning_outcomes = db.session.query(LearningOutcome).all()
         assessment_rubics = db.session.query(AssessmentRubic).all()
 
-        # Generate all possible combinations
-        combinations = list(itertools.product(
-            range(6),  # subjects index from 0 to 5
-            range(14)  # learning outcomes index from 0 to 13
-        ))
+   
+   
 
-        # Define possible grades
-        grades_info = [
-            {"grade_ee": True, "grade_me": False, "grade_ae": False, "grade_be": False, "single_mark": 4},
-            {"grade_ee": False, "grade_me": True, "grade_ae": False, "grade_be": False, "single_mark": 3},
-            {"grade_ee": False, "grade_me": False, "grade_ae": True, "grade_be": False, "single_mark": 2},
-            {"grade_ee": False, "grade_me": False, "grade_ae": False, "grade_be": True, "single_mark": 1}
-        ]
+        formative_report_data = [
 
-        # Seed data for reports
-        reports_data = []
-        for combo in combinations:
-            subject_idx,assessment_rubic_idx = combo
-            grade_info = random.choice(grades_info)  # Randomly select a grade
-            report_info = {
-                "staff_id": staffs[0].id,
-                "year_id": years[0].id,
-                "grade_id": grades[1].id,
-                "stream_id":streams[0].id,
-                "student_id": students[0].id,                
-                "subject_id": subjects[subject_idx].id,
-                "assessment_rubic_id":assessment_rubics[assessment_rubic_idx].id,
-                "single_mark": grade_info["single_mark"],
-                "grade_ee": grade_info["grade_ee"],
-                "grade_me": grade_info["grade_me"],
-                "grade_ae": grade_info["grade_ae"],
-                "grade_be": grade_info["grade_be"],
-                "school_id": "school_id_1"
-            }
-            reports_data.append(report_info)
+            { "staff_id": staffs[0].id,"school_id":schools[0].id,"year_id": years[1].id,"grade_id": grades[1].id,"stream_id":streams[0].id,"student_id": students[0].id,'subject_id': subjects[0].id,"assessment_rubic_id":assessment_rubics[0].id,"is_selected":1,"single_mark":4},
+            { "staff_id": staffs[0].id,"school_id":schools[0].id,"year_id": years[1].id,"grade_id": grades[1].id,"stream_id":streams[0].id,"student_id": students[0].id,'subject_id': subjects[0].id,"assessment_rubic_id":assessment_rubics[1].id,"is_selected":0,"single_mark":0},
+            { "staff_id": staffs[0].id,"school_id":schools[0].id,"year_id": years[1].id,"grade_id": grades[1].id,"stream_id":streams[0].id,"student_id": students[0].id,'subject_id': subjects[0].id,"assessment_rubic_id":assessment_rubics[2].id,"is_selected":0,"single_mark":0},
+            { "staff_id": staffs[0].id,"school_id":schools[0].id,"year_id": years[1].id,"grade_id": grades[1].id,"stream_id":streams[0].id,"student_id": students[0].id,'subject_id': subjects[0].id,"assessment_rubic_id":assessment_rubics[3].id,"is_selected":0,"single_mark":0},            
+            { "staff_id": staffs[0].id,"school_id":schools[0].id,"year_id": years[1].id,"grade_id": grades[1].id,"stream_id":streams[0].id,"student_id": students[0].id,'subject_id': subjects[0].id,"assessment_rubic_id":assessment_rubics[4].id,"is_selected":0,"single_mark":0},
+            { "staff_id": staffs[0].id,"school_id":schools[0].id,"year_id": years[1].id,"grade_id": grades[1].id,"stream_id":streams[0].id,"student_id": students[0].id,'subject_id': subjects[0].id,"assessment_rubic_id":assessment_rubics[5].id,"is_selected":1,"single_mark":4},
+            { "staff_id": staffs[0].id,"school_id":schools[0].id,"year_id": years[1].id,"grade_id": grades[1].id,"stream_id":streams[0].id,"student_id": students[0].id,'subject_id': subjects[0].id,"assessment_rubic_id":assessment_rubics[6].id,"is_selected":0,"single_mark":0},
+            { "staff_id": staffs[0].id,"school_id":schools[0].id,"year_id": years[1].id,"grade_id": grades[1].id,"stream_id":streams[0].id,"student_id": students[0].id,'subject_id': subjects[0].id,"assessment_rubic_id":assessment_rubics[7].id,"is_selected":0,"single_mark":0},
+            
 
-        # Add and commit the data
-        for report_info in reports_data:
-            report = Report(**report_info)
-            db.session.add(report)
-
+        ]     
+            
+        
+        formative_reports_array = []
+        for formative_report_info in formative_report_data:
+            formative_report = FormativeReport(**formative_report_info )
+            formative_reports_array.append(formative_report)
+            db.session.add(formative_report)
         db.session.commit()
-
+        
 
 
        

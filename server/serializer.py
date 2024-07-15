@@ -5,7 +5,7 @@ from flask_bcrypt import Bcrypt
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema, auto_field, fields
 from marshmallow.fields import Nested
 from models import (School,Student, Parent, Department, Staff, Grade, Subject, Strand,
-                    SubStrand, LearningOutcome, AssessmentRubic, Designation, Year, Term, Report,
+                    SubStrand, LearningOutcome, AssessmentRubic, Designation, Year, Term, FormativeReport,
                     TokenBlocklist,Category,Stream,db,TeacherSubjectGradeStream,GradeStreamClassTeacher)
 
 serializer_bp = Blueprint('serializer_bp', __name__)
@@ -155,9 +155,9 @@ grade_stream_class_teacher_schema = GradeStreamClassTeacherSchema()
 
 
 
-class ReportSchema(SQLAlchemyAutoSchema):
+class FormativeReportSchema(SQLAlchemyAutoSchema):
     class Meta:
-        model = Report
+        model = FormativeReport
         include_fk = True
         load_instance = True
 
@@ -174,6 +174,6 @@ class ReportSchema(SQLAlchemyAutoSchema):
     # learning_outcome = fields.Nested(LearningOutcomeSchema, attribute="learning_outcomes")
     # assessment_rubic = fields.Nested(AssessmentRubicSchema, attribute="assessment_rubics")
 
-reportSchema = ReportSchema()
+formative_report_schema = FormativeReportSchema()
 
 
