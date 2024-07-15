@@ -34,69 +34,6 @@ def get_school_id_from_session():
 
 
 
-class CreateStudentReport(Resource):
-    @jwt_required()
-    def post(self):
-        school_id = get_school_id_from_session()
-        if not school_id:
-            return make_response(jsonify({'error': 'School ID not found in session'}), 401)
-        
-        args = post_args.parse_args()
-        assessment_rubic_id = args.get('assessment_rubic_id')
-        assessment_rubic_ids = args.get('assessment_rubic_ids')
-
-        if not assessment_rubic_id and not assessment_rubic_ids:
-            return make_response(jsonify({'error': 'Assessment Rubric ID or Assessment Rubric IDs are required'}), 400)
-        
-        if assessment_rubic_id:
-            assessment_rubic_ids = [assessment_rubic_id]
-
-        reports = []
-
-        for assessment_rubic_id in assessment_rubic_ids:
-            assessment_rubic = AssessmentRubic.query.filter_by(id=assessment_rubic_id).first()
-            if not assessment_rubic:
-                return make_response(jsonify({'error': f'Assessment Rubric {assessment_rubic_id} not found'}), 404)
-
-            single_mark = assessment_rubic.assessment_rubic_mark
-
-            # Determine the grade flags based on the single mark
-            grade_ee = single_mark == 4
-            grade_me = single_mark == 3
-            grade_ae = single_mark == 2
-            grade_be = single_mark == 1
-
-            # Create a new report
-            new_report = Report(
-                school_id=school_id,
-                student_id=args['student_id'],
-                subject_id=args['subject_id'],
-                grade_id=args['grade_id'],
-                year_id=args['year_id'],
-                staff_id=args['staff_id'],
-                stream_id=args['stream_id'],
-                assessment_rubic_id=assessment_rubic_id,
-                grade_ee=grade_ee,
-                grade_me=grade_me,
-                grade_ae=grade_ae,
-                grade_be=grade_be,
-                single_mark=single_mark  # Ensure this is an integer
-            )
-
-            db.session.add(new_report)
-            reports.append(new_report)
-
-        db.session.commit()
-
-        # Serialize the data
-        result = reportSchema.dump(reports, many=True)
-
-        return make_response(jsonify(result), 201)
-
-# Add the route for the API resource
-api.add_resource(CreateStudentReport, '/create_student_report')
-
-
 class RetrieveStudentReport(Resource):
 
     @jwt_required()
@@ -117,8 +54,8 @@ class RetrieveStudentReport(Resource):
             return make_response(jsonify({"message": "Invalid student"}), 404)
 
         # Fetch related data
-        sub_strands = SubStrand.query.filter_by(subject_id=subject_id, grade_id=grade_id).all()
         strands = Strand.query.filter_by(subject_id=subject_id, grade_id=grade_id).all()
+        sub_strands = SubStrand.query.filter_by(subject_id=subject_id, grade_id=grade_id).all()
         learning_outcomes = LearningOutcome.query.filter_by(subject_id=subject_id, grade_id=grade_id).all()
         assessment_rubrics = AssessmentRubic.query.filter_by(subject_id=subject_id, grade_id=grade_id).all()
 
@@ -128,17 +65,6 @@ class RetrieveStudentReport(Resource):
         if not report:
             return make_response(jsonify({"message": "Report not found"}), 404)
 
-        # Determine the type of grade
-        grade_type = None
-        if report.grade_ee == 1:
-            grade_type = "EE"
-        elif report.grade_me == 1:
-            grade_type = "ME"
-        elif report.grade_ae == 1:
-            grade_type = "AE"
-        elif report.grade_be == 1:
-            grade_type = "BE"
-
         # Serialize the data
         result_report = reportSchema.dump(report)
         result_strands = strandSchema.dump(strands, many=True)
@@ -146,23 +72,94 @@ class RetrieveStudentReport(Resource):
         result_learning_outcomes = learningOutcomeSchema.dump(learning_outcomes, many=True)
         result_assessment_rubrics = assessmentRubicSchema.dump(assessment_rubrics, many=True)
 
+        # Construct a map for learning outcome to grade type for each assessment rubric
+        learning_outcome_grade_types = {}
+        for assessment_rubic in assessment_rubrics:
+            lo_id = assessment_rubic.learning_outcome_id
+            grade_type = None
+            report_for_rubic = Report.query.filter_by(
+                student_id=student_id,
+                grade_id=grade_id,
+                subject_id=subject_id,
+                year_id=year_id,
+                assessment_rubic_id=assessment_rubic.id  # Assuming there's a foreign key like this in Report
+            ).first()
+            
+            if report_for_rubic:
+                if report_for_rubic.grade_ee == 1:
+                    grade_type = "EE"
+                elif report_for_rubic.grade_me == 1:
+                    grade_type = "ME"
+                elif report_for_rubic.grade_ae == 1:
+                    grade_type = "AE"
+                elif report_for_rubic.grade_be == 1:
+                    grade_type = "BE"
+
+            learning_outcome_grade_types[lo_id] = grade_type
+
         # Add grade type to each learning outcome
         for outcome in result_learning_outcomes:
-            outcome['grade_type'] = grade_type
+            outcome['grade_type'] = learning_outcome_grade_types.get(outcome['id'], None)
 
-        # Return the serialized data with grade type in learning outcomes
-        return make_response(jsonify({
-            "reports": result_report,
-            "strands": result_strands,
-            "sub_strands": result_sub_strands,
-            "learning_outcomes": result_learning_outcomes,
-            "assessment_rubrics": result_assessment_rubrics
-        }), 200)
+        # Construct the nested response structure
+        response_data = {
+            "grade": {
+                "grade_id": grade.id,
+                "grade_name": grade.grade,
+                "subjects": [
+                    {
+                        "subject_id": subject.id,
+                        "subject_name": subject.subject_name,
+                        "strands": [
+                            {
+                                "strand_id": strand.id,
+                                "strand_name": strand.strand_name,
+                                "sub_strands": [
+                                    {
+                                        "sub_strand_id": sub_strand.id,
+                                        "sub_strand_name": sub_strand.substrand_name,
+                                        "learning_outcomes": [
+                                            {
+                                                "learning_outcome_id": outcome['id'],
+                                                "learning_outcome_name": outcome['learning_outcomes'],
+                                                "grade_type": outcome['grade_type'],
+                                                "assessment_rubrics": [
+                                                    {
+                                                        "assessment_rubic_id": rubric.id,
+                                                        "assessment_rubic_name": rubric.assessment_rubics,
+                                                        # Add other attributes you need from AssessmentRubic
+                                                        # Fetch from report_for_rubic.grade_ee, etc.
+                                                        "grade_ee": report_for_rubic.grade_ee if report_for_rubic else None,
+                                                        "grade_me": report_for_rubic.grade_me if report_for_rubic else None,
+                                                        "grade_ae": report_for_rubic.grade_ae if report_for_rubic else None,
+                                                        "grade_be": report_for_rubic.grade_be if report_for_rubic else None
+                                                    }
+                                                    for rubric in assessment_rubrics
+                                                    if rubric.learning_outcome_id == outcome['id']
+                                                ]
+                                            }
+                                            for outcome in result_learning_outcomes
+                                            if outcome['sub_strand_id'] == sub_strand.id
+                                        ]
+                                    }
+                                    for sub_strand in sub_strands
+                                    if sub_strand.strand_id == strand.id
+                                ]
+                            }
+                            for strand in strands
+                        ]
+                    }
+                ]
+            },
+            # "report": result_report
+        }
 
-
+        # Return the serialized data
+        return make_response(jsonify(response_data), 200)
 
 # Add the route for the API resource
 api.add_resource(RetrieveStudentReport, '/get_student_report/<string:grade_id>/<string:student_id>/<string:subject_id>/<string:year_id>')
+
 
 
 class UpdateStudentReport(Resource):
