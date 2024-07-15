@@ -21,10 +21,10 @@ class AverageScoresPerSubject(Resource):
         average_scores = (
             db.session.query(
                 Subject.subject_name,
-                func.avg(Report.single_mark).label('average_score')
+                func.avg(FormativeReport.single_mark).label('average_score')
             )
-            .join(Report, Report.subject_id == Subject.id)
-            .filter(Report.grade_id == grade_id,Report.school_id==school_id)
+            .join(FormativeReport, FormativeReport.subject_id == Subject.id)
+            .filter(FormativeReport.grade_id == grade_id,FormativeReport.school_id==school_id)
             .group_by(Subject.subject_name)
             .all()
         )
@@ -44,7 +44,7 @@ class PerformanceDistribution(Resource):
         
         # Query to fetch all scores for the given subject
 
-        scores = db.session.query(Report.single_mark).filter_by(subject_id=subject_id,grade_id=grade_id,school_id=school_id).all()
+        scores = db.session.query(FormativeReport.single_mark).filter_by(subject_id=subject_id,grade_id=grade_id,school_id=school_id).all()
         
         if not scores:
             return make_response(jsonify({"message": "No scores found for the given subject"}), 404)
@@ -88,7 +88,7 @@ class StudentPerformanceOverTime(Resource):
     @staticmethod
     def student_total_marks(student_id, subject_id, grade_id, year_id):
         school_id = get_school_id_from_session()
-        total_marks_obtained = db.session.query(db.func.sum(Report.single_mark)).filter_by(
+        total_marks_obtained = db.session.query(db.func.sum(FormativeReport.single_mark)).filter_by(
             student_id=student_id,
             subject_id=subject_id,
             grade_id=grade_id,
@@ -170,7 +170,7 @@ class ClassPerformanceOverTime(Resource):
     @staticmethod    
     def class_total_marks(subject_id, grade_id, year_id):
         school_id = get_school_id_from_session()
-        total_marks_obtained = db.session.query(func.sum(Report.single_mark)).filter_by(
+        total_marks_obtained = db.session.query(func.sum(FormativeReport.single_mark)).filter_by(
             subject_id=subject_id,
             grade_id=grade_id,
             year_id=year_id,
@@ -246,14 +246,14 @@ class DistributionAssessmentGrades(Resource):
         school_id = get_school_id_from_session()
         # Query to get average single_mark per student
         average_marks = db.session.query(
-            Report.student_id,
-            db.func.avg(Report.single_mark).label('avg_mark')
+            FormativeReport.student_id,
+            db.func.avg(FormativeReport.single_mark).label('avg_mark')
         ).filter(
-            Report.subject_id == subject_id,
-            Report.grade_id == grade_id,
-            Report.year_id == year_id,
-            Report.school_id==school_id
-        ).group_by(Report.student_id).all()
+            FormativeReport.subject_id == subject_id,
+            FormativeReport.grade_id == grade_id,
+            FormativeReport.year_id == year_id,
+            FormativeReport.school_id==school_id
+        ).group_by(FormativeReport.student_id).all()
 
         if not average_marks:
             return make_response(jsonify({'error': 'No data found for the given criteria'}), 404)
@@ -324,23 +324,23 @@ api.add_resource(DistributionAssessmentGrades, '/distribution_assessment_grades/
 
 class TeacherPerformanceInsights(Resource):
     @jwt_required()
-    def get(self, subject_id, grade_id):
+    def get(self, grade_id):
         school_id = get_school_id_from_session()
         try:
-            # Fetch all teachers who taught the subject and grade in any stream
-            teachers = db.session.query(Staff).join(TeacherSubjectGradeStream, TeacherSubjectGradeStream.staff_id == Staff.id) \
-                                                .filter(TeacherSubjectGradeStream.subject_id == subject_id) \
-                                                .filter(TeacherSubjectGradeStream.grade_id == grade_id) \
-                                                .filter(Staff.school_id == school_id) \
-                                                .all()
+            # Fetch all teachers who taught the grade in any stream and subject
+            teachers = db.session.query(Staff).join(FormativeReport, FormativeReport.staff_id == Staff.id) \
+                                              .filter(FormativeReport.grade_id == grade_id) \
+                                              .filter(Staff.school_id == school_id) \
+                                              .distinct(Staff.id) \
+                                              .all()
 
             # Prepare teacher performance insights
             insights = []
             for teacher in teachers:
-                teacher_performance = self.calculate_teacher_performance(teacher.id, subject_id, grade_id)
+                teacher_performance = self.calculate_teacher_performance(teacher.id, grade_id)
                 insights.append({
                     'teacher_name': f'{teacher.first_name} {teacher.last_name}',
-                    'performance_percentage': teacher_performance
+                    'subjects': teacher_performance
                 })
 
             return make_response(jsonify(insights), 200)
@@ -348,29 +348,45 @@ class TeacherPerformanceInsights(Resource):
         except Exception as e:
             return make_response(jsonify({'message': str(e)}), 500)
 
-    def calculate_teacher_performance(self, teacher_id, subject_id, grade_id):
+    def calculate_teacher_performance(self, teacher_id, grade_id):
         try:
-            # Fetch all reports for the subject, grade, and teacher
-            reports = Report.query.filter_by(subject_id=subject_id, grade_id=grade_id, staff_id=teacher_id).all()
+            # Fetch all subjects the teacher taught for the specified grade
+            subjects = db.session.query(Subject).join(FormativeReport, FormativeReport.subject_id == Subject.id) \
+                                                 .filter(FormativeReport.staff_id == teacher_id) \
+                                                 .filter(FormativeReport.grade_id == grade_id) \
+                                                 .distinct(Subject.id) \
+                                                 .all()
 
-            total_possible_marks = 0
-            total_obtained_marks = 0
+            subject_performance = []
+            for subject in subjects:
+                # Fetch all reports for the subject, grade, and teacher
+                reports = FormativeReport.query.filter_by(subject_id=subject.id, grade_id=grade_id, staff_id=teacher_id).all()
 
-            for report in reports:
-                total_possible_marks += report.assessment_rubic_id.assessment_rubic_mark
-                total_obtained_marks += report.single_mark
-           
-            if total_possible_marks > 0:
-                performance_percentage = (total_obtained_marks / total_possible_marks) * 100
-            else:
-                performance_percentage = 0
+                total_possible_marks = 0
+                total_obtained_marks = 0
 
-            return performance_percentage
+                for report in reports:
+                    total_possible_marks += report.assessment_rubic.assessment_rubic_mark
+                    total_obtained_marks += report.single_mark
+
+                if total_possible_marks > 0:
+                    performance_percentage = (total_obtained_marks / total_possible_marks) * 100
+                else:
+                    performance_percentage = 0
+
+                subject_performance.append({
+                    'subject_name': subject.subject_name,
+                    'performance_percentage': performance_percentage
+                })
+
+            return subject_performance
 
         except Exception as e:
             print(f"Error calculating teacher performance: {str(e)}")
-            return 0
+            return []
 
 # Create routes for the API resources
-api.add_resource(TeacherPerformanceInsights, '/teacher_performance_insights/<string:subject_id>/<string:grade_id>')
+api.add_resource(TeacherPerformanceInsights, '/teacher_performance_insights/<string:grade_id>')
+
+
 
