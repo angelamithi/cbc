@@ -25,6 +25,7 @@ post_args.add_argument("assessment_rubic_ids", type=list, location='json', help=
 
 patch_args = reqparse.RequestParser()
 patch_args.add_argument("assessment_rubic_id", type=str, help="Assessment Rubric ID")
+patch_args.add_argument("single_mark", type=str, help="Single Mark/Points required")
 patch_args.add_argument("updates", type=list, location='json', help="List of updates")
 
 def get_school_id_from_session():
@@ -36,6 +37,7 @@ def get_school_id_from_session():
 class RetrieveStudentReport(Resource):
     @jwt_required()
     def get(self, grade_id, student_id, subject_id, year_id):
+        school_id=get_school_id_from_session()
         # Fetch student, grade, subject, and year details
         year = Year.query.get(year_id)
         grade = Grade.query.get(grade_id)
@@ -73,7 +75,8 @@ class RetrieveStudentReport(Resource):
                 grade_id=grade_id,
                 subject_id=subject_id,
                 year_id=year_id,
-                assessment_rubic_id=rubric.id
+                assessment_rubic_id=rubric.id,
+                school_id=school_id
             ).first()
 
             if report_for_rubic and report_for_rubic.is_selected == 1:
@@ -143,86 +146,114 @@ api.add_resource(RetrieveStudentReport, '/get_student_report/<string:grade_id>/<
 
 
 
+
+# Assuming you have the necessary imports and models defined
+
 class UpdateStudentReport(Resource):
     @jwt_required()
     def patch(self, grade_id, student_id, subject_id, year_id):
-        args = patch_args.parse_args()
+        school_id=get_school_id_from_session()
+        parser = reqparse.RequestParser()
+        parser.add_argument('rubrics', type=list, location='json', required=True, help='List of rubrics is required')
 
-        assessment_rubic_id = args.get('assessment_rubic_id')
-        updates = args.get('updates')
+        # Parse the arguments from the request
+        args = parser.parse_args()
+        rubrics = args['rubrics']
 
-        report = Report.query.filter_by(student_id=student_id, grade_id=grade_id, subject_id=subject_id, year_id=year_id).first()
+        try:
+            # Fetch the report to update
+            report = FormativeReport.query.filter_by(student_id=student_id, grade_id=grade_id,
+                                                     subject_id=subject_id, year_id=year_id,school_id=school_id).one()
 
-        if not report:
-            return make_response(jsonify({"message": "Report not found"}), 404)
+            # Loop through each rubric and update accordingly
+            for rubric in rubrics:
+                rubric_id = rubric['assessment_rubic_id']
+                rubric_mark = rubric['assessment_rubic_mark']
+                is_selected = 1 if rubric['is_selected'] else 0  # Convert boolean to 1 or 0
 
-        if assessment_rubic_id:
-            assessment_rubic = AssessmentRubic.query.filter_by(id=assessment_rubic_id).first()
-            if not assessment_rubic:
-                return make_response(jsonify({'error': f'Assessment Rubric {assessment_rubic_id} not found'}), 404)
+                # Update the report fields based on the rubric data
+                report.assessment_rubic_id = rubric_id
+                report.assessment_rubic_mark = rubric_mark
 
-            single_mark = assessment_rubic.assessment_rubic_mark
+                # Update is_selected for the assessment rubric that was deselected
+                if is_selected == 1:
+                    AssessmentRubic.query.filter_by(id=rubric_id).update({"is_selected": 1})
+                else:
+                    AssessmentRubic.query.filter_by(id=rubric_id).update({"is_selected": 0})
 
-            # Update the report with new assessment rubric and marks
-            report.assessment_rubic_id = assessment_rubic_id
-            report.single_mark = single_mark
-            report.grade_ee = single_mark == 4
-            report.grade_me = single_mark == 3
-            report.grade_ae = single_mark == 2
-            report.grade_be = single_mark == 1
+            # Commit changes to the database
+            db.session.commit()
 
-        if updates:
-            # Process each update separately
-            for update in updates:
-                assessment_rubic_id = update.get("assessment_rubic_id")
-                assessment_rubic = AssessmentRubic.query.filter_by(id=assessment_rubic_id).first()
+            # Optionally, you can return the updated report or a success message
+            return make_response(jsonify({"message": "Report updated successfully"}), 200)
 
-                if not assessment_rubic:
-                    return make_response(jsonify({'error': f'Assessment Rubric {assessment_rubic_id} not found'}), 404)
+        except Exception as e:
+            # Handle exceptions, e.g., if report or rubrics are not found
+            return make_response(jsonify({"error": str(e)}), 404)
 
-                single_mark = assessment_rubic.assessment_rubic_mark
 
-                # Check if a report with the same keys already exists
-                existing_report = Report.query.filter_by(
+
+api.add_resource(UpdateStudentReport, '/update_student_report/<string:grade_id>/<string:student_id>/<string:subject_id>/<string:year_id>')
+
+
+
+class CreateStudentReport(Resource):
+    @jwt_required()
+    def post(self):
+        school_id=get_school_id_from_session()
+        parser = reqparse.RequestParser()
+        parser.add_argument('grade_id', type=str, required=True, help='Grade ID is required')
+        parser.add_argument('student_id', type=str, required=True, help='Student ID is required')
+        parser.add_argument('subject_id', type=str, required=True, help='Subject ID is required')
+        parser.add_argument('year_id', type=str, required=True, help='Year ID is required')
+        parser.add_argument('staff_id', type=str, required=True, help='Staff is required')
+        parser.add_argument('stream_id', type=str, required=True, help='Stream is required')
+
+        parser.add_argument('rubrics', type=list, location='json', required=True, help='List of rubrics is required')
+
+        args = parser.parse_args()
+        grade_id = args['grade_id']
+        student_id = args['student_id']
+        subject_id = args['subject_id']
+        year_id = args['year_id']
+        stream_id = args['stream_id']
+        staff_id = args['staff_id']
+        rubrics = args['rubrics']
+
+        try:
+            # Loop through each rubric and create a new report entry
+            for rubric in rubrics:
+                rubric_id = rubric['assessment_rubic_id']
+                rubric_mark = rubric['assessment_rubic_mark']
+                is_selected = 1 if rubric['is_selected'] else 0  # Convert boolean to 1 or 0
+
+                # Create a new FormativeReport instance for each rubric
+                new_report = FormativeReport(
+                    school_id=school_id,
                     student_id=student_id,
                     grade_id=grade_id,
                     subject_id=subject_id,
                     year_id=year_id,
-                    assessment_rubic_id=assessment_rubic_id
-                ).first()
+                    staff_id=staff_id,
+                    stream_id=stream_id,
+                    assessment_rubic_id=rubric_id,
+                    assessment_rubic_mark=rubric_mark,
+                    is_selected=is_selected
+                )
 
-                if existing_report:
-                    # Update the existing report with new assessment rubric and marks
-                    existing_report.single_mark = single_mark
-                    existing_report.grade_ee = single_mark == 4
-                    existing_report.grade_me = single_mark == 3
-                    existing_report.grade_ae = single_mark == 2
-                    existing_report.grade_be = single_mark == 1
-                else:
-                    # Create a new report for the current assessment rubric
-                    new_report = Report(
-                        school_id=report.school_id,
-                        student_id=student_id,
-                        subject_id=subject_id,
-                        grade_id=grade_id,
-                        year_id=year_id,
-                        staff_id=report.staff_id,
-                        stream_id=report.stream_id,
-                        assessment_rubic_id=assessment_rubic_id,
-                        grade_ee=single_mark == 4,
-                        grade_me=single_mark == 3,
-                        grade_ae=single_mark == 2,
-                        grade_be=single_mark == 1,
-                        single_mark=single_mark  # Ensure this is an integer
-                    )
-                    db.session.add(new_report)
+                # Add new_report to session
+                db.session.add(new_report)
 
-        db.session.commit()
+            # Commit changes to the database
+            db.session.commit()
 
-        # Serialize the data
-        result = reportSchema.dump(report)
+            # Optionally, you can return the newly created report or a success message
+            return make_response(jsonify({"message": "Report created successfully"}), 201)
 
-        return make_response(jsonify(result), 200)
+        except Exception as e:
+            # Handle exceptions, e.g., if there's an error in creating the report or rubrics are not found
+            db.session.rollback()  # Rollback changes in case of an error
+            return make_response(jsonify({"error": str(e)}), 400)
 
-
-api.add_resource(UpdateStudentReport, '/update_student_report/<string:grade_id>/<string:student_id>/<string:subject_id>/<string:year_id>')
+# Add the route for creating a new student report
+api.add_resource(CreateStudentReport, '/create_student_report')
