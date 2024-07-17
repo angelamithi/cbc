@@ -3,7 +3,7 @@ from datetime import datetime, date
 from app import create_app
 from models import (School,Student, Parent, Department, Staff, Grade, Subject, Strand,
                     SubStrand, LearningOutcome, AssessmentRubic, Designation, Year, Term,FormativeReport,
-                    TokenBlocklist,Category,Stream,TeacherSubjectGradeStream,GradeStreamClassTeacher,db)
+                    TokenBlocklist,Category,Stream,TeacherSubjectGradeStream,GradeStreamClassTeacher,db,SummativeReport,BehaviourReport)
 
 app = create_app()
 
@@ -28,6 +28,10 @@ def seed_database():
         FormativeReport.query.delete()
         Stream.query.delete()
         TeacherSubjectGradeStream.query.delete()
+        SummativeReport.query.delete()
+        BehaviourReport.query.delete()
+        GradeStreamClassTeacher.query.delete()
+       
        
 
         # Seed data for Categories
@@ -425,9 +429,9 @@ def seed_database():
         ]
         teacher_grade_stream_subjects = []
         for teacher_grade_stream_subject_info in teacher_grade_stream_subject_data:
-            teacher_grade_stream_subject = TeacherSubjectGradeStream(**teacher_grade_stream_subject_info)
-            teacher_grade_stream_subjects.append(teacher_grade_stream_subject)
-            db.session.add(teacher_grade_stream_subject)
+            teacher_subject_grade_stream = TeacherSubjectGradeStream(**teacher_grade_stream_subject_info)
+            teacher_grade_stream_subjects.append(teacher_subject_grade_stream)
+            db.session.add(teacher_subject_grade_stream)
         db.session.commit()
 
         grade_stream_class_teacher_data = [
@@ -454,6 +458,9 @@ def seed_database():
         substrands = db.session.query(SubStrand).all()
         learning_outcomes = db.session.query(LearningOutcome).all()
         assessment_rubics = db.session.query(AssessmentRubic).all()
+        teacher_subject_grade_stream = db.session.query(TeacherSubjectGradeStream).all()
+        grade_stream_class_teacher = db.session.query(GradeStreamClassTeacher).all()
+
 
    
    
@@ -480,7 +487,139 @@ def seed_database():
             db.session.add(formative_report)
         db.session.commit()
         
+        summative_report_data = [
+            {
+                "subject_teacher_id":teacher_subject_grade_stream[0].id,
+                "class_teacher_id": grade_stream_class_teacher[0].id,
+                "school_id": schools[0].id,
+                "year_id": years[1].id,
+                "grade_id": grades[1].id,
+                "stream_id": streams[0].id,
+                "student_id": students[0].id,
+                "subject_id": subjects[0].id,
+                "term_id": terms[0].id,
+                "exam_1_marks": 75,
+                "exam_2_marks": 80,
+                "exam_3_marks": 85,
+                "average_grade": 80.0,
+                "general_remarks": "Good performance, keep it up.",
+                "class_teachers_comments": "Consistent improvement noted."
+            },
+            {
+                "subject_teacher_id":teacher_subject_grade_stream[0].id,
+                "class_teacher_id": grade_stream_class_teacher[0].id,
+                "school_id": schools[0].id,
+                "year_id": years[1].id,
+                "grade_id": grades[1].id,
+                "stream_id": streams[1].id,
+                "student_id": students[1].id,
+                "subject_id": subjects[1].id,
+                "term_id": terms[1].id,
+                "exam_1_marks": 65,
+                "exam_2_marks": 70,
+                "exam_3_marks": 75,
+                "average_grade": 70.0,
+                "general_remarks": "Satisfactory performance, but there's room for improvement.",
+                "class_teachers_comments": "Encourage more participation in class."
+            },
+            {
+                "subject_teacher_id":teacher_subject_grade_stream[0].id,
+                "class_teacher_id": grade_stream_class_teacher[0].id,
+                "school_id": schools[0].id,
+                "year_id": years[1].id,
+                "grade_id": grades[2].id,
+                "stream_id": streams[0].id,
+                "student_id": students[1].id,
+                "subject_id": subjects[2].id,
+                "term_id": terms[0].id,
+                "exam_1_marks": 85,
+                "exam_2_marks": 90,
+                "exam_3_marks": 95,
+                "average_grade": 90.0,
+                "general_remarks": "Excellent performance.",
+                "class_teachers_comments": "Keep up the excellent work."
+            },
+            {
+                "subject_teacher_id":teacher_subject_grade_stream[0].id,
+                "class_teacher_id": grade_stream_class_teacher[0].id,
+                "school_id": schools[0].id,
+                "year_id": years[0].id,
+                "grade_id": grades[1].id,
+                "stream_id": streams[1].id,
+                "student_id": students[1].id,
+                "subject_id": subjects[1].id,
+                "term_id": terms[1].id,
+                "exam_1_marks": 50,
+                "exam_2_marks": 55,
+                "exam_3_marks": 60,
+                "average_grade": 55.0,
+                "general_remarks": "Average performance, needs to work harder.",
+                "class_teachers_comments": "Encourage more study time."
+            }
+        ]
 
+        summative_reports_array = []
+        for summative_report_info in summative_report_data:
+            summative_report = SummativeReport(**summative_report_info)
+            summative_reports_array.append(summative_report)
+            db.session.add(summative_report)
+
+        db.session.commit()
+
+        behaviour_report_data = [
+            {
+                "class_teacher_id": grade_stream_class_teacher[0].id,
+                "school_id": schools[0].id,
+                "year_id": years[1].id,
+                "grade_id": grades[1].id,
+                "stream_id": streams[0].id,
+                "student_id": students[0].id,
+                "behaviour_goal": "Improving punctuality",
+                "behaviour_goal_assessment": "The student has shown significant improvement in arriving on time for classes and submitting assignments punctually.",
+                "class_teachers_comments": "Continue to maintain this punctuality. It's a positive change."
+            },
+            {
+                "class_teacher_id": grade_stream_class_teacher[0].id,
+                "school_id": schools[0].id,
+                "year_id": years[1].id,
+                "grade_id": grades[1].id,
+                "stream_id": streams[1].id,
+                "student_id": students[1].id,
+                "behaviour_goal": "Enhancing classroom participation",
+                "behaviour_goal_assessment": "The student has started participating more actively in classroom discussions and group activities.",
+                "class_teachers_comments": "Great progress. Encourage more consistent participation."
+            },
+            {
+                "class_teacher_id": grade_stream_class_teacher[0].id,
+                "school_id": schools[0].id,
+                "year_id": years[1].id,
+                "grade_id": grades[2].id,
+                "stream_id": streams[0].id,
+                "student_id": students[1].id,
+                "behaviour_goal": "Developing respectful behavior",
+                "behaviour_goal_assessment": "The student has been more respectful towards teachers and peers, following the school's code of conduct.",
+                "class_teachers_comments": "Keep up the respectful behavior. It's greatly appreciated."
+            },
+            {
+                "class_teacher_id": grade_stream_class_teacher[0].id,
+                "school_id": schools[0].id,
+                "year_id": years[0].id,
+                "grade_id": grades[1].id,
+                "stream_id": streams[1].id,
+                "student_id": students[1].id,
+                "behaviour_goal": "Improving focus during lessons",
+                "behaviour_goal_assessment": "The student has been more attentive and focused during lessons, showing a better understanding of the material.",
+                "class_teachers_comments": "Good improvement in focus. Continue this positive trend."
+            }
+        ]
+
+        behaviour_reports_array = []
+        for behaviour_report_info in behaviour_report_data:
+            behaviour_report = BehaviourReport(**behaviour_report_info)
+            behaviour_reports_array.append(behaviour_report)
+            db.session.add(behaviour_report)
+
+        db.session.commit()
 
        
 

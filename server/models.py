@@ -32,6 +32,8 @@ class School(db.Model):
     subjects = db.relationship('Subject', backref='school')
     departments = db.relationship('Department', backref='school')
     formative_reports = db.relationship('FormativeReport', backref='school')
+    summative_reports= db.relationship('SummativeReport', backref='school')
+    behaviour_reports= db.relationship('BehaviourReport', backref='school')
 
 
 class Student(db.Model):
@@ -50,6 +52,8 @@ class Student(db.Model):
     stream_id = db.Column(db.String, db.ForeignKey('streams.id'), nullable=False)
     parents = db.relationship('Parent', backref='student')
     formative_reports = db.relationship('FormativeReport', backref='student')
+    summative_reports= db.relationship('SummativeReport', backref='student')
+    behaviour_reports= db.relationship('BehaviourReport', backref='student')
 
 
 class Category(db.Model):
@@ -73,6 +77,9 @@ class Grade(db.Model):
     learning_outcomes = db.relationship('LearningOutcome', backref='grade')
     assessment_rubrics = db.relationship('AssessmentRubic', backref='grade')
     formative_reports = db.relationship('FormativeReport', backref='grade')
+    summative_reports= db.relationship('SummativeReport', backref='grade')
+    behaviour_reports= db.relationship('BehaviourReport', backref='grade')
+
     teacher_subject_grade_streams=db.relationship('TeacherSubjectGradeStream',back_populates='grade')
     grade_stream_teacher=db.relationship('GradeStreamClassTeacher', back_populates='grade')
   
@@ -89,6 +96,7 @@ class Stream(db.Model):
     formative_reports = db.relationship('FormativeReport', backref='stream')
     teacher_subject_grade_streams=db.relationship('TeacherSubjectGradeStream',back_populates='stream')
     grade_stream_teacher=db.relationship('GradeStreamClassTeacher', back_populates='stream')
+    summative_reports= db.relationship('SummativeReport', backref='stream')
 
     # Add back_populates for other relationships if needed
 
@@ -102,6 +110,8 @@ class GradeStreamClassTeacher(db.Model):
     staff = db.relationship('Staff', back_populates='grade_stream_teacher')
     grade = db.relationship('Grade', back_populates='grade_stream_teacher')
     stream = db.relationship('Stream', back_populates='grade_stream_teacher')
+    behaviour_reports = db.relationship('BehaviourReport', backref='class_teacher')
+    summative_reports = db.relationship('SummativeReport', backref='class_teacher')
 
 
 class TeacherSubjectGradeStream(db.Model):
@@ -117,6 +127,7 @@ class TeacherSubjectGradeStream(db.Model):
     subject = db.relationship('Subject', back_populates='teacher_subject_grade_streams')
     grade = db.relationship('Grade', back_populates='teacher_subject_grade_streams')
     stream = db.relationship('Stream', back_populates='teacher_subject_grade_streams')
+    summative_reports = db.relationship('SummativeReport', backref='subject_teacher')
 
    
   
@@ -181,6 +192,7 @@ class Subject(db.Model):
     learning_outcomes = db.relationship('LearningOutcome', backref='subject')
     assessment_rubics = db.relationship('AssessmentRubic', backref='subject')
     formative_reports = db.relationship('FormativeReport', backref='subject')
+    summative_reports= db.relationship('SummativeReport', backref='subject')
     teacher_subject_grade_streams=db.relationship('TeacherSubjectGradeStream',back_populates='subject')
 
 
@@ -246,12 +258,15 @@ class Year(db.Model):
     id = db.Column(db.String, primary_key=True, default=generate_uuid)
     year_name = db.Column(db.Integer)
     formative_reports = db.relationship('FormativeReport', backref='year')
+    summative_reports= db.relationship('SummativeReport', backref='year')
+    behaviour_reports= db.relationship('BehaviourReport', backref='year')
 
 
 class Term(db.Model):
     __tablename__ = "terms"
     id = db.Column(db.String, primary_key=True, default=generate_uuid)
     term_name = db.Column(db.String)
+    summative_reports= db.relationship('SummativeReport', backref='term')
     
 
 
@@ -268,6 +283,46 @@ class FormativeReport(db.Model):
     assessment_rubic_id = db.Column(db.String, db.ForeignKey('assessment_rubics.id'), nullable=False)
     is_selected = db.Column(db.Boolean, nullable=False)
     single_mark = db.Column(db.Integer, nullable=False)
+
+class SummativeReport(db.Model):
+    __tablename__ = "summative_reports"
+    id = db.Column(db.String, primary_key=True, default=generate_uuid)   
+    school_id = db.Column(db.String, db.ForeignKey('schools.id'), nullable=False)
+    student_id = db.Column(db.String, db.ForeignKey('students.id'), nullable=False)
+    subject_id = db.Column(db.String, db.ForeignKey('subjects.id'), nullable=False)
+    grade_id = db.Column(db.String, db.ForeignKey('grades.id'), nullable=False)
+    year_id = db.Column(db.String, db.ForeignKey('years.id'), nullable=False)
+    term_id = db.Column(db.String, db.ForeignKey('terms.id'), nullable=False)
+    subject_teacher_id = db.Column(db.String, db.ForeignKey('teacher_subject_grade_stream.id'), nullable=False)
+    stream_id = db.Column(db.String, db.ForeignKey('streams.id'), nullable=False)
+    class_teacher_id = db.Column(db.String, db.ForeignKey('grade_stream_class_teacher.id'), nullable=False)
+    exam_1_marks = db.Column(db.Integer, nullable=False)
+    exam_2_marks = db.Column(db.Integer, nullable=False)
+    exam_3_marks = db.Column(db.Integer, nullable=False)
+    average_grade = db.Column(db.Float, nullable=False)
+    general_remarks = db.Column(db.Text, nullable=False)
+    class_teachers_comments = db.Column(db.Text, nullable=False)
+
+  
+
+
+class BehaviourReport(db.Model):
+    __tablename__ = "behaviour_reports"
+    id = db.Column(db.String, primary_key=True, default=generate_uuid)   
+    school_id = db.Column(db.String, db.ForeignKey('schools.id'), nullable=False)
+    student_id = db.Column(db.String, db.ForeignKey('students.id'), nullable=False)
+    grade_id = db.Column(db.String, db.ForeignKey('grades.id'), nullable=False)
+    year_id = db.Column(db.String, db.ForeignKey('years.id'), nullable=False)
+    class_teacher_id = db.Column(db.String, db.ForeignKey('grade_stream_class_teacher.id'), nullable=False)
+    stream_id = db.Column(db.String, db.ForeignKey('streams.id'), nullable=False)   
+    behaviour_goal = db.Column(db.String, nullable=False)
+    behaviour_goal_assessment = db.Column(db.Text, nullable=False)
+    class_teachers_comments = db.Column(db.Text, nullable=False)
+
+
+
+
+
    
   
 

@@ -6,7 +6,7 @@ from marshmallow_sqlalchemy import SQLAlchemyAutoSchema, auto_field, fields
 from marshmallow.fields import Nested
 from models import (School,Student, Parent, Department, Staff, Grade, Subject, Strand,
                     SubStrand, LearningOutcome, AssessmentRubic, Designation, Year, Term, FormativeReport,
-                    TokenBlocklist,Category,Stream,db,TeacherSubjectGradeStream,GradeStreamClassTeacher)
+                    TokenBlocklist,Category,Stream,db,TeacherSubjectGradeStream,GradeStreamClassTeacher,SummativeReport,BehaviourReport)
 
 serializer_bp = Blueprint('serializer_bp', __name__)
 ma = Marshmallow(serializer_bp)
@@ -161,19 +161,25 @@ class FormativeReportSchema(SQLAlchemyAutoSchema):
         include_fk = True
         load_instance = True
 
-    # school = fields.Nested(SchoolSchema)
-    # staff = fields.Nested(StaffSchema)
-    # year = fields.Nested(YearSchema)
-    # term = fields.Nested(TermSchema)
-    # grade = fields.Nested(GradeSchema)
-    # stream = fields.Nested(StreamSchema)
-    # student = fields.Nested(StudentSchema)
-    # subject = fields.Nested(SubjectSchema)
-    # strand = fields.Nested(StrandSchema)
-    # substrand = fields.Nested(SubStrandSchema)
-    # learning_outcome = fields.Nested(LearningOutcomeSchema, attribute="learning_outcomes")
-    # assessment_rubic = fields.Nested(AssessmentRubicSchema, attribute="assessment_rubics")
-
+    
 formative_report_schema = FormativeReportSchema()
 
 
+class SummativeReportSchema(SQLAlchemyAutoSchema):
+    class Meta:
+        model = SummativeReport
+        include_fk = True
+        load_instance = True
+
+    
+summative_report_schema = SummativeReportSchema()
+
+
+class BehaviourReportSchema(SQLAlchemyAutoSchema):
+    class Meta:
+        model = BehaviourReport
+        include_fk = True
+        load_instance = True
+
+    
+behaviour_report_schema = BehaviourReportSchema()
