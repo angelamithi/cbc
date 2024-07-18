@@ -7,6 +7,8 @@ from auth import admin_required, superAdmin_required,teacher_required
 from models import Strand,SubStrand,LearningOutcome,AssessmentRubic,Grade,Subject,Staff,Stream,Year,FormativeReport,Student,db
 from sqlalchemy.orm import joinedload
 
+from datetime import datetime
+
 formative_reports_bp = Blueprint('formative_reports_bp', __name__)
 api = Api(formative_reports_bp)
 
@@ -19,12 +21,22 @@ def get_school_id_from_session():
 
 
 
+
 class RetrieveStudentReport(Resource):
     @jwt_required()
-    def get(self, grade_id, student_id, subject_id, year_id):
-        school_id=get_school_id_from_session()
-        # Fetch student, grade, subject, and year details
-        year = Year.query.get(year_id)
+    def get(self, grade_id, student_id, subject_id):
+        school_id = get_school_id_from_session()
+        
+        # Fetch the current year object
+        current_year = datetime.now().year
+        year_object = Year.query.filter_by(year_name=current_year).first()
+
+        if not year_object:
+                return make_response(jsonify({"error": f"No year found for {current_year}"}), 404)
+
+        year_id = year_object.id
+        
+        # Fetch student, grade, subject details
         grade = Grade.query.get(grade_id)
         student = Student.query.get(student_id)
         subject = Subject.query.get(subject_id)
@@ -33,8 +45,6 @@ class RetrieveStudentReport(Resource):
             return make_response(jsonify({"message": "Invalid grade"}), 404)
         if not subject:
             return make_response(jsonify({"message": "Invalid subject"}), 404)
-        if not year:
-            return make_response(jsonify({"message": "Invalid year"}), 404)
         if not student:
             return make_response(jsonify({"message": "Invalid student"}), 404)
 
@@ -46,8 +56,8 @@ class RetrieveStudentReport(Resource):
         # Fetch assessment rubrics and filter for those related to the current subject and grade
         assessment_rubrics = AssessmentRubic.query.filter_by(subject_id=subject_id, grade_id=grade_id).all()
 
-        # Fetch the report details for the student
-        report = FormativeReport.query.filter_by(student_id=student_id, grade_id=grade_id, subject_id=subject_id, year_id=year_id).first()
+        # Fetch the report details for the student for the current year
+        report = FormativeReport.query.filter_by(student_id=student_id, grade_id=grade_id, subject_id=subject_id, year_id=current_year).first()
 
         if not report:
             return make_response(jsonify({"message": "Report not found"}), 404)
@@ -67,7 +77,7 @@ class RetrieveStudentReport(Resource):
             if report_for_rubic and report_for_rubic.is_selected == 1:
                 learning_outcome_grade_types[rubric.learning_outcome_id] = rubric.id
 
-        # Serialize the data
+        # Serialize the data (assuming strandSchema, subStrandSchema, and learningOutcomeSchema are defined)
         result_strands = strandSchema.dump(strands, many=True)
         result_sub_strands = subStrandSchema.dump(sub_strands, many=True)
         result_learning_outcomes = learningOutcomeSchema.dump(learning_outcomes, many=True)
@@ -123,21 +133,16 @@ class RetrieveStudentReport(Resource):
 
         # Return the serialized data
         return make_response(jsonify(response_data), 200)
-
-
-
-# Add the route for the API resource
-api.add_resource(RetrieveStudentReport, '/get_student_report/<string:grade_id>/<string:student_id>/<string:subject_id>/<string:year_id>')
+api.add_resource(RetrieveStudentReport, '/get_student_report/<string:grade_id>/<string:student_id>/<string:subject_id>')
 
 
 
 
-# Assuming you have the necessary imports and models defined
 
 class UpdateStudentReport(Resource):
     @jwt_required()
-    def patch(self, grade_id, student_id, subject_id, year_id):
-        school_id=get_school_id_from_session()
+    def patch(self, grade_id, student_id, subject_id):
+        school_id = get_school_id_from_session()
         parser = reqparse.RequestParser()
         parser.add_argument('rubrics', type=list, location='json', required=True, help='List of rubrics is required')
 
@@ -146,9 +151,19 @@ class UpdateStudentReport(Resource):
         rubrics = args['rubrics']
 
         try:
+            # Fetch the current year object
+            current_year = datetime.now().year
+            year_object = Year.query.filter_by(year_name=current_year).first()
+
+            if not year_object:
+                return make_response(jsonify({"error": f"No year found for {current_year}"}), 404)
+
+            year_id = year_object.id
+
             # Fetch the report to update
             report = FormativeReport.query.filter_by(student_id=student_id, grade_id=grade_id,
-                                                     subject_id=subject_id, year_id=year_id,school_id=school_id).one()
+                                                     subject_id=subject_id, year_id=year_id,
+                                                     school_id=school_id).first()
 
             # Loop through each rubric and update accordingly
             for rubric in rubrics:
@@ -176,9 +191,7 @@ class UpdateStudentReport(Resource):
             # Handle exceptions, e.g., if report or rubrics are not found
             return make_response(jsonify({"error": str(e)}), 404)
 
-
-
-api.add_resource(UpdateStudentReport, '/update_student_report/<string:grade_id>/<string:student_id>/<string:subject_id>/<string:year_id>')
+api.add_resource(UpdateStudentReport, '/update_student_report/<string:grade_id>/<string:student_id>/<string:subject_id>')
 
 
 
@@ -196,11 +209,20 @@ class CreateStudentReport(Resource):
 
         parser.add_argument('rubrics', type=list, location='json', required=True, help='List of rubrics is required')
 
+        # Fetch the current year object
+        current_year = datetime.now().year
+        year_object = Year.query.filter_by(year_name=current_year).first()
+
+        if not year_object:
+                return make_response(jsonify({"error": f"No year found for {current_year}"}), 404)
+
+        year_id = year_object.id
+        
         args = parser.parse_args()
         grade_id = args['grade_id']
         student_id = args['student_id']
         subject_id = args['subject_id']
-        year_id = args['year_id']
+        year_id = year_id
         stream_id = args['stream_id']
         staff_id = args['staff_id']
         rubrics = args['rubrics']
