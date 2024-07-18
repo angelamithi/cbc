@@ -158,19 +158,27 @@ class UpdateStudentReport(Resource):
 
             # Loop through each rubric and update accordingly
             for rubric in rubrics:
-                rubric_id = rubric['assessment_rubic_id']
-                rubric_mark = rubric['assessment_rubic_mark']
-                is_selected = 1 if rubric['is_selected'] else 0  # Convert boolean to 1 or 0
+                rubric_id = rubric.get('assessment_rubic_id')
+
+                if rubric_id:
+                    assessment_rubic = AssessmentRubic.query.get(rubric_id)
+                    if assessment_rubic:
+                        rubric_mark = assessment_rubic.assessment_rubic_mark
+                        is_selected = 1
+                    else:
+                        rubric_mark = 0
+                        is_selected = 0
+                else:
+                    rubric_mark = 0
+                    is_selected = 0
 
                 # Update the report fields based on the rubric data
                 report.assessment_rubic_id = rubric_id
-                report.assessment_rubic_mark = rubric_mark
+                report.single_mark = rubric_mark
 
-                # Update is_selected for the assessment rubric that was deselected
-                if is_selected == 1:
-                    AssessmentRubic.query.filter_by(id=rubric_id).update({"is_selected": 1})
-                else:
-                    AssessmentRubic.query.filter_by(id=rubric_id).update({"is_selected": 0})
+                # Update is_selected for the assessment rubric that was selected
+                if rubric_id:
+                    AssessmentRubic.query.filter_by(id=rubric_id).update({"is_selected": is_selected})
 
             # Commit changes to the database
             db.session.commit()
@@ -182,7 +190,10 @@ class UpdateStudentReport(Resource):
             # Handle exceptions, e.g., if report or rubrics are not found
             return make_response(jsonify({"error": str(e)}), 404)
 
-api.add_resource(UpdateStudentReport, '/update_student_report/<string:grade_id>/<string:student_id>/<string:subject_id>')
+api.add_resource(UpdateStudentReport, '/update_student_report/<string:grade_id>/<string:subject_id>/<string:student_id>')
+
+
+
 
 
 

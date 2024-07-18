@@ -128,6 +128,7 @@ class TeacherSubjectGradeStream(db.Model):
     grade = db.relationship('Grade', back_populates='teacher_subject_grade_streams')
     stream = db.relationship('Stream', back_populates='teacher_subject_grade_streams')
     summative_reports = db.relationship('SummativeReport', backref='subject_teacher')
+    formative_reports = db.relationship('FormativeReport', backref='subject_teacher')
 
    
   
@@ -148,7 +149,7 @@ class Staff(db.Model):
     photo_url = db.Column(db.String)
     designation_id = db.Column(db.String, db.ForeignKey('designations.id'), nullable=False)
     teacher_subject_grade_streams=db.relationship('TeacherSubjectGradeStream',back_populates='staff')
-    formative_reports = db.relationship('FormativeReport', backref='staff')
+   
     grade_stream_teacher=db.relationship('GradeStreamClassTeacher', back_populates='staff')
 
 
@@ -277,12 +278,12 @@ class FormativeReport(db.Model):
     student_id = db.Column(db.String, db.ForeignKey('students.id'), nullable=False)
     subject_id = db.Column(db.String, db.ForeignKey('subjects.id'), nullable=False)
     grade_id = db.Column(db.String, db.ForeignKey('grades.id'), nullable=False)
-    year_id = db.Column(db.String, db.ForeignKey('years.id'), nullable=False)
-    staff_id = db.Column(db.String, db.ForeignKey('staffs.id'), nullable=False)
+    year_id = db.Column(db.String, db.ForeignKey('years.id'), nullable=False)   
     stream_id = db.Column(db.String, db.ForeignKey('streams.id'), nullable=False)
-    assessment_rubic_id = db.Column(db.String, db.ForeignKey('assessment_rubics.id'), nullable=False)
-    is_selected = db.Column(db.Boolean, nullable=False)
-    single_mark = db.Column(db.Integer, nullable=False)
+    subject_teacher_id = db.Column(db.String, db.ForeignKey('teacher_subject_grade_stream.id'), nullable=False)
+    assessment_rubic_id = db.Column(db.String, db.ForeignKey('assessment_rubics.id'))
+    is_selected = db.Column(db.Boolean,default=0)
+    single_mark = db.Column(db.Integer,default=0)
 
 class SummativeReport(db.Model):
     __tablename__ = "summative_reports"
