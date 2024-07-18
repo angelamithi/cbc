@@ -296,12 +296,12 @@ class SummativeReport(db.Model):
     subject_teacher_id = db.Column(db.String, db.ForeignKey('teacher_subject_grade_stream.id'), nullable=False)
     stream_id = db.Column(db.String, db.ForeignKey('streams.id'), nullable=False)
     class_teacher_id = db.Column(db.String, db.ForeignKey('grade_stream_class_teacher.id'), nullable=False)
-    exam_1_marks = db.Column(db.Integer, nullable=False)
-    exam_2_marks = db.Column(db.Integer, nullable=False)
-    exam_3_marks = db.Column(db.Integer, nullable=False)
-    average_grade = db.Column(db.Float, nullable=False)
-    general_remarks = db.Column(db.Text, nullable=False)
-    class_teachers_comments = db.Column(db.Text, nullable=False)
+    exam_1_marks = db.Column(db.Integer)
+    exam_2_marks = db.Column(db.Integer)
+    exam_3_marks = db.Column(db.Integer)
+    average_grade = db.Column(db.Float)
+    general_remarks = db.Column(db.Text)
+    class_teachers_comments = db.Column(db.Text)
 
   
 

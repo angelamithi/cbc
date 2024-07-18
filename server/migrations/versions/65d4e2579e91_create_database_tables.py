@@ -1,8 +1,8 @@
 """create database tables
 
-Revision ID: 0987fb4b2a56
+Revision ID: 65d4e2579e91
 Revises: 
-Create Date: 2024-07-17 12:37:13.968828
+Create Date: 2024-07-18 09:23:54.035518
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '0987fb4b2a56'
+revision = '65d4e2579e91'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -225,12 +225,12 @@ def upgrade():
     sa.Column('subject_teacher_id', sa.String(), nullable=False),
     sa.Column('stream_id', sa.String(), nullable=False),
     sa.Column('class_teacher_id', sa.String(), nullable=False),
-    sa.Column('exam_1_marks', sa.Integer(), nullable=False),
-    sa.Column('exam_2_marks', sa.Integer(), nullable=False),
-    sa.Column('exam_3_marks', sa.Integer(), nullable=False),
-    sa.Column('average_grade', sa.Float(), nullable=False),
-    sa.Column('general_remarks', sa.Text(), nullable=False),
-    sa.Column('class_teachers_comments', sa.Text(), nullable=False),
+    sa.Column('exam_1_marks', sa.Integer(), nullable=True),
+    sa.Column('exam_2_marks', sa.Integer(), nullable=True),
+    sa.Column('exam_3_marks', sa.Integer(), nullable=True),
+    sa.Column('average_grade', sa.Float(), nullable=True),
+    sa.Column('general_remarks', sa.Text(), nullable=True),
+    sa.Column('class_teachers_comments', sa.Text(), nullable=True),
     sa.ForeignKeyConstraint(['class_teacher_id'], ['grade_stream_class_teacher.id'], name=op.f('fk_summative_reports_class_teacher_id_grade_stream_class_teacher')),
     sa.ForeignKeyConstraint(['grade_id'], ['grades.id'], name=op.f('fk_summative_reports_grade_id_grades')),
     sa.ForeignKeyConstraint(['school_id'], ['schools.id'], name=op.f('fk_summative_reports_school_id_schools')),

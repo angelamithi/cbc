@@ -29,21 +29,42 @@ def get_school_id_from_session():
 
 class BehaviourReportDetails(Resource):
     @jwt_required()
-    def get(self, id):
+    def get(self, student_id, grade_id, year_id):
         school_id = get_school_id_from_session()
-        behaviour_reports = BehaviourReport.query.filter_by(id=id, school_id=school_id).first()
+        behaviour_reports = BehaviourReport.query.filter_by(
+            student_id=student_id,
+            grade_id=grade_id,
+            year_id=year_id,
+            school_id=school_id
+        ).all()
 
         if not behaviour_reports:
-            return make_response(jsonify({"error": "Behaviour Report not found"}), 404)
+            return make_response(jsonify({"error": "Behaviour Reports not found for this student, grade, and year combination"}), 404)
 
         # Assuming behaviour_report_schema is defined for serialization
-        result = behaviour_report_schema.dump(behaviour_reports)
+        result = behaviour_report_schema.dump(behaviour_reports, many=True)
         return make_response(jsonify(result), 200)
+api.add_resource(BehaviourReportDetails, '/behaviour_reports/<string:student_id>/<string:grade_id>/<string:year_id>')
 
+class BehaviourPostReportDetails(Resource):
     @teacher_required()
     def post(self):
         school_id = get_school_id_from_session()
         data = post_args.parse_args()
+
+        existing_report = BehaviourReport.query.filter_by(
+            student_id=data['student_id'],
+            grade_id=data['grade_id'],
+            year_id=data['year_id'],
+            school_id=school_id
+        ).first()
+
+        if existing_report:
+            return make_response(jsonify({
+                "message": "A report already exists for this student, grade, and year.",
+                "existing_report": behaviour_report_schema.dump(existing_report),
+                "action_required": "Please confirm if you want to update the existing report."
+            }), 409)  # 409 Conflict
 
         new_behaviour_report = BehaviourReport(
             student_id=data['student_id'],
@@ -64,7 +85,34 @@ class BehaviourReportDetails(Resource):
         result = behaviour_report_schema.dump(new_behaviour_report)
         return make_response(jsonify(result), 201)
 
-api.add_resource(BehaviourReportDetails, '/behaviour_reports/<string:id>')
+    @teacher_required()
+    def patch(self):
+        school_id = get_school_id_from_session()
+        data = post_args.parse_args()
+
+        existing_report = BehaviourReport.query.filter_by(
+            student_id=data['student_id'],
+            grade_id=data['grade_id'],
+            year_id=data['year_id'],
+            school_id=school_id
+        ).first()
+
+        if not existing_report:
+            return make_response(jsonify({
+                "error": "No existing report found to update for this student, grade, and year."
+            }), 404)
+
+        for key, value in data.items():
+            if value is not None:
+                setattr(existing_report, key, value)
+
+        db.session.commit()
+
+        # Assuming behaviour_report_schema is defined for serialization
+        result = behaviour_report_schema.dump(existing_report)
+        return make_response(jsonify(result), 200)
+
+api.add_resource(BehaviourPostReportDetails, '/behaviour_reports')
 
 class BehaviourReportById(Resource):
     @jwt_required()

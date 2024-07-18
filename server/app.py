@@ -37,6 +37,8 @@ from routes.authentication_bp import authentication_bp
 from routes.formative_reports_bp import formative_reports_bp
 from routes.change_password_bp import change_password_bp
 from routes.analytics_bp import  analytics_bp
+from routes.behaviour_reports_bp import behaviour_report_bp
+from routes.summative_reports_bp import summative_report_bp
 
 
 
@@ -110,6 +112,9 @@ def create_app():
     app.register_blueprint(subject_details_bp)
     app.register_blueprint(change_password_bp)
     app.register_blueprint(analytics_bp)
+    app.register_blueprint(summative_report_bp)
+    app.register_blueprint(behaviour_report_bp)
+
 
 
 
