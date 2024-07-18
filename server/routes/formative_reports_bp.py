@@ -203,7 +203,6 @@ class CreateStudentReport(Resource):
         parser.add_argument('grade_id', type=str, required=True, help='Grade ID is required')
         parser.add_argument('student_id', type=str, required=True, help='Student ID is required')
         parser.add_argument('subject_id', type=str, required=True, help='Subject ID is required')
-        parser.add_argument('year_id', type=str, required=True, help='Year ID is required')
         parser.add_argument('staff_id', type=str, required=True, help='Staff is required')
         parser.add_argument('stream_id', type=str, required=True, help='Stream is required')
 
@@ -217,7 +216,7 @@ class CreateStudentReport(Resource):
                 return make_response(jsonify({"error": f"No year found for {current_year}"}), 404)
 
         year_id = year_object.id
-        
+
         args = parser.parse_args()
         grade_id = args['grade_id']
         student_id = args['student_id']
