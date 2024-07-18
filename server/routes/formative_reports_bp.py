@@ -29,15 +29,12 @@ class RetrieveStudentReport(Resource):
         
         # Fetch the current year object
         current_year = datetime.now().year
-        print(current_year)
         year_object = Year.query.filter_by(year_name=current_year).first()
-        print(year_object)
 
         if not year_object:
-                return make_response(jsonify({"error": f"No year found for {current_year}"}), 404)
+            return make_response(jsonify({"error": f"No year found for {current_year}"}), 404)
 
         year_id = year_object.id
-        print(year_id)
         
         # Fetch student, grade, subject details
         grade = Grade.query.get(grade_id)
@@ -85,58 +82,49 @@ class RetrieveStudentReport(Resource):
         result_sub_strands = subStrandSchema.dump(sub_strands, many=True)
         result_learning_outcomes = learningOutcomeSchema.dump(learning_outcomes, many=True)
 
-        # Construct the nested response structure
+        # Construct the nested response structure without grade and subject
         response_data = {
-            "grade": {
-                "grade_id": grade.id,
-                "grade_name": grade.grade,
-                "subjects": [
-                    {
-                        "subject_id": subject.id,
-                        "subject_name": subject.subject_name,
-                        "strands": [
-                            {
-                                "strand_id": strand.id,
-                                "strand_name": strand.strand_name,
-                                "sub_strands": [
-                                    {
-                                        "sub_strand_id": sub_strand.id,
-                                        "sub_strand_name": sub_strand.substrand_name,
-                                        "learning_outcomes": [
-                                            {
-                                                "learning_outcome_id": outcome['id'],
-                                                "learning_outcome_name": outcome['learning_outcomes'],
-                                                "grade_type": learning_outcome_grade_types.get(outcome['id'], None),
-                                                "assessment_rubrics": [
-                                                    {
-                                                        "assessment_rubic_id": rubric.id,
-                                                        "assessment_rubic_name": rubric.assessment_rubics,
-                                                        "assessment_rubic_mark": rubric.assessment_rubic_mark
-                                                        # Add other attributes you need from AssessmentRubic
-                                                    }
-                                                    for rubric in assessment_rubrics
-                                                    if rubric.learning_outcome_id == outcome['id']
-                                                ]
-                                            }
-                                            for outcome in result_learning_outcomes
-                                            if outcome['sub_strand_id'] == sub_strand.id
-                                        ]
-                                    }
-                                    for sub_strand in sub_strands
-                                    if sub_strand.strand_id == strand.id
-                                ]
-                            }
-                            for strand in strands
-                        ]
-                    }
-                ]
-            },
-            # "report": result_report
+            "strands": [
+                {
+                    "strand_id": strand.id,
+                    "strand_name": strand.strand_name,
+                    "sub_strands": [
+                        {
+                            "sub_strand_id": sub_strand.id,
+                            "sub_strand_name": sub_strand.substrand_name,
+                            "learning_outcomes": [
+                                {
+                                    "learning_outcome_id": outcome['id'],
+                                    "learning_outcome_name": outcome['learning_outcomes'],
+                                    "grade_type": learning_outcome_grade_types.get(outcome['id'], None),
+                                    "assessment_rubrics": [
+                                        {
+                                            "assessment_rubic_id": rubric.id,
+                                            "assessment_rubic_name": rubric.assessment_rubics,
+                                            "assessment_rubic_mark": rubric.assessment_rubic_mark
+                                            # Add other attributes you need from AssessmentRubic
+                                        }
+                                        for rubric in assessment_rubrics
+                                        if rubric.learning_outcome_id == outcome['id']
+                                    ]
+                                }
+                                for outcome in result_learning_outcomes
+                                if outcome['sub_strand_id'] == sub_strand.id
+                            ]
+                        }
+                        for sub_strand in sub_strands
+                        if sub_strand.strand_id == strand.id
+                    ]
+                }
+                for strand in strands
+            ]
         }
 
         # Return the serialized data
         return make_response(jsonify(response_data), 200)
+
 api.add_resource(RetrieveStudentReport, '/get_student_report/<string:grade_id>/<string:student_id>/<string:subject_id>')
+
 
 
 
