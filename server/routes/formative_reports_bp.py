@@ -29,12 +29,15 @@ class RetrieveStudentReport(Resource):
         
         # Fetch the current year object
         current_year = datetime.now().year
+        print(current_year)
         year_object = Year.query.filter_by(year_name=current_year).first()
+        print(year_object)
 
         if not year_object:
                 return make_response(jsonify({"error": f"No year found for {current_year}"}), 404)
 
         year_id = year_object.id
+        print(year_id)
         
         # Fetch student, grade, subject details
         grade = Grade.query.get(grade_id)
@@ -57,7 +60,7 @@ class RetrieveStudentReport(Resource):
         assessment_rubrics = AssessmentRubic.query.filter_by(subject_id=subject_id, grade_id=grade_id).all()
 
         # Fetch the report details for the student for the current year
-        report = FormativeReport.query.filter_by(student_id=student_id, grade_id=grade_id, subject_id=subject_id, year_id=current_year).first()
+        report = FormativeReport.query.filter_by(student_id=student_id, grade_id=grade_id, subject_id=subject_id, year_id=year_id).first()
 
         if not report:
             return make_response(jsonify({"message": "Report not found"}), 404)
