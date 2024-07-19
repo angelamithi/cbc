@@ -156,6 +156,12 @@ class UpdateStudentReport(Resource):
                                                      subject_id=subject_id, year_id=year_id,
                                                      school_id=school_id).first()
 
+            if not report:
+                return make_response(jsonify({"error": "Report not found"}), 404)
+
+            # Initialize a list to hold the updated rubrics
+            updated_rubrics = []
+
             # Loop through each rubric and update accordingly
             for rubric in rubrics:
                 rubric_id = rubric.get('assessment_rubic_id')
@@ -173,12 +179,15 @@ class UpdateStudentReport(Resource):
                     is_selected = 0
 
                 # Update the report fields based on the rubric data
-                report.assessment_rubic_id = rubric_id
-                report.single_mark = rubric_mark
-
-                # Update is_selected for the assessment rubric that was selected
                 if rubric_id:
-                    AssessmentRubic.query.filter_by(id=rubric_id).update({"is_selected": is_selected})
+                    # Update the report for each rubric
+                    updated_rubric = FormativeReport.query.filter_by(student_id=student_id, grade_id=grade_id,
+                                                                     subject_id=subject_id, year_id=year_id,
+                                                                     school_id=school_id, assessment_rubic_id=rubric_id).first()
+                    if updated_rubric:
+                        updated_rubric.single_mark = rubric_mark
+                        updated_rubric.is_selected = is_selected
+                        db.session.add(updated_rubric)
 
             # Commit changes to the database
             db.session.commit()
@@ -189,6 +198,7 @@ class UpdateStudentReport(Resource):
         except Exception as e:
             # Handle exceptions, e.g., if report or rubrics are not found
             return make_response(jsonify({"error": str(e)}), 404)
+
 
 api.add_resource(UpdateStudentReport, '/update_student_report/<string:grade_id>/<string:subject_id>/<string:student_id>')
 
