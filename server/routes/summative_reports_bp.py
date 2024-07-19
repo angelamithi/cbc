@@ -23,10 +23,21 @@ def get_school_id_from_session():
 
 class AnnualAverageCalculator(Resource):
     @staticmethod
-    def calculate_annual_averages(student_id, year_id):
+    def calculate_annual_averages(grade_id,student_id):
+        school_id=get_school_id_from_session
+        current_year = datetime.now().year
+        year_object = Year.query.filter_by(year_name=current_year).first()
+
+        if not year_object:
+            return make_response(jsonify({"error": f"No year found for {current_year}"}), 404)
+
+        year_id = year_object.id
         summative_reports = SummativeReport.query.filter_by(
             student_id=student_id,
-            year_id=year_id
+            year_id=year_id,
+            grade_id=grade_id,
+            school_id=school_id
+
         ).all()
 
         subject_ids = {report.subject_id for report in summative_reports}
@@ -55,9 +66,9 @@ class AnnualAverageCalculator(Resource):
 
         year_id = year.id
 
-        students = Student.query.filter_by(school_id=school_id).all()
+        students = Student.query.filter_by(school_id=school_id,year_id=year_id,grade_id=grade_id).all()
         for student in students:
-            AnnualAverageCalculator.calculate_annual_averages(student.id, year_id)
+            AnnualAverageCalculator.calculate_annual_averages(student.id, grade)
 
         return make_response(jsonify({"message": "Annual averages calculated successfully"}), 200)
 

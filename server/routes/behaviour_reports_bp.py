@@ -85,7 +85,7 @@ class BehaviourPostReportDetails(Resource):
         result = behaviour_report_schema.dump(existing_report)
         return make_response(jsonify(result), 200)
 
-api.add_resource(BehaviourReportDetails, '/update_behaviour_reports/<string:grade_id><string:student_id>')
+api.add_resource(BehaviourPostReportDetails, '/update_behaviour_reports/<string:grade_id><string:student_id>')
 
 class BehaviourReportById(Resource):
     @jwt_required()
