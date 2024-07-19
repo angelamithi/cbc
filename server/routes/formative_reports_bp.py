@@ -135,11 +135,22 @@ class UpdateStudentReport(Resource):
     def patch(self, grade_id, student_id, subject_id):
         school_id = get_school_id_from_session()
         parser = reqparse.RequestParser()
-        parser.add_argument('rubrics', type=list, location='json', required=True, help='List of rubrics is required')
+        parser.add_argument('rubrics', type=dict, location='json', help='Rubric data')
 
         # Parse the arguments from the request
         args = parser.parse_args()
         rubrics = args['rubrics']
+
+        if rubrics is None:
+            return make_response(jsonify({"error": "Rubric data is required"}), 400)
+
+        # Check if rubrics is a list or a single dictionary
+        if isinstance(rubrics, list):
+            rubric_list = rubrics
+        elif isinstance(rubrics, dict):
+            rubric_list = [rubrics]
+        else:
+            return make_response(jsonify({"error": "Invalid rubric data format"}), 400)
 
         try:
             # Fetch the current year object
@@ -163,7 +174,7 @@ class UpdateStudentReport(Resource):
             updated_rubrics = []
 
             # Loop through each rubric and update accordingly
-            for rubric in rubrics:
+            for rubric in rubric_list:
                 rubric_id = rubric.get('assessment_rubic_id')
 
                 if rubric_id:
@@ -178,9 +189,8 @@ class UpdateStudentReport(Resource):
                     rubric_mark = 0
                     is_selected = 0
 
-                # Update the report fields based on the rubric data
+                # Update the report for each rubric
                 if rubric_id:
-                    # Update the report for each rubric
                     updated_rubric = FormativeReport.query.filter_by(student_id=student_id, grade_id=grade_id,
                                                                      subject_id=subject_id, year_id=year_id,
                                                                      school_id=school_id, assessment_rubic_id=rubric_id).first()
@@ -188,6 +198,19 @@ class UpdateStudentReport(Resource):
                         updated_rubric.single_mark = rubric_mark
                         updated_rubric.is_selected = is_selected
                         db.session.add(updated_rubric)
+                    else:
+                        # Handle cases where the rubric is not found in the existing report
+                        new_rubric = FormativeReport(
+                            student_id=student_id,
+                            grade_id=grade_id,
+                            subject_id=subject_id,
+                            year_id=year_id,
+                            school_id=school_id,
+                            assessment_rubic_id=rubric_id,
+                            single_mark=rubric_mark,
+                            is_selected=is_selected
+                        )
+                        db.session.add(new_rubric)
 
             # Commit changes to the database
             db.session.commit()
@@ -198,7 +221,6 @@ class UpdateStudentReport(Resource):
         except Exception as e:
             # Handle exceptions, e.g., if report or rubrics are not found
             return make_response(jsonify({"error": str(e)}), 404)
-
 
 api.add_resource(UpdateStudentReport, '/update_student_report/<string:grade_id>/<string:subject_id>/<string:student_id>')
 
