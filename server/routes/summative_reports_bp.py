@@ -21,10 +21,15 @@ def get_school_id_from_session():
     return claims.get("school_id")
 
 
+from datetime import datetime
+from flask_restful import Resource
+from flask_jwt_extended import jwt_required
+from flask import jsonify, make_response
+
 class AnnualAverageCalculator(Resource):
     @staticmethod
-    def calculate_annual_averages(grade_id,student_id):
-        school_id=get_school_id_from_session
+    def calculate_annual_averages(student_id, grade_id):
+        school_id = get_school_id_from_session()
         current_year = datetime.now().year
         year_object = Year.query.filter_by(year_name=current_year).first()
 
@@ -37,7 +42,6 @@ class AnnualAverageCalculator(Resource):
             year_id=year_id,
             grade_id=grade_id,
             school_id=school_id
-
         ).all()
 
         subject_ids = {report.subject_id for report in summative_reports}
@@ -54,25 +58,57 @@ class AnnualAverageCalculator(Resource):
         db.session.commit()
 
     @jwt_required()
-    def get(self):
+    def get(self, grade_id, student_id):
         school_id = get_school_id_from_session()
         if not school_id:
             return make_response(jsonify({'error': 'School ID not found in session'}), 401)
 
-        current_year = datetime.now().year
-        year = Year.query.filter_by(year=current_year).first()
-        if not year:
-            return make_response(jsonify({"error": "Year not found"}), 404)
-
-        year_id = year.id
-
-        students = Student.query.filter_by(school_id=school_id,year_id=year_id,grade_id=grade_id).all()
-        for student in students:
-            AnnualAverageCalculator.calculate_annual_averages(student.id, grade)
+        AnnualAverageCalculator.calculate_annual_averages(student_id, grade_id)
 
         return make_response(jsonify({"message": "Annual averages calculated successfully"}), 200)
 
 api.add_resource(AnnualAverageCalculator, '/calculate_annual_average/<string:grade_id>/<string:student_id>')
+
+class EditSummativeReport(Resource):
+    @admin_required()
+    def patch(self, grade_id, student_id):
+        school_id = get_school_id_from_session()
+        if not school_id:
+            return make_response(jsonify({"error": "School ID not found in session"}), 401)
+
+        current_year = datetime.now().year
+        year = Year.query.filter_by(year_name=current_year).first()
+        if not year:
+            return make_response(jsonify({"error": f"No year found for {current_year}"}), 404)
+
+        year_id = year.id
+
+        # Retrieve the SummativeReport with additional filters
+        summative_report = SummativeReport.query.filter_by(
+            school_id=school_id,
+            year_id=year_id,
+            grade_id=grade_id,
+            student_id=student_id
+        ).first()
+
+        if not summative_report:
+            return make_response(jsonify({"error": "Summative Report not found for the provided criteria"}), 404)
+
+        data = patch_args.parse_args()
+        for key, value in data.items():
+            if value is not None:
+                setattr(summative_report, key, value)
+
+        # Recalculate the annual averages if any of the exam marks are updated
+        AnnualAverageCalculator.calculate_annual_averages(student_id, grade_id)
+
+        db.session.commit()
+
+        result = summative_report_schema.dump(summative_report)
+        return make_response(jsonify(result), 200)
+
+api.add_resource(EditSummativeReport, '/edit_summative_report/<string:grade_id>/<string:student_id>')
+
 
 class SummativeReportDetails(Resource):
     @jwt_required()
@@ -155,45 +191,4 @@ class SummativeReportById(Resource):
         return make_response(jsonify({"message": "Summative Report deleted successfully"}), 200)
     
 api.add_resource(SummativeReportById, '/single_summative_report/<string:id>')
-
-class EditSummativeReport(Resource):
-    @admin_required()
-    def patch(self,grade_id, student_id,):
-        school_id = get_school_id_from_session()
-        if not school_id:
-            return make_response(jsonify({"error": "School ID not found in session"}), 401)
-
-        current_year = datetime.now().year
-        year = Year.query.filter_by(year_name=current_year).first()
-        if not year:
-            return make_response(jsonify({"error": f"No year found for {current_year}"}), 404)
-        
-        year_id = year.id
-
-        # Retrieve the SummativeReport with additional filters
-        summative_report = SummativeReport.query.filter_by(
-            id=id,
-            school_id=school_id,
-            year_id=year_id,
-            grade_id=grade_id,
-            student_id=student_id
-        ).first()
-        
-        if not summative_report:
-            return make_response(jsonify({"error": "Summative Report not found for the provided criteria"}), 404)
-
-        data = patch_args.parse_args()
-        for key, value in data.items():
-            if value is not None:
-                setattr(summative_report, key, value)
-
-        # Recalculate the annual averages if any of the exam marks are updated
-        AnnualAverageCalculator.calculate_annual_averages(summative_report.student_id, year_id)
-
-        db.session.commit()
-
-        result = summative_report_schema.dump(summative_report)
-        return make_response(jsonify(result), 200)
-
-api.add_resource(EditSummativeReport, '/edit_summative_reports/<string:grade_id>/<string:student_id>')
 
