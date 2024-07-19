@@ -21,10 +21,7 @@ def get_school_id_from_session():
     return claims.get("school_id")
 
 
-from datetime import datetime
-from flask_restful import Resource
-from flask_jwt_extended import jwt_required
-from flask import jsonify, make_response
+
 
 class AnnualAverageCalculator(Resource):
     @staticmethod
