@@ -1,8 +1,8 @@
 """create database tables
 
-Revision ID: 65d4e2579e91
+Revision ID: 5c9d9da40350
 Revises: 
-Create Date: 2024-07-18 09:23:54.035518
+Create Date: 2024-07-19 10:56:38.441629
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '65d4e2579e91'
+revision = '5c9d9da40350'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -171,9 +171,9 @@ def upgrade():
     sa.Column('year_id', sa.String(), nullable=False),
     sa.Column('class_teacher_id', sa.String(), nullable=False),
     sa.Column('stream_id', sa.String(), nullable=False),
-    sa.Column('behaviour_goal', sa.String(), nullable=False),
-    sa.Column('behaviour_goal_assessment', sa.Text(), nullable=False),
-    sa.Column('class_teachers_comments', sa.Text(), nullable=False),
+    sa.Column('behaviour_goal', sa.String(), nullable=True),
+    sa.Column('behaviour_goal_assessment', sa.Text(), nullable=True),
+    sa.Column('class_teachers_comments', sa.Text(), nullable=True),
     sa.ForeignKeyConstraint(['class_teacher_id'], ['grade_stream_class_teacher.id'], name=op.f('fk_behaviour_reports_class_teacher_id_grade_stream_class_teacher')),
     sa.ForeignKeyConstraint(['grade_id'], ['grades.id'], name=op.f('fk_behaviour_reports_grade_id_grades')),
     sa.ForeignKeyConstraint(['school_id'], ['schools.id'], name=op.f('fk_behaviour_reports_school_id_schools')),
@@ -225,10 +225,8 @@ def upgrade():
     sa.Column('subject_teacher_id', sa.String(), nullable=False),
     sa.Column('stream_id', sa.String(), nullable=False),
     sa.Column('class_teacher_id', sa.String(), nullable=False),
-    sa.Column('exam_1_marks', sa.Integer(), nullable=True),
-    sa.Column('exam_2_marks', sa.Integer(), nullable=True),
-    sa.Column('exam_3_marks', sa.Integer(), nullable=True),
-    sa.Column('average_grade', sa.Float(), nullable=True),
+    sa.Column('exam_marks', sa.Float(), nullable=False),
+    sa.Column('average_grade', sa.Float(), nullable=False),
     sa.Column('general_remarks', sa.Text(), nullable=True),
     sa.Column('class_teachers_comments', sa.Text(), nullable=True),
     sa.ForeignKeyConstraint(['class_teacher_id'], ['grade_stream_class_teacher.id'], name=op.f('fk_summative_reports_class_teacher_id_grade_stream_class_teacher')),
@@ -278,18 +276,18 @@ def upgrade():
     sa.Column('subject_id', sa.String(), nullable=False),
     sa.Column('grade_id', sa.String(), nullable=False),
     sa.Column('year_id', sa.String(), nullable=False),
-    sa.Column('staff_id', sa.String(), nullable=False),
     sa.Column('stream_id', sa.String(), nullable=False),
+    sa.Column('subject_teacher_id', sa.String(), nullable=False),
     sa.Column('assessment_rubic_id', sa.String(), nullable=False),
     sa.Column('is_selected', sa.Boolean(), nullable=False),
     sa.Column('single_mark', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['assessment_rubic_id'], ['assessment_rubics.id'], name=op.f('fk_formative_reports_assessment_rubic_id_assessment_rubics')),
     sa.ForeignKeyConstraint(['grade_id'], ['grades.id'], name=op.f('fk_formative_reports_grade_id_grades')),
     sa.ForeignKeyConstraint(['school_id'], ['schools.id'], name=op.f('fk_formative_reports_school_id_schools')),
-    sa.ForeignKeyConstraint(['staff_id'], ['staffs.id'], name=op.f('fk_formative_reports_staff_id_staffs')),
     sa.ForeignKeyConstraint(['stream_id'], ['streams.id'], name=op.f('fk_formative_reports_stream_id_streams')),
     sa.ForeignKeyConstraint(['student_id'], ['students.id'], name=op.f('fk_formative_reports_student_id_students')),
     sa.ForeignKeyConstraint(['subject_id'], ['subjects.id'], name=op.f('fk_formative_reports_subject_id_subjects')),
+    sa.ForeignKeyConstraint(['subject_teacher_id'], ['teacher_subject_grade_stream.id'], name=op.f('fk_formative_reports_subject_teacher_id_teacher_subject_grade_stream')),
     sa.ForeignKeyConstraint(['year_id'], ['years.id'], name=op.f('fk_formative_reports_year_id_years')),
     sa.PrimaryKeyConstraint('id')
     )

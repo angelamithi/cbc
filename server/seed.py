@@ -467,14 +467,14 @@ def seed_database():
 
         formative_report_data = [
 
-            { "staff_id": staffs[0].id,"school_id":schools[0].id,"year_id": years[1].id,"grade_id": grades[1].id,"stream_id":streams[0].id,"student_id": students[0].id,'subject_id': subjects[0].id,"assessment_rubic_id":assessment_rubics[0].id,"is_selected":1,"single_mark":4},
-            { "staff_id": staffs[0].id,"school_id":schools[0].id,"year_id": years[1].id,"grade_id": grades[1].id,"stream_id":streams[0].id,"student_id": students[0].id,'subject_id': subjects[0].id,"assessment_rubic_id":assessment_rubics[1].id,"is_selected":0,"single_mark":0},
-            { "staff_id": staffs[0].id,"school_id":schools[0].id,"year_id": years[1].id,"grade_id": grades[1].id,"stream_id":streams[0].id,"student_id": students[0].id,'subject_id': subjects[0].id,"assessment_rubic_id":assessment_rubics[2].id,"is_selected":0,"single_mark":0},
-            { "staff_id": staffs[0].id,"school_id":schools[0].id,"year_id": years[1].id,"grade_id": grades[1].id,"stream_id":streams[0].id,"student_id": students[0].id,'subject_id': subjects[0].id,"assessment_rubic_id":assessment_rubics[3].id,"is_selected":0,"single_mark":0},            
-            { "staff_id": staffs[0].id,"school_id":schools[0].id,"year_id": years[1].id,"grade_id": grades[1].id,"stream_id":streams[0].id,"student_id": students[0].id,'subject_id': subjects[0].id,"assessment_rubic_id":assessment_rubics[4].id,"is_selected":0,"single_mark":0},
-            { "staff_id": staffs[0].id,"school_id":schools[0].id,"year_id": years[1].id,"grade_id": grades[1].id,"stream_id":streams[0].id,"student_id": students[0].id,'subject_id': subjects[0].id,"assessment_rubic_id":assessment_rubics[5].id,"is_selected":1,"single_mark":4},
-            { "staff_id": staffs[0].id,"school_id":schools[0].id,"year_id": years[1].id,"grade_id": grades[1].id,"stream_id":streams[0].id,"student_id": students[0].id,'subject_id': subjects[0].id,"assessment_rubic_id":assessment_rubics[6].id,"is_selected":0,"single_mark":0},
-            { "staff_id": staffs[0].id,"school_id":schools[0].id,"year_id": years[1].id,"grade_id": grades[1].id,"stream_id":streams[0].id,"student_id": students[0].id,'subject_id': subjects[0].id,"assessment_rubic_id":assessment_rubics[7].id,"is_selected":0,"single_mark":0},
+            { "subject_teacher_id": teacher_subject_grade_stream[0].id,"school_id":schools[0].id,"year_id": years[1].id,"grade_id": grades[1].id,"stream_id":streams[0].id,"student_id": students[0].id,'subject_id': subjects[0].id,"assessment_rubic_id":assessment_rubics[0].id,"is_selected":1,"single_mark":4},
+            { "subject_teacher_id": teacher_subject_grade_stream[0].id,"school_id":schools[0].id,"year_id": years[1].id,"grade_id": grades[1].id,"stream_id":streams[0].id,"student_id": students[0].id,'subject_id': subjects[0].id,"assessment_rubic_id":assessment_rubics[1].id,"is_selected":0,"single_mark":0},
+            { "subject_teacher_id": teacher_subject_grade_stream[0].id,"school_id":schools[0].id,"year_id": years[1].id,"grade_id": grades[1].id,"stream_id":streams[0].id,"student_id": students[0].id,'subject_id': subjects[0].id,"assessment_rubic_id":assessment_rubics[2].id,"is_selected":0,"single_mark":0},
+            { "subject_teacher_id": teacher_subject_grade_stream[0].id,"school_id":schools[0].id,"year_id": years[1].id,"grade_id": grades[1].id,"stream_id":streams[0].id,"student_id": students[0].id,'subject_id': subjects[0].id,"assessment_rubic_id":assessment_rubics[3].id,"is_selected":0,"single_mark":0},            
+            { "subject_teacher_id": teacher_subject_grade_stream[0].id,"school_id":schools[0].id,"year_id": years[1].id,"grade_id": grades[1].id,"stream_id":streams[0].id,"student_id": students[0].id,'subject_id': subjects[0].id,"assessment_rubic_id":assessment_rubics[4].id,"is_selected":0,"single_mark":0},
+            { "subject_teacher_id": teacher_subject_grade_stream[0].id,"school_id":schools[0].id,"year_id": years[1].id,"grade_id": grades[1].id,"stream_id":streams[0].id,"student_id": students[0].id,'subject_id': subjects[0].id,"assessment_rubic_id":assessment_rubics[5].id,"is_selected":1,"single_mark":4},
+            { "subject_teacher_id": teacher_subject_grade_stream[0].id,"school_id":schools[0].id,"year_id": years[1].id,"grade_id": grades[1].id,"stream_id":streams[0].id,"student_id": students[0].id,'subject_id': subjects[0].id,"assessment_rubic_id":assessment_rubics[6].id,"is_selected":0,"single_mark":0},
+            { "subject_teacher_id": teacher_subject_grade_stream[0].id,"school_id":schools[0].id,"year_id": years[1].id,"grade_id": grades[1].id,"stream_id":streams[0].id,"student_id": students[0].id,'subject_id': subjects[0].id,"assessment_rubic_id":assessment_rubics[7].id,"is_selected":0,"single_mark":0},
             
 
         ]     
@@ -498,10 +498,8 @@ def seed_database():
                 "student_id": students[0].id,
                 "subject_id": subjects[0].id,
                 "term_id": terms[0].id,
-                "exam_1_marks": 75,
-                "exam_2_marks": 80,
-                "exam_3_marks": 85,
-                "average_grade": 80.0,
+                "exam_marks":80.0,
+                "average_grade":0.00,
                 "general_remarks": "Good performance, keep it up.",
                 "class_teachers_comments": "Consistent improvement noted."
             },
@@ -515,10 +513,8 @@ def seed_database():
                 "student_id": students[1].id,
                 "subject_id": subjects[1].id,
                 "term_id": terms[1].id,
-                "exam_1_marks": 65,
-                "exam_2_marks": 70,
-                "exam_3_marks": 75,
-                "average_grade": 70.0,
+                "exam_marks":70,
+                "average_grade": 0.00,
                 "general_remarks": "Satisfactory performance, but there's room for improvement.",
                 "class_teachers_comments": "Encourage more participation in class."
             },
@@ -532,10 +528,8 @@ def seed_database():
                 "student_id": students[1].id,
                 "subject_id": subjects[2].id,
                 "term_id": terms[0].id,
-                "exam_1_marks": 85,
-                "exam_2_marks": 90,
-                "exam_3_marks": 95,
-                "average_grade": 90.0,
+                "exam_marks":65.0,
+                "average_grade":0.00,
                 "general_remarks": "Excellent performance.",
                 "class_teachers_comments": "Keep up the excellent work."
             },
@@ -549,10 +543,8 @@ def seed_database():
                 "student_id": students[1].id,
                 "subject_id": subjects[1].id,
                 "term_id": terms[1].id,
-                "exam_1_marks": 50,
-                "exam_2_marks": 55,
-                "exam_3_marks": 60,
-                "average_grade": 55.0,
+                "exam_marks":80.0,
+                "average_grade":0.00,
                 "general_remarks": "Average performance, needs to work harder.",
                 "class_teachers_comments": "Encourage more study time."
             }

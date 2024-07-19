@@ -281,9 +281,9 @@ class FormativeReport(db.Model):
     year_id = db.Column(db.String, db.ForeignKey('years.id'), nullable=False)   
     stream_id = db.Column(db.String, db.ForeignKey('streams.id'), nullable=False)
     subject_teacher_id = db.Column(db.String, db.ForeignKey('teacher_subject_grade_stream.id'), nullable=False)
-    assessment_rubic_id = db.Column(db.String, db.ForeignKey('assessment_rubics.id'))
-    is_selected = db.Column(db.Boolean,default=0)
-    single_mark = db.Column(db.Integer,default=0)
+    assessment_rubic_id = db.Column(db.String, db.ForeignKey('assessment_rubics.id'),nullable=False)
+    is_selected = db.Column(db.Boolean,nullable=False,default=0)
+    single_mark = db.Column(db.Integer,nullable=False,default=0)
 
 class SummativeReport(db.Model):
     __tablename__ = "summative_reports"
@@ -297,13 +297,10 @@ class SummativeReport(db.Model):
     subject_teacher_id = db.Column(db.String, db.ForeignKey('teacher_subject_grade_stream.id'), nullable=False)
     stream_id = db.Column(db.String, db.ForeignKey('streams.id'), nullable=False)
     class_teacher_id = db.Column(db.String, db.ForeignKey('grade_stream_class_teacher.id'), nullable=False)
-    exam_1_marks = db.Column(db.Integer)
-    exam_2_marks = db.Column(db.Integer)
-    exam_3_marks = db.Column(db.Integer)
-    average_grade = db.Column(db.Float)
-    general_remarks = db.Column(db.Text)
-    class_teachers_comments = db.Column(db.Text)
-
+    exam_marks = db.Column(db.Float, nullable=False, default=0)
+    average_grade = db.Column(db.Float, nullable=False, default=0)  # This will be updated annually
+    general_remarks = db.Column(db.Text, nullable=True)
+    class_teachers_comments = db.Column(db.Text, nullable=True)
   
 
 
@@ -316,9 +313,9 @@ class BehaviourReport(db.Model):
     year_id = db.Column(db.String, db.ForeignKey('years.id'), nullable=False)
     class_teacher_id = db.Column(db.String, db.ForeignKey('grade_stream_class_teacher.id'), nullable=False)
     stream_id = db.Column(db.String, db.ForeignKey('streams.id'), nullable=False)   
-    behaviour_goal = db.Column(db.String, nullable=False)
-    behaviour_goal_assessment = db.Column(db.Text, nullable=False)
-    class_teachers_comments = db.Column(db.Text, nullable=False)
+    behaviour_goal = db.Column(db.String, nullable=True)
+    behaviour_goal_assessment = db.Column(db.Text, nullable=True)
+    class_teachers_comments = db.Column(db.Text, nullable=True)
 
 
 

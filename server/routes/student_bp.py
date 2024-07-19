@@ -2,10 +2,11 @@ from flask import Blueprint, make_response, jsonify,session,request
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 from flask_restful import Api, Resource, abort, reqparse
 from flask_jwt_extended import jwt_required, get_jwt_identity,get_jwt
-from models import Student, db,Grade,Staff
+from models import Student, db,Grade,Staff,BehaviourReport,SummativeReport,FormativeReport,Year,TeacherSubjectGradeStream,GradeStreamClassTeacher,Term,AssessmentRubic
 from serializer import studentSchema,grade_stream_class_teacher_schema
 from auth import admin_required,superAdmin_required
 from datetime import datetime
+from sqlalchemy.exc import IntegrityError
 
 student_bp = Blueprint('student_bp', __name__)
 api = Api(student_bp)
@@ -70,29 +71,121 @@ class StudentDetails(Resource):
         if student:
             return make_response(jsonify({"error": "Student with the same admission number already exists"}), 409)
 
-        joined_date = datetime.strptime(data["joined_date"], "%Y-%m-%d")
-        date_of_birth = datetime.strptime(data["date_of_birth"], "%Y-%m-%d")
+        try:
+            joined_date = datetime.strptime(data["joined_date"], "%Y-%m-%d")
+            date_of_birth = datetime.strptime(data["date_of_birth"], "%Y-%m-%d")
 
-        new_student = Student(
-            school_id=data['school_id'], 
-            admission_number=data['admission_number'],
-            joined_date=joined_date, 
-            date_of_birth=date_of_birth, 
-            first_name=data['first_name'],
-            last_name=data['last_name'], 
-            birth_certificate_number=data['birth_certificate_number'],
-            photo_url=data["photo_url"], 
-            grade_id=data['grade_id'], 
-            stream_id=data['stream_id'],
-            status=data['status']
-        )
-        db.session.add(new_student)
-        db.session.commit()
+            new_student = Student(
+                school_id=data['school_id'], 
+                admission_number=data['admission_number'],
+                joined_date=joined_date, 
+                date_of_birth=date_of_birth, 
+                first_name=data['first_name'],
+                last_name=data['last_name'], 
+                birth_certificate_number=data['birth_certificate_number'],
+                photo_url=data["photo_url"], 
+                grade_id=data['grade_id'], 
+                stream_id=data['stream_id'],
+                status=data['status']
+            )
+            db.session.add(new_student)
+            db.session.flush()  # Ensure the new_student ID is available
 
-        result = studentSchema.dump(new_student)
-        return make_response(jsonify(result), 201)
+            # Fetch the current year_id
+            current_year = datetime.now().year
+            year = Year.query.filter_by(year_name=current_year).first()
+            if not year:
+                return make_response(jsonify({"error": "Year not found"}), 404)
+
+            year_id = year.id
+
+            # Fetch subject_ids and corresponding subject_teacher_ids for the grade and stream
+            teacher_subjects = TeacherSubjectGradeStream.query.filter_by(
+                grade_id=data['grade_id'], 
+                stream_id=data['stream_id']
+            ).all()
+
+            # Fetch class teacher ID for the specific grade and stream
+            class_teacher = GradeStreamClassTeacher.query.filter_by(
+                grade_id=data['grade_id'], 
+                stream_id=data['stream_id']
+            ).first()
+            if not class_teacher:
+                return make_response(jsonify({"error": "Class teacher not found"}), 404)
+
+            class_teacher_id = class_teacher.staff_id
+
+            # Fetch all term IDs
+            terms = Term.query.all()
+            term_ids = [term.id for term in terms]
+
+            # Create Formative Reports for each subject 
+            for ts in teacher_subjects:
+                # Fetch the corresponding assessment rubric IDs for each subject
+                assessment_rubrics = AssessmentRubic.query.filter_by(subject_id=ts.subject_id).all()
+                assessment_rubric_ids = [rubric.id for rubric in assessment_rubrics]
+
+                for rubric_id in assessment_rubric_ids:
+                    formative_report = FormativeReport(
+                        school_id=data['school_id'],
+                        student_id=new_student.id,
+                        subject_id=ts.subject_id,
+                        grade_id=data['grade_id'],
+                        stream_id=data['stream_id'],
+                        year_id=year_id,
+                        subject_teacher_id=ts.staff_id,
+                        assessment_rubic_id=rubric_id  # Save the individual assessment rubric ID
+                    )
+                    db.session.add(formative_report)
+
+            # Create Summative Reports for each subject and term
+            for ts in teacher_subjects:
+                for term_id in term_ids:
+                    summative_report = SummativeReport(
+                        school_id=data['school_id'],
+                        student_id=new_student.id,
+                        subject_id=ts.subject_id,
+                        grade_id=data['grade_id'],
+                        stream_id=data['stream_id'],
+                        class_teacher_id=class_teacher_id,
+                        year_id=year_id,
+                        term_id=term_id,
+                        subject_teacher_id=ts.staff_id,
+                        exam_marks=0,
+                        average_grade=0,
+                        general_remarks="",
+                        class_teachers_comments=""
+                    )
+                    db.session.add(summative_report)
+
+            # Create Behavior Report
+            behaviour_report = BehaviourReport(
+                school_id=data['school_id'],
+                student_id=new_student.id,
+                grade_id=data['grade_id'],
+                year_id=year_id,  # Using the derived year_id
+                stream_id=data['stream_id'],
+                class_teacher_id=class_teacher_id,
+                behaviour_goal="",
+                behaviour_goal_assessment="",
+                class_teachers_comments=""
+            )
+            db.session.add(behaviour_report)
+
+            db.session.commit()
+
+            result = studentSchema.dump(new_student)
+            return make_response(jsonify(result), 201)
+
+        except IntegrityError:
+            db.session.rollback()
+            return make_response(jsonify({"error": "Database integrity error occurred"}), 500)
+        except Exception as e:
+            db.session.rollback()
+            return make_response(jsonify({"error": str(e)}), 500)
 
 api.add_resource(StudentDetails, '/students')
+
 
 class StudentsByGrade(Resource):
     @jwt_required()

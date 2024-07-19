@@ -123,7 +123,7 @@ class RetrieveStudentReport(Resource):
         # Return the serialized data
         return make_response(jsonify(response_data), 200)
 
-api.add_resource(RetrieveStudentReport, '/get_student_report/<string:grade_id>/<string:student_id>/<string:subject_id>')
+api.add_resource(RetrieveStudentReport, '/get_student_report/<string:grade_id>/<string:subject_id>/<string:student_id>')
 
 
 
@@ -196,72 +196,3 @@ api.add_resource(UpdateStudentReport, '/update_student_report/<string:grade_id>/
 
 
 
-
-class CreateStudentReport(Resource):
-    @jwt_required()
-    def post(self):
-        school_id=get_school_id_from_session()
-        parser = reqparse.RequestParser()
-        parser.add_argument('grade_id', type=str, required=True, help='Grade ID is required')
-        parser.add_argument('student_id', type=str, required=True, help='Student ID is required')
-        parser.add_argument('subject_id', type=str, required=True, help='Subject ID is required')
-        parser.add_argument('staff_id', type=str, required=True, help='Staff is required')
-        parser.add_argument('stream_id', type=str, required=True, help='Stream is required')
-
-        parser.add_argument('rubrics', type=list, location='json', required=True, help='List of rubrics is required')
-
-        # Fetch the current year object
-        current_year = datetime.now().year
-        year_object = Year.query.filter_by(year_name=current_year).first()
-
-        if not year_object:
-                return make_response(jsonify({"error": f"No year found for {current_year}"}), 404)
-
-        year_id = year_object.id
-
-        args = parser.parse_args()
-        grade_id = args['grade_id']
-        student_id = args['student_id']
-        subject_id = args['subject_id']
-        year_id = year_id
-        stream_id = args['stream_id']
-        staff_id = args['staff_id']
-        rubrics = args['rubrics']
-
-        try:
-            # Loop through each rubric and create a new report entry
-            for rubric in rubrics:
-                rubric_id = rubric['assessment_rubic_id']
-                rubric_mark = rubric['assessment_rubic_mark']
-                is_selected = 1 if rubric['is_selected'] else 0  # Convert boolean to 1 or 0
-
-                # Create a new FormativeReport instance for each rubric
-                new_report = FormativeReport(
-                    school_id=school_id,
-                    student_id=student_id,
-                    grade_id=grade_id,
-                    subject_id=subject_id,
-                    year_id=year_id,
-                    staff_id=staff_id,
-                    stream_id=stream_id,
-                    assessment_rubic_id=rubric_id,
-                    assessment_rubic_mark=rubric_mark,
-                    is_selected=is_selected
-                )
-
-                # Add new_report to session
-                db.session.add(new_report)
-
-            # Commit changes to the database
-            db.session.commit()
-
-            # Optionally, you can return the newly created report or a success message
-            return make_response(jsonify({"message": "Report created successfully"}), 201)
-
-        except Exception as e:
-            # Handle exceptions, e.g., if there's an error in creating the report or rubrics are not found
-            db.session.rollback()  # Rollback changes in case of an error
-            return make_response(jsonify({"error": str(e)}), 400)
-
-# Add the route for creating a new student report
-api.add_resource(CreateStudentReport, '/create_student_report')
