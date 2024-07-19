@@ -293,11 +293,195 @@ class PromoteStudent(Resource):
                 Grade.grade.ilike(f"Grade {int(current_grade.grade.split(' ')[-1]) + 1}")
             ).first()
             if next_grade:
+                # Update student to the new grade
                 student.grade_id = next_grade.id
                 db.session.commit()
+
+                # Create Formative Reports for the new grade
+                teacher_subjects = TeacherSubjectGradeStream.query.filter_by(
+                    grade_id=next_grade.id,
+                    stream_id=student.stream_id
+                ).all()
+                current_year = datetime.now().year
+                year = Year.query.filter_by(year_name=current_year).first()
+                if not year:
+                    return make_response(jsonify({"error": "Year not found"}), 404)
+                year_id = year.id
+
+                for ts in teacher_subjects:
+                    assessment_rubrics = AssessmentRubic.query.filter_by(subject_id=ts.subject_id).all()
+                    for rubric in assessment_rubrics:
+                        formative_report = FormativeReport(
+                            school_id=school_id,
+                            student_id=student.id,
+                            subject_id=ts.subject_id,
+                            grade_id=next_grade.id,
+                            stream_id=student.stream_id,
+                            year_id=year_id,
+                            subject_teacher_id=ts.staff_id,
+                            assessment_rubic_id=rubric.id
+                        )
+                        db.session.add(formative_report)
+
+                # Create Summative Reports for the new grade
+                terms = Term.query.all()
+                term_ids = [term.id for term in terms]
+                class_teacher = GradeStreamClassTeacher.query.filter_by(
+                    grade_id=next_grade.id,
+                    stream_id=student.stream_id
+                ).first()
+                if not class_teacher:
+                    return make_response(jsonify({"error": "Class teacher not found for new grade"}), 404)
+                
+                for ts in teacher_subjects:
+                    for term_id in term_ids:
+                        summative_report = SummativeReport(
+                            school_id=school_id,
+                            student_id=student.id,
+                            subject_id=ts.subject_id,
+                            grade_id=next_grade.id,
+                            stream_id=student.stream_id,
+                            class_teacher_id=class_teacher.staff_id,
+                            year_id=year_id,
+                            term_id=term_id,
+                            subject_teacher_id=ts.staff_id,
+                            exam_marks=0,
+                            average_grade=0,
+                            general_remarks="",
+                            class_teachers_comments=""
+                        )
+                        db.session.add(summative_report)
+
+                # Create Behaviour Report for the new grade
+                behaviour_report = BehaviourReport(
+                    school_id=school_id,
+                    student_id=student.id,
+                    grade_id=next_grade.id,
+                    year_id=year_id,
+                    stream_id=student.stream_id,
+                    class_teacher_id=class_teacher.staff_id,
+                    behaviour_goal="",
+                    behaviour_goal_assessment="",
+                    class_teachers_comments=""
+                )
+                db.session.add(behaviour_report)
+
+                db.session.commit()
+                
                 result = studentSchema.dump(student)
                 return make_response(jsonify(result), 200)
         
         return make_response(jsonify({"error": "Promotion failed. Next grade not found or other error occurred"}), 400)
 
+       
 api.add_resource(PromoteStudent, '/promote/students/<string:student_id>')
+
+class PromoteSeveralStudents(Resource):
+    def post(self, grade_id):
+        # Create the parser and add arguments
+        parser = reqparse.RequestParser()
+        parser.add_argument('student_ids', type=list, location='json', required=True, help='List of student IDs is required.')
+        
+        # Parse the input data
+        args = parser.parse_args()
+        student_ids = args.get('student_ids', [])
+        
+        if not student_ids:
+            return make_response(jsonify({'error': 'No student IDs provided'}), 400)
+        
+        school_id = get_school_id_from_session()
+        if not school_id:
+            return make_response(jsonify({'error': 'School ID not found in session'}), 401)
+        
+        students = Student.query.filter(Student.id.in_(student_ids), Student.school_id == school_id).all()
+        if not students:
+            return make_response(jsonify({'error': 'No students found with the provided IDs in the specified school'}), 404)
+        
+        # Validate the target grade
+        next_grade = Grade.query.get(grade_id)
+        if not next_grade or next_grade.school_id != school_id:
+            return make_response(jsonify({'error': 'Target grade not found or does not belong to the specified school'}), 404)
+
+        current_year = datetime.now().year
+        year = Year.query.filter_by(year_name=current_year).first()
+        if not year:
+            return make_response(jsonify({'error': 'Year not found'}), 404)
+        year_id = year.id
+
+        # Create reports for all students in bulk
+        teacher_subjects = TeacherSubjectGradeStream.query.filter_by(
+            grade_id=next_grade.id,
+            stream_id=students[0].stream_id
+        ).all()
+
+        for student in students:
+            # Update student to the new grade
+            student.grade_id = next_grade.id
+            db.session.add(student)
+
+            # Create Formative Reports
+            for ts in teacher_subjects:
+                assessment_rubrics = AssessmentRubic.query.filter_by(subject_id=ts.subject_id).all()
+                for rubric in assessment_rubrics:
+                    formative_report = FormativeReport(
+                        school_id=school_id,
+                        student_id=student.id,
+                        subject_id=ts.subject_id,
+                        grade_id=next_grade.id,
+                        stream_id=student.stream_id,
+                        year_id=year_id,
+                        subject_teacher_id=ts.staff_id,
+                        assessment_rubic_id=rubric.id
+                    )
+                    db.session.add(formative_report)
+
+            # Create Summative Reports
+            terms = Term.query.all()
+            term_ids = [term.id for term in terms]
+            class_teacher = GradeStreamClassTeacher.query.filter_by(
+                grade_id=next_grade.id,
+                stream_id=student.stream_id
+            ).first()
+            if not class_teacher:
+                return make_response(jsonify({'error': 'Class teacher not found for new grade'}), 404)
+
+            for ts in teacher_subjects:
+                for term_id in term_ids:
+                    summative_report = SummativeReport(
+                        school_id=school_id,
+                        student_id=student.id,
+                        subject_id=ts.subject_id,
+                        grade_id=next_grade.id,
+                        stream_id=student.stream_id,
+                        class_teacher_id=class_teacher.staff_id,
+                        year_id=year_id,
+                        term_id=term_id,
+                        subject_teacher_id=ts.staff_id,
+                        exam_marks=0,
+                        average_grade=0,
+                        general_remarks="",
+                        class_teachers_comments=""
+                    )
+                    db.session.add(summative_report)
+
+            # Create Behaviour Report
+            behaviour_report = BehaviourReport(
+                school_id=school_id,
+                student_id=student.id,
+                grade_id=next_grade.id,
+                year_id=year_id,
+                stream_id=student.stream_id,
+                class_teacher_id=class_teacher.staff_id,
+                behaviour_goal="",
+                behaviour_goal_assessment="",
+                class_teachers_comments=""
+            )
+            db.session.add(behaviour_report)
+
+        db.session.commit()
+        
+        result = studentSchema.dump(students, many=True)
+        return make_response(jsonify(result), 200)
+
+# Add the resource to the API
+api.add_resource(PromoteSeveralStudents, '/promote/several_students/<string:grade_id>')
