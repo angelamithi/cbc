@@ -165,52 +165,64 @@ class UpdateStudentReport(Resource):
             # Fetch the report to update
             report = FormativeReport.query.filter_by(student_id=student_id, grade_id=grade_id,
                                                      subject_id=subject_id, year_id=year_id,
-                                                     school_id=school_id).first()
+                                                     school_id=school_id).all()
 
             if not report:
                 return make_response(jsonify({"error": "Report not found"}), 404)
 
+            # Fetch all current entries for the student, grade, subject, and year
+            existing_entries = FormativeReport.query.filter_by(
+                student_id=student_id,
+                grade_id=grade_id,
+                subject_id=subject_id,
+                year_id=year_id,
+                school_id=school_id
+            ).all()
+
             # Initialize a list to hold the updated rubrics
             updated_rubrics = []
 
-            # Loop through each rubric and update accordingly
+            # Iterate through rubrics and update accordingly
             for rubric in rubric_list:
                 rubric_id = rubric.get('assessment_rubic_id')
 
                 if rubric_id:
                     assessment_rubic = AssessmentRubic.query.get(rubric_id)
                     if assessment_rubic:
-                        rubric_mark = assessment_rubic.assessment_rubic_mark
-                        is_selected = 1
-                    else:
-                        rubric_mark = 0
-                        is_selected = 0
-                else:
-                    rubric_mark = 0
-                    is_selected = 0
+                        # Find the learning outcome associated with the selected rubric
+                        learning_outcome_id = assessment_rubic.learning_outcome_id
 
-                # Update the report for each rubric
-                if rubric_id:
-                    updated_rubric = FormativeReport.query.filter_by(student_id=student_id, grade_id=grade_id,
-                                                                     subject_id=subject_id, year_id=year_id,
-                                                                     school_id=school_id, assessment_rubic_id=rubric_id).first()
-                    if updated_rubric:
-                        updated_rubric.single_mark = rubric_mark
-                        updated_rubric.is_selected = is_selected
-                        db.session.add(updated_rubric)
-                    else:
-                        # Handle cases where the rubric is not found in the existing report
-                        new_rubric = FormativeReport(
-                            student_id=student_id,
-                            grade_id=grade_id,
-                            subject_id=subject_id,
-                            year_id=year_id,
-                            school_id=school_id,
-                            assessment_rubic_id=rubric_id,
-                            single_mark=rubric_mark,
-                            is_selected=is_selected
-                        )
-                        db.session.add(new_rubric)
+                        # Fetch all assessment rubrics associated with the same learning outcome
+                        associated_rubrics = AssessmentRubic.query.filter_by(learning_outcome_id=learning_outcome_id).all()
+
+                        # Update all associated rubrics to not selected and set their marks to 0
+                        for associated_rubric in associated_rubrics:
+                            report_entry = next((entry for entry in existing_entries if entry.assessment_rubic_id == associated_rubric.id), None)
+                            if report_entry:
+                                report_entry.single_mark = 0
+                                report_entry.is_selected = 0
+                                db.session.add(report_entry)
+
+                        # Update the selected rubric
+                        selected_rubric_entry = next((entry for entry in existing_entries if entry.assessment_rubic_id == rubric_id), None)
+
+                        if selected_rubric_entry:
+                            selected_rubric_entry.single_mark = assessment_rubic.assessment_rubic_mark
+                            selected_rubric_entry.is_selected = 1
+                            db.session.add(selected_rubric_entry)
+                        else:
+                            # Handle cases where the rubric is not found in the existing report
+                            new_rubric = FormativeReport(
+                                student_id=student_id,
+                                grade_id=grade_id,
+                                subject_id=subject_id,
+                                year_id=year_id,
+                                school_id=school_id,
+                                assessment_rubic_id=rubric_id,
+                                single_mark=assessment_rubic.assessment_rubic_mark,
+                                is_selected=1
+                            )
+                            db.session.add(new_rubric)
 
             # Commit changes to the database
             db.session.commit()
@@ -223,8 +235,3 @@ class UpdateStudentReport(Resource):
             return make_response(jsonify({"error": str(e)}), 404)
 
 api.add_resource(UpdateStudentReport, '/update_student_report/<string:grade_id>/<string:subject_id>/<string:student_id>')
-
-
-
-
-
