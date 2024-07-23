@@ -1,8 +1,8 @@
-from flask import Blueprint, make_response, jsonify
+from flask import Blueprint, make_response, jsonify,request
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 from flask_restful import Api, Resource, reqparse
 from flask_jwt_extended import jwt_required
-from models import SubStrand, Strand, LearningOutcome, AssessmentRubic, db
+from models import SubStrand, Strand, LearningOutcome, AssessmentRubic, db,generate_uuid
 from serializer import subStrandSchema, strandSchema, learningOutcomeSchema, assessmentRubicSchema
 from auth import admin_required, superAdmin_required
 
@@ -12,13 +12,12 @@ api = Api(subject_details_bp)
 post_args = reqparse.RequestParser()
 patch_args = reqparse.RequestParser()
 
-# Define arguments for each resource
-post_args.add_argument('substrand_name', type=str, required=True, help='SubStrand Name is required')
-post_args.add_argument('strand_name', type=str, required=True, help='Strand Name is required')
-post_args.add_argument('learning_outcomes', type=str, required=True, help='Learning Outcomes is required')
-post_args.add_argument('assessment_rubrics', type=str, required=True, help='Assessment Rubrics is required')
-post_args.add_argument('grade_id', type=str, required=True, help='Grade Id is required')
-post_args.add_argument('subject_id', type=str, required=True, help='Subject Id is required')
+# Define the parser for other fields
+post_args = reqparse.RequestParser()
+post_args.add_argument('substrand_name', type=str, required=True, help="Sub-strand name is required")
+post_args.add_argument('strand_name', type=str, required=True, help="Strand name is required")
+post_args.add_argument('learning_outcomes', type=str, required=True, help="Learning outcomes are required")
+post_args.add_argument('assessment_rubrics', type=list, required=True, help="Assessment rubrics are required")
 
 patch_args.add_argument('substrand_name', type=str)
 patch_args.add_argument('strand_name', type=str)
@@ -27,48 +26,76 @@ patch_args.add_argument('assessment_rubrics', type=str)
 patch_args.add_argument('grade_id', type=str)
 patch_args.add_argument('subject_id', type=str)
 
-class SubjectDetails(Resource):
-    
 
-   
-    @superAdmin_required()
-    def post(self):
-        data = post_args.parse_args()
+class SubjectPostGradeDetails(Resource):
+    # @superAdmin_required()
+    @jwt_required()
+    def post(self, grade_id, subject_id):
+        try:
+            data = request.get_json()
 
-        # Create new entries in each respective table
-        new_sub_strand = SubStrand(substrand_name=data['substrand_name'], subject_id=data['subject_id'], grade_id=data['grade_id'])
-        new_strand = Strand(strand_name=data['strand_name'], subject_id=data['subject_id'], grade_id=data['grade_id'])
-        new_learning_outcome = LearningOutcome(learning_outcomes=data['learning_outcomes'], subject_id=data['subject_id'], grade_id=data['grade_id'])
+            # Save Strand
+            strand_id = generate_uuid()
+            strand = Strand(
+                id=strand_id,
+                strand_name=data['strand_name'],
+                subject_id=subject_id,
+                grade_id=grade_id
+            )
+            db.session.add(strand)
 
-        # Add entries to the database session and commit changes
-        db.session.add(new_sub_strand)
-        db.session.add(new_strand)
-        db.session.add(new_learning_outcome)
-        db.session.commit()
+            # Save SubStrands
+            for substrand_data in data['substrands']:
+                substrand_id = generate_uuid()
+                substrand = SubStrand(
+                    id=substrand_id,
+                    substrand_name=substrand_data['substrand_name'],
+                    strand_id=strand_id,
+                    subject_id=subject_id,
+                    grade_id=grade_id
+                )
+                db.session.add(substrand)
 
-        # Create and save the four assessment rubrics
-        new_assessment_rubrics = []
-        for assessment_rubric_data in data['assessment_rubrics']:
-            assessment_rubric = AssessmentRubic(assessment_rubics=assessment_rubric_data, subject_id=data['subject_id'], grade_id=data['grade_id'], learning_outcome_id=new_learning_outcome.id)
-            db.session.add(assessment_rubric)
-            new_assessment_rubrics.append(assessment_rubric)
+                # Save Learning Outcomes
+                for lo_data in substrand_data['learning_outcomes']:
+                    lo_id = generate_uuid()
+                    learning_outcome = LearningOutcome(
+                        id=lo_id,
+                        learning_outcomes=lo_data['learning_outcome'],
+                        grade_id=grade_id,
+                        subject_id=subject_id,
+                        strand_id=strand_id,
+                        sub_strand_id=substrand_id
+                    )
+                    db.session.add(learning_outcome)
 
-        db.session.commit()
+                    # Save Assessment Rubrics
+                    for rubric_data in lo_data['assessment_rubrics']:
+                        rubric_id = generate_uuid()
+                        assessment_rubic = AssessmentRubic(
+                            id=rubric_id,
+                            assessment_rubics=rubric_data['assessment_rubics'],
+                            assessment_rubic_mark=rubric_data['assessment_rubic_mark'],
+                            grade_id=grade_id,
+                            subject_id=subject_id,
+                            strand_id=strand_id,
+                            sub_strand_id=substrand_id,
+                            learning_outcome_id=lo_id
+                        )
+                        db.session.add(assessment_rubic)
 
-        # Serialize and return the newly created entries
-        result_sub_strand = subStrandSchema.dump(new_sub_strand)
-        result_strand = strandSchema.dump(new_strand)
-        result_learning_outcome = learningOutcomeSchema.dump(new_learning_outcome)
-        result_assessment_rubrics = [assessmentRubicSchema.dump(ar) for ar in new_assessment_rubrics]
+            db.session.commit()
+            return jsonify(({
+                "message": "Data saved successfully",
+                "data": data
+            }), 201)
 
-        return make_response(jsonify({
-            "sub_strand": result_sub_strand,
-            "strand": result_strand,
-            "learning_outcome": result_learning_outcome,
-            "assessment_rubrics": result_assessment_rubrics
-        }), 201)
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({"message": str(e)}), 500
 
-api.add_resource(SubjectDetails, '/subject_details')
+api.add_resource(SubjectPostGradeDetails, '/grades/<string:grade_id>/subjects/<string:subject_id>')
+
 
 class SubjectDetailsById(Resource):
 
@@ -94,59 +121,150 @@ class SubjectDetailsById(Resource):
             "assessment_rubrics": result_assessment_rubrics
         }), 200)
   
-
-    @superAdmin_required()
-    def patch(self, subject_id):
-        data = patch_args.parse_args()
-
-        # Update existing entries in each respective table
-        sub_strand = SubStrand.query.filter_by(subject_id=subject_id, grade_id=data['grade_id']).first()
-        if sub_strand:
-            sub_strand.substrand_name = data['substrand_name']
-            # Update other attributes of sub_strand as needed
-
-        strand = Strand.query.filter_by(subject_id=subject_id, grade_id=data['grade_id']).first()
-        if strand:
-            strand.strand_name = data['strand_name']
-            # Update other attributes of strand as needed
-
-        learning_outcome = LearningOutcome.query.filter_by(subject_id=subject_id, grade_id=data['grade_id']).first()
-        if learning_outcome:
-            learning_outcome.learning_outcomes = data['learning_outcomes']
-            # Update other attributes of learning_outcome as needed
-
-        assessment_rubic = AssessmentRubic.query.filter_by(subject_id=subject_id, grade_id=data['grade_id']).first()
-        if assessment_rubic:
-            assessment_rubic.assessment_rubics = data['assessment_rubrics']
-            # Update other attributes of assessment_rubic as needed
-
-        # Commit changes to the database session
-        db.session.commit()
-
-        # Serialize and return the updated entries
-        result_sub_strand = subStrandSchema.dump(sub_strand) if sub_strand else None
-        result_strand = strandSchema.dump(strand) if strand else None
-        result_learning_outcome = learningOutcomeSchema.dump(learning_outcome) if learning_outcome else None
-        result_assessment_rubic = assessmentRubicSchema.dump(assessment_rubic) if assessment_rubic else None
-
-        return make_response(jsonify({
-            "sub_strand": result_sub_strand,
-            "strand": result_strand,
-            "learning_outcome": result_learning_outcome,
-            "assessment_rubic": result_assessment_rubic,
-        }), 200)
-
-    @superAdmin_required()
-    def delete(self, subject_id,grade_id):
-        # Delete entries in each respective table based on the subject_id and grade_id
-        SubStrand.query.filter_by(subject_id=subject_id, grade_id=grade_id).delete()
-        Strand.query.filter_by(subject_id=subject_id, grade_id=grade_id).delete()
-        LearningOutcome.query.filter_by(subject_id=subject_id, grade_id=grade_id).delete()
-        AssessmentRubic.query.filter_by(subject_id=subject_id, grade_id=grade_id).delete()
-
-        # Commit changes to the database session
-        db.session.commit()
-
-        return make_response(jsonify({"message": "Entries deleted successfully"}), 200)
-
 api.add_resource(SubjectDetailsById, '/subjects_details/<string:subject_id>/<string:grade_id>')
+
+
+    
+class SubjectGradePatchDetails(Resource):
+    @jwt_required()
+    def patch(self, strand_id):
+        try:
+            data = request.get_json()
+
+            # Update Strand
+            strand = Strand.query.filter_by(id=strand_id).first()
+            if not strand:
+                return make_response(jsonify({"message": "Strand not found"}), 404)
+
+            strand.strand_name = data.get('strand_name', strand.strand_name)
+            db.session.add(strand)
+
+            # Update SubStrands
+            for substrand_data in data.get('substrands', []):
+                substrand = SubStrand.query.filter_by(
+                    id=substrand_data['id'],
+                    strand_id=strand_id
+                ).first()
+
+                if not substrand:
+                    # If SubStrand does not exist, create a new one
+                    substrand_id = generate_uuid()
+                    substrand = SubStrand(
+                        id=substrand_id,
+                        substrand_name=substrand_data['substrand_name'],
+                        strand_id=strand_id,
+                        subject_id=data.get('subject_id'),
+                        grade_id=data.get('grade_id')
+                    )
+                else:
+                    substrand.substrand_name = substrand_data['substrand_name']
+
+                db.session.add(substrand)
+
+                # Update Learning Outcomes
+                for lo_data in substrand_data.get('learning_outcomes', []):
+                    learning_outcome = LearningOutcome.query.filter_by(
+                        id=lo_data['id'],
+                        sub_strand_id=substrand.id
+                    ).first()
+
+                    if not learning_outcome:
+                        # If LearningOutcome does not exist, create a new one
+                        lo_id = generate_uuid()
+                        learning_outcome = LearningOutcome(
+                            id=lo_id,
+                            learning_outcomes=lo_data['learning_outcome'],
+                            grade_id=data.get('grade_id'),
+                            subject_id=data.get('subject_id'),
+                            strand_id=strand_id,
+                            sub_strand_id=substrand.id
+                        )
+                    else:
+                        learning_outcome.learning_outcomes = lo_data['learning_outcome']
+
+                    db.session.add(learning_outcome)
+
+                    # Update Assessment Rubrics
+                    for rubric_data in lo_data.get('assessment_rubrics', []):
+                        assessment_rubic = AssessmentRubic.query.filter_by(
+                            id=rubric_data['id'],
+                            learning_outcome_id=learning_outcome.id
+                        ).first()
+
+                        if not assessment_rubic:
+                            # If AssessmentRubic does not exist, create a new one
+                            rubric_id = generate_uuid()
+                            assessment_rubic = AssessmentRubic(
+                                id=rubric_id,
+                                assessment_rubics=rubric_data['assessment_rubrics'],
+                                assessment_rubic_mark=rubric_data['assessment_rubic_mark'],
+                                grade_id=data.get('grade_id'),
+                                subject_id=data.get('subject_id'),
+                                strand_id=strand_id,
+                                sub_strand_id=substrand.id,
+                                learning_outcome_id=learning_outcome.id
+                            )
+                        else:
+                            assessment_rubic.assessment_rubics = rubric_data['assessment_rubrics']
+                            assessment_rubic.assessment_rubic_mark = rubric_data['assessment_rubic_mark']
+
+                        db.session.add(assessment_rubic)
+
+            db.session.commit()
+            return make_response(jsonify({
+                "message": "Data updated successfully",
+                "data": data
+            }), 200)
+
+        except Exception as e:
+            db.session.rollback()
+            error_message = str(e)  # Ensure the exception message is a string
+            print(f"Error: {error_message}")  # Print error for debugging
+            return make_response(jsonify({"message": error_message}), 500)
+
+api.add_resource(SubjectGradePatchDetails, '/strand_update/<string:strand_id>')
+
+
+
+
+
+
+class SubjectGradeDeleteDetails(Resource):
+    # @superAdmin_required()
+    @jwt_required()
+    def delete(self, strand_id):
+        try:
+            # Retrieve the Strand
+            strand = Strand.query.filter_by(id=strand_id).first()
+            if not strand:
+                return make_response(jsonify({"message": "Strand not found"}), 404)
+
+            # Retrieve associated SubStrands
+            substrands = SubStrand.query.filter_by(strand_id=strand_id).all()
+
+            # Delete associated Learning Outcomes and Assessment Rubrics
+            for substrand in substrands:
+                learning_outcomes = LearningOutcome.query.filter_by(sub_strand_id=substrand.id).all()
+                for learning_outcome in learning_outcomes:
+                    assessment_rubrics = AssessmentRubic.query.filter_by(learning_outcome_id=learning_outcome.id).all()
+                    for assessment_rubic in assessment_rubrics:
+                        db.session.delete(assessment_rubic)
+                    db.session.delete(learning_outcome)
+
+                db.session.delete(substrand)
+
+            # Delete the Strand
+            db.session.delete(strand)
+
+            # Commit the transaction
+            db.session.commit()
+            return make_response(jsonify({"message": "Data deleted successfully"}), 200)
+
+        except Exception as e:
+            db.session.rollback()
+            error_message = str(e)  # Ensure the exception message is a string
+            print(f"Error: {error_message}")  # Print error for debugging
+            return make_response(jsonify({"message": error_message}), 500)
+
+api.add_resource(SubjectGradeDeleteDetails, '/strand_delete/<string:strand_id>')
+
