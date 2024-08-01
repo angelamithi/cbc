@@ -211,10 +211,17 @@ class SubjectGradePatchDetails(Resource):
             strand.strand_name = data.get('strand_name', strand.strand_name)
             db.session.add(strand)
 
+            # Collect response data
+            response_data = {
+                'strand_id': strand_id,
+                'strand_name': strand.strand_name,
+                'substrands': []
+            }
+
             # Update SubStrands
             for substrand_data in data.get('substrands', []):
                 substrand = SubStrand.query.filter_by(
-                    id=substrand_data['id'],
+                    id=substrand_data.get('id'),  # Use .get() to avoid KeyError
                     strand_id=strand_id
                 ).first()
 
@@ -229,14 +236,22 @@ class SubjectGradePatchDetails(Resource):
                         grade_id=data.get('grade_id')
                     )
                 else:
+                    substrand_id = substrand.id  # Reuse existing ID
                     substrand.substrand_name = substrand_data['substrand_name']
 
                 db.session.add(substrand)
 
+                # Collect SubStrand data
+                substrand_info = {
+                    'substrand_id': substrand_id,
+                    'substrand_name': substrand.substrand_name,
+                    'learning_outcomes': []
+                }
+
                 # Update Learning Outcomes
                 for lo_data in substrand_data.get('learning_outcomes', []):
                     learning_outcome = LearningOutcome.query.filter_by(
-                        id=lo_data['id'],
+                        id=lo_data.get('id'),  # Use .get() to avoid KeyError
                         sub_strand_id=substrand.id
                     ).first()
 
@@ -252,14 +267,22 @@ class SubjectGradePatchDetails(Resource):
                             sub_strand_id=substrand.id
                         )
                     else:
+                        lo_id = learning_outcome.id  # Reuse existing ID
                         learning_outcome.learning_outcomes = lo_data['learning_outcome']
 
                     db.session.add(learning_outcome)
 
+                    # Collect Learning Outcome data
+                    learning_outcome_info = {
+                        'learning_outcome_id': lo_id,
+                        'learning_outcome': learning_outcome.learning_outcomes,
+                        'assessment_rubrics': []
+                    }
+
                     # Update Assessment Rubrics
                     for rubric_data in lo_data.get('assessment_rubrics', []):
                         assessment_rubic = AssessmentRubic.query.filter_by(
-                            id=rubric_data['id'],
+                            id=rubric_data.get('id'),  # Use .get() to avoid KeyError
                             learning_outcome_id=learning_outcome.id
                         ).first()
 
@@ -277,16 +300,39 @@ class SubjectGradePatchDetails(Resource):
                                 learning_outcome_id=learning_outcome.id
                             )
                         else:
+                            rubric_id = assessment_rubic.id  # Reuse existing ID
                             assessment_rubic.assessment_rubics = rubric_data['assessment_rubrics']
                             assessment_rubic.assessment_rubic_mark = rubric_data['assessment_rubic_mark']
 
                         db.session.add(assessment_rubic)
 
+                        # Collect Assessment Rubric data
+                        assessment_rubric_info = {
+                            'assessment_rubic_id': rubric_id,
+                            'assessment_rubics': assessment_rubic.assessment_rubics,
+                            'assessment_rubic_mark': assessment_rubic.assessment_rubic_mark
+                        }
+                        learning_outcome_info['assessment_rubrics'].append(assessment_rubric_info)
+
+                    # Add Learning Outcome to SubStrand
+                    substrand_info['learning_outcomes'].append(learning_outcome_info)
+
+                # Add SubStrand to Strand
+                response_data['substrands'].append(substrand_info)
+
             db.session.commit()
-            return make_response(jsonify({
-                "message": "Data updated successfully",
-                "data": data
-            }), 200)
+
+            final_response = {
+                "message": "Data saved successfully",
+                "data": response_data
+            }
+            
+           
+            response = jsonify(final_response)
+            response.status_code = 201  
+            
+
+            return response  
 
         except Exception as e:
             db.session.rollback()
@@ -294,7 +340,10 @@ class SubjectGradePatchDetails(Resource):
             print(f"Error: {error_message}")  # Print error for debugging
             return make_response(jsonify({"message": error_message}), 500)
 
+# Route definition
 api.add_resource(SubjectGradePatchDetails, '/strand_update/<string:strand_id>')
+
+
 
 
 
