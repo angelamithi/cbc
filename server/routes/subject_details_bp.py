@@ -34,6 +34,12 @@ class SubjectPostGradeDetails(Resource):
         try:
             data = request.get_json()
 
+            # Initialize response data structure
+            response_data = {
+                "strand_id": None,
+                "substrands": []
+            }
+
             # Save Strand
             strand_id = generate_uuid()
             strand = Strand(
@@ -43,6 +49,8 @@ class SubjectPostGradeDetails(Resource):
                 grade_id=grade_id
             )
             db.session.add(strand)
+
+            response_data["strand_id"] = strand_id
 
             # Save SubStrands
             for substrand_data in data['substrands']:
@@ -56,7 +64,8 @@ class SubjectPostGradeDetails(Resource):
                 )
                 db.session.add(substrand)
 
-                # Save Learning Outcomes
+                # Save Learning Outcomes and Assessment Rubrics
+                learning_outcomes = []
                 for lo_data in substrand_data['learning_outcomes']:
                     lo_id = generate_uuid()
                     learning_outcome = LearningOutcome(
@@ -70,6 +79,7 @@ class SubjectPostGradeDetails(Resource):
                     db.session.add(learning_outcome)
 
                     # Save Assessment Rubrics
+                    assessment_rubrics = []
                     for rubric_data in lo_data['assessment_rubrics']:
                         rubric_id = generate_uuid()
                         assessment_rubic = AssessmentRubic(
@@ -83,16 +93,30 @@ class SubjectPostGradeDetails(Resource):
                             learning_outcome_id=lo_id
                         )
                         db.session.add(assessment_rubic)
+                        assessment_rubrics.append(rubric_id)
+
+                    learning_outcomes.append({
+                        "learning_outcome_id": lo_id,
+                        "assessment_rubrics": assessment_rubrics
+                    })
+
+                response_data["substrands"].append({
+                    "substrand_id": substrand_id,
+                    "learning_outcomes": learning_outcomes
+                })
 
             db.session.commit()
-            return jsonify(({
+            return jsonify({
                 "message": "Data saved successfully",
-                "data": data
-            }), 201)
+                "data": response_data
+            }), 201
 
         except Exception as e:
             db.session.rollback()
             return jsonify({"message": str(e)}), 500
+
+
+
 
 api.add_resource(SubjectPostGradeDetails, '/grades/<string:grade_id>/subjects/<string:subject_id>')
 
