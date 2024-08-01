@@ -5,6 +5,7 @@ from flask_jwt_extended import jwt_required
 from models import SubStrand, Strand, LearningOutcome, AssessmentRubic, db,generate_uuid
 from serializer import subStrandSchema, strandSchema, learningOutcomeSchema, assessmentRubicSchema
 from auth import admin_required, superAdmin_required
+from werkzeug.exceptions import HTTPException
 
 subject_details_bp = Blueprint('subject_details_bp', __name__)
 api = Api(subject_details_bp)
@@ -27,18 +28,14 @@ patch_args.add_argument('grade_id', type=str)
 patch_args.add_argument('subject_id', type=str)
 
 
+
 class SubjectPostGradeDetails(Resource):
     # @superAdmin_required()
     @jwt_required()
     def post(self, grade_id, subject_id):
         try:
             data = request.get_json()
-
-            # Initialize response data structure
-            response_data = {
-                "strand_id": None,
-                "substrands": []
-            }
+          
 
             # Save Strand
             strand_id = generate_uuid()
@@ -49,8 +46,15 @@ class SubjectPostGradeDetails(Resource):
                 grade_id=grade_id
             )
             db.session.add(strand)
+          
 
-            response_data["strand_id"] = strand_id
+            # Collect response data
+            response_data = {
+                'strand_id': strand_id,
+                'strand_name': data['strand_name'],
+                'substrands': []
+            }
+           
 
             # Save SubStrands
             for substrand_data in data['substrands']:
@@ -63,9 +67,16 @@ class SubjectPostGradeDetails(Resource):
                     grade_id=grade_id
                 )
                 db.session.add(substrand)
+               
 
-                # Save Learning Outcomes and Assessment Rubrics
-                learning_outcomes = []
+                # Collect SubStrand data
+                substrand_info = {
+                    'substrand_id': substrand_id,
+                    'substrand_name': substrand_data['substrand_name'],
+                    'learning_outcomes': []
+                }
+
+                # Save Learning Outcomes
                 for lo_data in substrand_data['learning_outcomes']:
                     lo_id = generate_uuid()
                     learning_outcome = LearningOutcome(
@@ -77,9 +88,16 @@ class SubjectPostGradeDetails(Resource):
                         sub_strand_id=substrand_id
                     )
                     db.session.add(learning_outcome)
+                  
+
+                    # Collect Learning Outcome data
+                    learning_outcome_info = {
+                        'learning_outcome_id': lo_id,
+                        'learning_outcome': lo_data['learning_outcome'],
+                        'assessment_rubrics': []
+                    }
 
                     # Save Assessment Rubrics
-                    assessment_rubrics = []
                     for rubric_data in lo_data['assessment_rubrics']:
                         rubric_id = generate_uuid()
                         assessment_rubic = AssessmentRubic(
@@ -93,32 +111,62 @@ class SubjectPostGradeDetails(Resource):
                             learning_outcome_id=lo_id
                         )
                         db.session.add(assessment_rubic)
-                        assessment_rubrics.append(rubric_id)
+                       
+                        # Collect Assessment Rubric data
+                        assessment_rubric_info = {
+                            'assessment_rubic_id': rubric_id,
+                            'assessment_rubics': rubric_data['assessment_rubics'],
+                            'assessment_rubic_mark': rubric_data['assessment_rubic_mark']
+                        }
+                        learning_outcome_info['assessment_rubrics'].append(assessment_rubric_info)
 
-                    learning_outcomes.append({
-                        "learning_outcome_id": lo_id,
-                        "assessment_rubrics": assessment_rubrics
-                    })
+                    # Add Learning Outcome to SubStrand
+                    substrand_info['learning_outcomes'].append(learning_outcome_info)
 
-                response_data["substrands"].append({
-                    "substrand_id": substrand_id,
-                    "learning_outcomes": learning_outcomes
-                })
+                # Add SubStrand to Strand
+                response_data['substrands'].append(substrand_info)
 
+            
             db.session.commit()
-            return jsonify({
+
+           
+            final_response = {
                 "message": "Data saved successfully",
                 "data": response_data
-            }), 201
+            }
+            
+           
+            response = jsonify(final_response)
+            response.status_code = 201  
+            
+
+            return response  
 
         except Exception as e:
             db.session.rollback()
+            print("Exception occurred:", str(e))  # Debug: Print the exception message
             return jsonify({"message": str(e)}), 500
 
-
-
-
+# Route definition
 api.add_resource(SubjectPostGradeDetails, '/grades/<string:grade_id>/subjects/<string:subject_id>')
+
+
+
+# Route definition
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 class SubjectDetailsById(Resource):
