@@ -4,7 +4,7 @@ from flask_restful import Api, Resource, reqparse
 from flask_jwt_extended import jwt_required,get_jwt
 from serializer import formative_report_schema,subStrandSchema,strandSchema,learningOutcomeSchema,assessmentRubicSchema
 from auth import admin_required, superAdmin_required,teacher_required
-from models import Strand,SubStrand,LearningOutcome,AssessmentRubic,Grade,Subject,Staff,Stream,Year,FormativeReport,Student,db
+from models import Strand,SubStrand,LearningOutcome,AssessmentRubic,Grade,Subject,Staff,Stream,Year,FormativeReport,Student,db,TeacherSubjectGradeStream
 from sqlalchemy.orm import joinedload
 
 from datetime import datetime
@@ -162,13 +162,29 @@ class UpdateStudentReport(Resource):
 
             year_id = year_object.id
 
+            # Fetch the stream_id from the Student table
+            student = Student.query.get(student_id)
+            if not student:
+                return make_response(jsonify({"error": "Student not found"}), 404)
+            stream_id = student.stream_id
+
             # Fetch the report to update
             report = FormativeReport.query.filter_by(student_id=student_id, grade_id=grade_id,
                                                      subject_id=subject_id, year_id=year_id,
-                                                     school_id=school_id).all()
+                                                     school_id=school_id, stream_id=stream_id).all()
 
             if not report:
                 return make_response(jsonify({"error": "Report not found"}), 404)
+
+            # Fetch the subject_teacher_id from the teacher_subject_grade_stream table
+            teacher_subject = TeacherSubjectGradeStream.query.filter_by(subject_id=subject_id, 
+                                                                        grade_id=grade_id, 
+                                                                        stream_id=stream_id).first()
+
+            if teacher_subject:
+                subject_teacher_id = teacher_subject.staff_id
+            else:
+                return make_response(jsonify({"error": "Teacher not found for the given subject, grade, and stream"}), 404)
 
             # Fetch all current entries for the student, grade, subject, and year
             existing_entries = FormativeReport.query.filter_by(
@@ -176,7 +192,8 @@ class UpdateStudentReport(Resource):
                 grade_id=grade_id,
                 subject_id=subject_id,
                 year_id=year_id,
-                school_id=school_id
+                school_id=school_id,
+                stream_id=stream_id
             ).all()
 
             # Initialize a list to hold the updated rubrics
@@ -218,6 +235,8 @@ class UpdateStudentReport(Resource):
                                 subject_id=subject_id,
                                 year_id=year_id,
                                 school_id=school_id,
+                                stream_id=stream_id,
+                                subject_teacher_id=subject_teacher_id,
                                 assessment_rubic_id=rubric_id,
                                 single_mark=assessment_rubic.assessment_rubic_mark,
                                 is_selected=1
@@ -233,5 +252,6 @@ class UpdateStudentReport(Resource):
         except Exception as e:
             # Handle exceptions, e.g., if report or rubrics are not found
             return make_response(jsonify({"error": str(e)}), 404)
+
 
 api.add_resource(UpdateStudentReport, '/update_student_report/<string:grade_id>/<string:subject_id>/<string:student_id>')
