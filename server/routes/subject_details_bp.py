@@ -118,13 +118,13 @@ class SubjectPostGradeDetails(Resource):
                             'assessment_rubics': rubric_data['assessment_rubics'],
                             'assessment_rubic_mark': rubric_data['assessment_rubic_mark']
                         }
-                        learning_outcome_info['assessment_rubrics'].append(assessment_rubric_info)
+                        learning_outcome_info['assessment_rubic_name'].append(assessment_rubric_info)
 
                     # Add Learning Outcome to SubStrand
-                    substrand_info['learning_outcomes'].append(learning_outcome_info)
+                    substrand_info['learning_outcome_name'].append(learning_outcome_info)
 
                 # Add SubStrand to Strand
-                response_data['substrands'].append(substrand_info)
+                response_data['sub_strands'].append(substrand_info)
 
             
             db.session.commit()
