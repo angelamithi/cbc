@@ -52,7 +52,7 @@ class SubjectPostGradeDetails(Resource):
             response_data = {
                 'strand_id': strand_id,
                 'strand_name': data['strand_name'],
-                'substrands': []
+                'sub_strands': []
             }
            
 
@@ -73,7 +73,7 @@ class SubjectPostGradeDetails(Resource):
                 substrand_info = {
                     'substrand_id': substrand_id,
                     'substrand_name': substrand_data['substrand_name'],
-                    'learning_outcomes': []
+                    'learning_outcome_name': []
                 }
 
                 # Save Learning Outcomes
@@ -94,7 +94,7 @@ class SubjectPostGradeDetails(Resource):
                     learning_outcome_info = {
                         'learning_outcome_id': lo_id,
                         'learning_outcome': lo_data['learning_outcome'],
-                        'assessment_rubrics': []
+                        'assessment_rubic_name': []
                     }
 
                     # Save Assessment Rubrics
@@ -198,6 +198,7 @@ api.add_resource(SubjectDetailsById, '/subjects_details/<string:subject_id>/<str
 
     
 class SubjectGradePatchDetails(Resource):
+   
     @jwt_required()
     def patch(self, strand_id):
         try:
@@ -215,15 +216,13 @@ class SubjectGradePatchDetails(Resource):
             response_data = {
                 'strand_id': strand_id,
                 'strand_name': strand.strand_name,
-                'substrands': []
+                'sub_strands': []
             }
 
             # Update SubStrands
-            for substrand_data in data.get('substrands', []):
-                substrand = SubStrand.query.filter_by(
-                    id=substrand_data.get('id'),  # Use .get() to avoid KeyError
-                    strand_id=strand_id
-                ).first()
+            for substrand_data in data.get('sub_strands', []):
+                substrand_id = substrand_data.get('substrand_id')
+                substrand = SubStrand.query.filter_by(id=substrand_id, strand_id=strand_id).first()
 
                 if not substrand:
                     # If SubStrand does not exist, create a new one
@@ -232,12 +231,13 @@ class SubjectGradePatchDetails(Resource):
                         id=substrand_id,
                         substrand_name=substrand_data['substrand_name'],
                         strand_id=strand_id,
-                        subject_id=data.get('subject_id'),
-                        grade_id=data.get('grade_id')
+                        subject_id=substrand_data.get('subject_id'),  # Corrected to get from substrand_data
+                        grade_id=substrand_data.get('grade_id')  # Corrected to get from substrand_data
                     )
                 else:
-                    substrand_id = substrand.id  # Reuse existing ID
                     substrand.substrand_name = substrand_data['substrand_name']
+                    substrand.subject_id = substrand_data.get('subject_id')  # Update subject_id if needed
+                    substrand.grade_id = substrand_data.get('grade_id')  # Update grade_id if needed
 
                 db.session.add(substrand)
 
@@ -245,13 +245,14 @@ class SubjectGradePatchDetails(Resource):
                 substrand_info = {
                     'substrand_id': substrand_id,
                     'substrand_name': substrand.substrand_name,
-                    'learning_outcomes': []
+                    'learning_outcome_name': []
                 }
 
                 # Update Learning Outcomes
-                for lo_data in substrand_data.get('learning_outcomes', []):
+                for lo_data in substrand_data.get('learning_outcome_name', []):
+                    learning_outcome_id = lo_data.get('learning_outcome_id')
                     learning_outcome = LearningOutcome.query.filter_by(
-                        id=lo_data.get('id'),  # Use .get() to avoid KeyError
+                        id=learning_outcome_id, 
                         sub_strand_id=substrand.id
                     ).first()
 
@@ -261,28 +262,30 @@ class SubjectGradePatchDetails(Resource):
                         learning_outcome = LearningOutcome(
                             id=lo_id,
                             learning_outcomes=lo_data['learning_outcome'],
-                            grade_id=data.get('grade_id'),
-                            subject_id=data.get('subject_id'),
+                            grade_id=substrand_data.get('grade_id'),  # Use grade_id from substrand_data
+                            subject_id=substrand_data.get('subject_id'),  # Use subject_id from substrand_data
                             strand_id=strand_id,
                             sub_strand_id=substrand.id
                         )
                     else:
-                        lo_id = learning_outcome.id  # Reuse existing ID
                         learning_outcome.learning_outcomes = lo_data['learning_outcome']
+                        learning_outcome.grade_id = substrand_data.get('grade_id')  # Update if needed
+                        learning_outcome.subject_id = substrand_data.get('subject_id')  # Update if needed
 
                     db.session.add(learning_outcome)
 
                     # Collect Learning Outcome data
                     learning_outcome_info = {
-                        'learning_outcome_id': lo_id,
+                        'learning_outcome_id': learning_outcome.id,
                         'learning_outcome': learning_outcome.learning_outcomes,
-                        'assessment_rubrics': []
+                        'assessment_rubic_name': []
                     }
 
                     # Update Assessment Rubrics
-                    for rubric_data in lo_data.get('assessment_rubrics', []):
+                    for rubric_data in lo_data.get('assessment_rubic_name', []):
+                        rubric_id = rubric_data.get('assessment_rubic_id')
                         assessment_rubic = AssessmentRubic.query.filter_by(
-                            id=rubric_data.get('id'),  # Use .get() to avoid KeyError
+                            id=rubric_id, 
                             learning_outcome_id=learning_outcome.id
                         ).first()
 
@@ -291,34 +294,35 @@ class SubjectGradePatchDetails(Resource):
                             rubric_id = generate_uuid()
                             assessment_rubic = AssessmentRubic(
                                 id=rubric_id,
-                                assessment_rubics=rubric_data['assessment_rubrics'],
+                                assessment_rubics=rubric_data['assessment_rubics'],
                                 assessment_rubic_mark=rubric_data['assessment_rubic_mark'],
-                                grade_id=data.get('grade_id'),
-                                subject_id=data.get('subject_id'),
+                                grade_id=substrand_data.get('grade_id'),  # Use grade_id from substrand_data
+                                subject_id=substrand_data.get('subject_id'),  # Use subject_id from substrand_data
                                 strand_id=strand_id,
                                 sub_strand_id=substrand.id,
                                 learning_outcome_id=learning_outcome.id
                             )
                         else:
-                            rubric_id = assessment_rubic.id  # Reuse existing ID
-                            assessment_rubic.assessment_rubics = rubric_data['assessment_rubrics']
+                            assessment_rubic.assessment_rubics = rubric_data['assessment_rubics']
                             assessment_rubic.assessment_rubic_mark = rubric_data['assessment_rubic_mark']
+                            assessment_rubic.grade_id = substrand_data.get('grade_id')  # Update if needed
+                            assessment_rubic.subject_id = substrand_data.get('subject_id')  # Update if needed
 
                         db.session.add(assessment_rubic)
 
                         # Collect Assessment Rubric data
                         assessment_rubric_info = {
-                            'assessment_rubic_id': rubric_id,
+                            'assessment_rubic_id': assessment_rubic.id,
                             'assessment_rubics': assessment_rubic.assessment_rubics,
                             'assessment_rubic_mark': assessment_rubic.assessment_rubic_mark
                         }
-                        learning_outcome_info['assessment_rubrics'].append(assessment_rubric_info)
+                        learning_outcome_info['assessment_rubic_name'].append(assessment_rubric_info)
 
                     # Add Learning Outcome to SubStrand
-                    substrand_info['learning_outcomes'].append(learning_outcome_info)
+                    substrand_info['learning_outcome_name'].append(learning_outcome_info)
 
                 # Add SubStrand to Strand
-                response_data['substrands'].append(substrand_info)
+                response_data['sub_strands'].append(substrand_info)
 
             db.session.commit()
 
@@ -327,18 +331,18 @@ class SubjectGradePatchDetails(Resource):
                 "data": response_data
             }
             
-           
             response = jsonify(final_response)
-            response.status_code = 201  
+            response.status_code = 201
             
-
-            return response  
+            return response
 
         except Exception as e:
             db.session.rollback()
             error_message = str(e)  # Ensure the exception message is a string
             print(f"Error: {error_message}")  # Print error for debugging
             return make_response(jsonify({"message": error_message}), 500)
+
+
 
 # Route definition
 api.add_resource(SubjectGradePatchDetails, '/strand_update/<string:strand_id>')
