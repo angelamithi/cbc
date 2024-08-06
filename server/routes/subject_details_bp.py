@@ -71,8 +71,8 @@ class SubjectPostGradeDetails(Resource):
 
                 # Collect SubStrand data
                 substrand_info = {
-                    'substrand_id': substrand_id,
-                    'substrand_name': substrand_data['substrand_name'],
+                    'sub_strand_id': substrand_id,
+                    'sub_strand_name': substrand_data['substrand_name'],
                     'learning_outcomes': []
                 }
 
