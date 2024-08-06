@@ -245,7 +245,7 @@ class SubjectGradePatchDetails(Resource):
                 substrand_info = {
                     'substrand_id': substrand_id,
                     'substrand_name': substrand.substrand_name,
-                    'learning_outcome_name': []
+                    'learning_outcomes': []
                 }
 
                 # Update Learning Outcomes
@@ -278,11 +278,11 @@ class SubjectGradePatchDetails(Resource):
                     learning_outcome_info = {
                         'learning_outcome_id': learning_outcome.id,
                         'learning_outcome': learning_outcome.learning_outcomes,
-                        'assessment_rubic_name': []
+                        'assessment_rubics': []
                     }
 
                     # Update Assessment Rubrics
-                    for rubric_data in lo_data.get('assessment_rubic_name', []):
+                    for rubric_data in lo_data.get('assessment_rubics', []):
                         rubric_id = rubric_data.get('assessment_rubic_id')
                         assessment_rubic = AssessmentRubic.query.filter_by(
                             id=rubric_id, 
@@ -319,7 +319,7 @@ class SubjectGradePatchDetails(Resource):
                         learning_outcome_info['assessment_rubic_name'].append(assessment_rubric_info)
 
                     # Add Learning Outcome to SubStrand
-                    substrand_info['learning_outcome_name'].append(learning_outcome_info)
+                    substrand_info['learning_outcomes'].append(learning_outcome_info)
 
                 # Add SubStrand to Strand
                 response_data['sub_strands'].append(substrand_info)
