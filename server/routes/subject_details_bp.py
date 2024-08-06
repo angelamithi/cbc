@@ -118,7 +118,7 @@ class SubjectPostGradeDetails(Resource):
                             'assessment_rubics': rubric_data['assessment_rubics'],
                             'assessment_rubic_mark': rubric_data['assessment_rubic_mark']
                         }
-                        learning_outcome_info['assessment_rubic_name'].append(assessment_rubric_info)
+                        learning_outcome_info['assessment_rubics'].append(assessment_rubric_info)
 
                     # Add Learning Outcome to SubStrand
                     substrand_info['learning_outcomes'].append(learning_outcome_info)
