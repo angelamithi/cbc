@@ -102,7 +102,7 @@ class SubjectPostGradeDetails(Resource):
                         rubric_id = generate_uuid()
                         assessment_rubic = AssessmentRubic(
                             id=rubric_id,
-                            assessment_rubics=rubric_data['assessment_rubics'],
+                            assessment_rubics=rubric_data['assessment_rubrics'],
                             assessment_rubic_mark=rubric_data['assessment_rubic_mark'],
                             grade_id=grade_id,
                             subject_id=subject_id,
@@ -115,7 +115,7 @@ class SubjectPostGradeDetails(Resource):
                         # Collect Assessment Rubric data
                         assessment_rubric_info = {
                             'assessment_rubic_id': rubric_id,
-                            'assessment_rubics': rubric_data['assessment_rubics'],
+                            'assessment_rubic_name': rubric_data['assessment_rubics'],
                             'assessment_rubic_mark': rubric_data['assessment_rubic_mark']
                         }
                         learning_outcome_info['assessment_rubics'].append(assessment_rubric_info)
