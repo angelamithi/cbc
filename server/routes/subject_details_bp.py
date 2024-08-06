@@ -94,7 +94,7 @@ class SubjectPostGradeDetails(Resource):
                     learning_outcome_info = {
                         'learning_outcome_id': lo_id,
                         'learning_outcome': lo_data['learning_outcome'],
-                        'assessment_rubics': []
+                        'assessment_rubic': []
                     }
 
                     # Save Assessment Rubrics
@@ -102,7 +102,7 @@ class SubjectPostGradeDetails(Resource):
                         rubric_id = generate_uuid()
                         assessment_rubic = AssessmentRubic(
                             id=rubric_id,
-                            assessment_rubics=rubric_data['assessment_rubrics'],
+                            assessment_rubics=rubric_data['assessment_rubics'],
                             assessment_rubic_mark=rubric_data['assessment_rubic_mark'],
                             grade_id=grade_id,
                             subject_id=subject_id,
@@ -313,10 +313,10 @@ class SubjectGradePatchDetails(Resource):
                         # Collect Assessment Rubric data
                         assessment_rubric_info = {
                             'assessment_rubic_id': assessment_rubic.id,
-                            'assessment_rubics': assessment_rubic.assessment_rubics,
+                            'assessment_rubic_name': assessment_rubic.assessment_rubics,
                             'assessment_rubic_mark': assessment_rubic.assessment_rubic_mark
                         }
-                        learning_outcome_info['assessment_rubic_name'].append(assessment_rubric_info)
+                        learning_outcome_info['assessment_rubics'].append(assessment_rubric_info)
 
                     # Add Learning Outcome to SubStrand
                     substrand_info['learning_outcomes'].append(learning_outcome_info)
