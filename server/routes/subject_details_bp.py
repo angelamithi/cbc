@@ -2,7 +2,7 @@ from flask import Blueprint, make_response, jsonify,request
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 from flask_restful import Api, Resource, reqparse
 from flask_jwt_extended import jwt_required
-from models import SubStrand, Strand, LearningOutcome, AssessmentRubic, db,generate_uuid
+from models import SubStrand, Strand, LearningOutcome, AssessmentRubic, db,generate_uuid,FormativeReport
 from serializer import subStrandSchema, strandSchema, learningOutcomeSchema, assessmentRubicSchema
 from auth import admin_required, superAdmin_required
 from werkzeug.exceptions import HTTPException
@@ -243,13 +243,13 @@ class SubjectGradePatchDetails(Resource):
 
                 # Collect SubStrand data
                 substrand_info = {
-                    'substrand_id': substrand_id,
-                    'substrand_name': substrand.substrand_name,
+                    'sub_strand_id': substrand_id,
+                    'sub_strand_name': substrand.substrand_name,
                     'learning_outcomes': []
                 }
 
                 # Update Learning Outcomes
-                for lo_data in substrand_data.get('learning_outcome_name', []):
+                for lo_data in substrand_data.get('learning_outcomes', []):
                     learning_outcome_id = lo_data.get('learning_outcome_id')
                     learning_outcome = LearningOutcome.query.filter_by(
                         id=learning_outcome_id, 
@@ -277,7 +277,7 @@ class SubjectGradePatchDetails(Resource):
                     # Collect Learning Outcome data
                     learning_outcome_info = {
                         'learning_outcome_id': learning_outcome.id,
-                        'learning_outcome': learning_outcome.learning_outcomes,
+                        'learning_outcome_name': learning_outcome.learning_outcomes,
                         'assessment_rubrics': []
                     }
 
@@ -294,7 +294,7 @@ class SubjectGradePatchDetails(Resource):
                             rubric_id = generate_uuid()
                             assessment_rubic = AssessmentRubic(
                                 id=rubric_id,
-                                assessment_rubics=rubric_data['assessment_rubics'],
+                                assessment_rubics=rubric_data['assessment_rubrics'],
                                 assessment_rubic_mark=rubric_data['assessment_rubic_mark'],
                                 grade_id=substrand_data.get('grade_id'),  # Use grade_id from substrand_data
                                 subject_id=substrand_data.get('subject_id'),  # Use subject_id from substrand_data
@@ -303,7 +303,7 @@ class SubjectGradePatchDetails(Resource):
                                 learning_outcome_id=learning_outcome.id
                             )
                         else:
-                            assessment_rubic.assessment_rubics = rubric_data['assessment_rubics']
+                            assessment_rubic.assessment_rubics = rubric_data['assessment_rubrics']
                             assessment_rubic.assessment_rubic_mark = rubric_data['assessment_rubic_mark']
                             assessment_rubic.grade_id = substrand_data.get('grade_id')  # Update if needed
                             assessment_rubic.subject_id = substrand_data.get('subject_id')  # Update if needed
@@ -373,6 +373,8 @@ class SubjectGradeDeleteDetails(Resource):
                 for learning_outcome in learning_outcomes:
                     assessment_rubrics = AssessmentRubic.query.filter_by(learning_outcome_id=learning_outcome.id).all()
                     for assessment_rubic in assessment_rubrics:
+                         # Delete related FormativeReports
+                        FormativeReport.query.filter_by(assessment_rubic_id=assessment_rubic.id).delete()
                         db.session.delete(assessment_rubic)
                     db.session.delete(learning_outcome)
 
