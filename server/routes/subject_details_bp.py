@@ -93,8 +93,8 @@ class SubjectPostGradeDetails(Resource):
                     # Collect Learning Outcome data
                     learning_outcome_info = {
                         'learning_outcome_id': lo_id,
-                        'learning_outcome': lo_data['learning_outcome'],
-                        'assessment_rubic': []
+                        'learning_outcome_name': lo_data['learning_outcome'],
+                        'assessment_rubics': []
                     }
 
                     # Save Assessment Rubrics
