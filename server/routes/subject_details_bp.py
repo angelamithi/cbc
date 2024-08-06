@@ -73,7 +73,7 @@ class SubjectPostGradeDetails(Resource):
                 substrand_info = {
                     'substrand_id': substrand_id,
                     'substrand_name': substrand_data['substrand_name'],
-                    'learning_outcome_name': []
+                    'learning_outcomes': []
                 }
 
                 # Save Learning Outcomes
@@ -94,7 +94,7 @@ class SubjectPostGradeDetails(Resource):
                     learning_outcome_info = {
                         'learning_outcome_id': lo_id,
                         'learning_outcome': lo_data['learning_outcome'],
-                        'assessment_rubic_name': []
+                        'assessment_rubics': []
                     }
 
                     # Save Assessment Rubrics
@@ -121,7 +121,7 @@ class SubjectPostGradeDetails(Resource):
                         learning_outcome_info['assessment_rubic_name'].append(assessment_rubric_info)
 
                     # Add Learning Outcome to SubStrand
-                    substrand_info['learning_outcome_name'].append(learning_outcome_info)
+                    substrand_info['learning_outcomes'].append(learning_outcome_info)
 
                 # Add SubStrand to Strand
                 response_data['sub_strands'].append(substrand_info)
