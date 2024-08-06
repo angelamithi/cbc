@@ -94,7 +94,7 @@ class SubjectPostGradeDetails(Resource):
                     learning_outcome_info = {
                         'learning_outcome_id': lo_id,
                         'learning_outcome_name': lo_data['learning_outcome'],
-                        'assessment_rubics': []
+                        'assessment_rubrics': []
                     }
 
                     # Save Assessment Rubrics
@@ -118,7 +118,7 @@ class SubjectPostGradeDetails(Resource):
                             'assessment_rubic_name': rubric_data['assessment_rubics'],
                             'assessment_rubic_mark': rubric_data['assessment_rubic_mark']
                         }
-                        learning_outcome_info['assessment_rubics'].append(assessment_rubric_info)
+                        learning_outcome_info['assessment_rubrics'].append(assessment_rubric_info)
 
                     # Add Learning Outcome to SubStrand
                     substrand_info['learning_outcomes'].append(learning_outcome_info)
@@ -278,11 +278,11 @@ class SubjectGradePatchDetails(Resource):
                     learning_outcome_info = {
                         'learning_outcome_id': learning_outcome.id,
                         'learning_outcome': learning_outcome.learning_outcomes,
-                        'assessment_rubics': []
+                        'assessment_rubrics': []
                     }
 
                     # Update Assessment Rubrics
-                    for rubric_data in lo_data.get('assessment_rubics', []):
+                    for rubric_data in lo_data.get('assessment_rubrics', []):
                         rubric_id = rubric_data.get('assessment_rubic_id')
                         assessment_rubic = AssessmentRubic.query.filter_by(
                             id=rubric_id, 
@@ -316,7 +316,7 @@ class SubjectGradePatchDetails(Resource):
                             'assessment_rubic_name': assessment_rubic.assessment_rubics,
                             'assessment_rubic_mark': assessment_rubic.assessment_rubic_mark
                         }
-                        learning_outcome_info['assessment_rubics'].append(assessment_rubric_info)
+                        learning_outcome_info['assessment_rubrics'].append(assessment_rubric_info)
 
                     # Add Learning Outcome to SubStrand
                     substrand_info['learning_outcomes'].append(learning_outcome_info)
