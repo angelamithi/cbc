@@ -231,20 +231,20 @@ class SubjectGradePatchDetails(Resource):
                         id=substrand_id,
                         substrand_name=substrand_data['substrand_name'],
                         strand_id=strand_id,
-                        subject_id=substrand_data.get('subject_id'),  # Corrected to get from substrand_data
-                        grade_id=substrand_data.get('grade_id')  # Corrected to get from substrand_data
+                        subject_id=substrand_data.get('subject_id'),
+                        grade_id=substrand_data.get('grade_id')
                     )
                 else:
                     substrand.substrand_name = substrand_data['substrand_name']
-                    substrand.subject_id = substrand_data.get('subject_id')  # Update subject_id if needed
-                    substrand.grade_id = substrand_data.get('grade_id')  # Update grade_id if needed
+                    substrand.subject_id = substrand_data.get('subject_id')
+                    substrand.grade_id = substrand_data.get('grade_id')
 
                 db.session.add(substrand)
 
                 # Collect SubStrand data
                 substrand_info = {
-                    'sub_strand_id': substrand_id,
-                    'sub_strand_name': substrand.substrand_name,
+                    'substrand_id': substrand.id,
+                    'substrand_name': substrand.substrand_name,
                     'learning_outcomes': []
                 }
 
@@ -261,16 +261,16 @@ class SubjectGradePatchDetails(Resource):
                         lo_id = generate_uuid()
                         learning_outcome = LearningOutcome(
                             id=lo_id,
-                            learning_outcomes=lo_data['learning_outcome'],
-                            grade_id=substrand_data.get('grade_id'),  # Use grade_id from substrand_data
-                            subject_id=substrand_data.get('subject_id'),  # Use subject_id from substrand_data
+                            learning_outcomes=lo_data['learning_outcome_name'],
+                            grade_id=substrand_data.get('grade_id'),
+                            subject_id=substrand_data.get('subject_id'),
                             strand_id=strand_id,
                             sub_strand_id=substrand.id
                         )
                     else:
-                        learning_outcome.learning_outcomes = lo_data['learning_outcome']
-                        learning_outcome.grade_id = substrand_data.get('grade_id')  # Update if needed
-                        learning_outcome.subject_id = substrand_data.get('subject_id')  # Update if needed
+                        learning_outcome.learning_outcomes = lo_data['learning_outcome_name']
+                        learning_outcome.grade_id = substrand_data.get('grade_id')
+                        learning_outcome.subject_id = substrand_data.get('subject_id')
 
                     db.session.add(learning_outcome)
 
@@ -278,11 +278,11 @@ class SubjectGradePatchDetails(Resource):
                     learning_outcome_info = {
                         'learning_outcome_id': learning_outcome.id,
                         'learning_outcome_name': learning_outcome.learning_outcomes,
-                        'assessment_rubrics': []
+                        'assessment_rubics': []  # Updated to use 'assessment_rubics'
                     }
 
                     # Update Assessment Rubrics
-                    for rubric_data in lo_data.get('assessment_rubrics', []):
+                    for rubric_data in lo_data.get('assessment_rubics', []):  # Updated to use 'assessment_rubics'
                         rubric_id = rubric_data.get('assessment_rubic_id')
                         assessment_rubic = AssessmentRubic.query.filter_by(
                             id=rubric_id, 
@@ -294,29 +294,29 @@ class SubjectGradePatchDetails(Resource):
                             rubric_id = generate_uuid()
                             assessment_rubic = AssessmentRubic(
                                 id=rubric_id,
-                                assessment_rubics=rubric_data['assessment_rubrics'],
+                                assessment_rubics=rubric_data['assessment_rubics'],  # Updated to use 'assessment_rubics'
                                 assessment_rubic_mark=rubric_data['assessment_rubic_mark'],
-                                grade_id=substrand_data.get('grade_id'),  # Use grade_id from substrand_data
-                                subject_id=substrand_data.get('subject_id'),  # Use subject_id from substrand_data
+                                grade_id=substrand_data.get('grade_id'),
+                                subject_id=substrand_data.get('subject_id'),
                                 strand_id=strand_id,
                                 sub_strand_id=substrand.id,
                                 learning_outcome_id=learning_outcome.id
                             )
                         else:
-                            assessment_rubic.assessment_rubics = rubric_data['assessment_rubrics']
+                            assessment_rubic.assessment_rubics = rubric_data['assessment_rubics']  # Updated to use 'assessment_rubics'
                             assessment_rubic.assessment_rubic_mark = rubric_data['assessment_rubic_mark']
-                            assessment_rubic.grade_id = substrand_data.get('grade_id')  # Update if needed
-                            assessment_rubic.subject_id = substrand_data.get('subject_id')  # Update if needed
+                            assessment_rubic.grade_id = substrand_data.get('grade_id')
+                            assessment_rubic.subject_id = substrand_data.get('subject_id')
 
                         db.session.add(assessment_rubic)
 
                         # Collect Assessment Rubric data
                         assessment_rubric_info = {
                             'assessment_rubic_id': assessment_rubic.id,
-                            'assessment_rubic_name': assessment_rubic.assessment_rubics,
+                            'assessment_rubics': assessment_rubic.assessment_rubics,  # Updated to use 'assessment_rubics'
                             'assessment_rubic_mark': assessment_rubic.assessment_rubic_mark
                         }
-                        learning_outcome_info['assessment_rubrics'].append(assessment_rubric_info)
+                        learning_outcome_info['assessment_rubics'].append(assessment_rubric_info)  # Updated to use 'assessment_rubics'
 
                     # Add Learning Outcome to SubStrand
                     substrand_info['learning_outcomes'].append(learning_outcome_info)
@@ -341,6 +341,7 @@ class SubjectGradePatchDetails(Resource):
             error_message = str(e)  # Ensure the exception message is a string
             print(f"Error: {error_message}")  # Print error for debugging
             return make_response(jsonify({"message": error_message}), 500)
+
 
 
 
