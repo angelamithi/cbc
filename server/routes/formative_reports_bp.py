@@ -170,11 +170,11 @@ class UpdateStudentReport(Resource):
 
             # Fetch the report to update
             report = FormativeReport.query.filter_by(
-                student_id=student_id, 
+                student_id=student_id,
                 grade_id=grade_id,
-                subject_id=subject_id, 
+                subject_id=subject_id,
                 year_id=year_id,
-                school_id=school_id, 
+                school_id=school_id,
                 stream_id=stream_id
             ).all()
 
@@ -183,8 +183,8 @@ class UpdateStudentReport(Resource):
 
             # Fetch the subject_teacher_id from the teacher_subject_grade_stream table
             teacher_subject = TeacherSubjectGradeStream.query.filter_by(
-                subject_id=subject_id, 
-                grade_id=grade_id, 
+                subject_id=subject_id,
+                grade_id=grade_id,
                 stream_id=stream_id
             ).first()
 
@@ -263,11 +263,23 @@ class UpdateStudentReport(Resource):
                 stream_id=stream_id
             ).all()
 
+            # Fetch the related strands, substrands, learning outcomes, and assessment rubrics
+            strands = self.get_strands(subject_id)
+            substrands = self.get_substrands(subject_id)
+            learning_outcomes = self.get_learning_outcomes(subject_id)
+            assessment_rubrics = self.get_assessment_rubrics(subject_id)
+
             # Serialize the updated report data
             serialized_report = self.serialize_report(updated_report)
 
-            # Return the serialized report data
-            return make_response(jsonify({"updated_report": serialized_report}), 200)
+            # Return the serialized report data with additional information
+            return make_response(jsonify({
+                "updated_report": serialized_report,
+                "strands": strands,
+                "substrands": substrands,
+                "learning_outcomes": learning_outcomes,
+                "assessment_rubrics": assessment_rubrics
+            }), 200)
 
         except Exception as e:
             # Handle exceptions, e.g., if report or rubrics are not found
@@ -290,6 +302,20 @@ class UpdateStudentReport(Resource):
             })
         return serialized_data
 
+    def get_strands(self, subject_id):
+        strands = Strand.query.filter_by(subject_id=subject_id).all()
+        return [{"id": strand.id, "name": strand.name} for strand in strands]
+
+    def get_substrands(self, subject_id):
+        substrands = SubStrand.query.filter_by(subject_id=subject_id).all()
+        return [{"id": substrand.id, "name": substrand.name} for substrand in substrands]
+
+    def get_learning_outcomes(self, subject_id):
+        learning_outcomes = LearningOutcome.query.filter_by(subject_id=subject_id).all()
+        return [{"id": outcome.id, "description": outcome.description} for outcome in learning_outcomes]
+
+    def get_assessment_rubrics(self, subject_id):
+        assessment_rubrics = AssessmentRubic.query.filter_by(subject_id=subject_id).all()
+        return [{"id": rubric.id, "name": rubric.name} for rubric in assessment_rubrics]
+
 api.add_resource(UpdateStudentReport, '/update_student_report/<string:grade_id>/<string:subject_id>/<string:student_id>')
-
-
