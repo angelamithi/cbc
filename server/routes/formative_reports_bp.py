@@ -243,30 +243,58 @@ class UpdateStudentReport(Resource):
                             )
                             db.session.add(new_rubric)
 
-                        # Add the updated rubric details to the list
+                        # Append updated rubrics for response
                         updated_rubrics.append({
-                            "rubric_id": assessment_rubic.id,
-                            "rubric_name": assessment_rubic.assessment_rubics,
-                            "learning_outcome_id": assessment_rubic.learning_outcome_id,
-                            "learning_outcome": assessment_rubic.learning_outcome.learning_outcomes,
-                            "strand_id": assessment_rubic.strand_id,
-                            "strand_name": assessment_rubic.strand.strand_name,
-                            "substrand_id": assessment_rubic.sub_strand_id,
-                            "substrand_name": assessment_rubic.substrand.substrand_name
+                            "assessment_rubic_id": rubric_id,
+                            "assessment_rubics": assessment_rubic.assessment_rubics
                         })
 
             # Commit changes to the database
             db.session.commit()
 
-            # Optionally, you can return the updated report or a success message
-            return make_response(jsonify({
-                "message": "Report updated successfully",
-                "updated_rubrics": updated_rubrics
-            }), 200)
+            # Prepare the response data with the updated strands, substrands, learning outcomes, and rubrics
+            response_data = []
+
+            for rubric in updated_rubrics:
+                assessment_rubic = AssessmentRubic.query.get(rubric['assessment_rubic_id'])
+
+                if assessment_rubic:
+                    # Fetch related learning outcomes
+                    learning_outcome = LearningOutcome.query.get(assessment_rubic.learning_outcome_id)
+                    # Fetch related substrand
+                    substrand = SubStrand.query.get(assessment_rubic.sub_strand_id)
+                    # Fetch related strand
+                    strand = Strand.query.get(assessment_rubic.strand_id)
+
+                    response_data.append({
+                        "strand": {
+                            "strand_id": strand.id,
+                            "strand_name": strand.strand_name
+                        },
+                        "substrand": {
+                            "substrand_id": substrand.id,
+                            "substrand_name": substrand.substrand_name
+                        },
+                        "learning_outcome": {
+                            "learning_outcome_id": learning_outcome.id,
+                            "learning_outcome_name": learning_outcome.learning_outcomes
+                        },
+                        "assessment_rubric": {
+                            "assessment_rubric_id": assessment_rubic.id,
+                            "assessment_rubric_name": assessment_rubic.assessment_rubics,
+                            "assessment_rubric_mark": assessment_rubic.assessment_rubic_mark
+                        }
+                    })
+
+            # Return the detailed updated information
+            return make_response(jsonify({"message": "Report updated successfully", "data": response_data}), 200)
 
         except Exception as e:
             # Handle exceptions, e.g., if report or rubrics are not found
             return make_response(jsonify({"error": str(e)}), 404)
+
+
+
 
 
 api.add_resource(UpdateStudentReport, '/update_student_report/<string:grade_id>/<string:subject_id>/<string:student_id>')
