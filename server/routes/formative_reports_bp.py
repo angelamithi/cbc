@@ -169,24 +169,17 @@ class UpdateStudentReport(Resource):
             stream_id = student.stream_id
 
             # Fetch the report to update
-            report = FormativeReport.query.filter_by(
-                student_id=student_id,
-                grade_id=grade_id,
-                subject_id=subject_id,
-                year_id=year_id,
-                school_id=school_id,
-                stream_id=stream_id
-            ).all()
+            report = FormativeReport.query.filter_by(student_id=student_id, grade_id=grade_id,
+                                                     subject_id=subject_id, year_id=year_id,
+                                                     school_id=school_id, stream_id=stream_id).all()
 
             if not report:
                 return make_response(jsonify({"error": "Report not found"}), 404)
 
             # Fetch the subject_teacher_id from the teacher_subject_grade_stream table
-            teacher_subject = TeacherSubjectGradeStream.query.filter_by(
-                subject_id=subject_id,
-                grade_id=grade_id,
-                stream_id=stream_id
-            ).first()
+            teacher_subject = TeacherSubjectGradeStream.query.filter_by(subject_id=subject_id, 
+                                                                        grade_id=grade_id, 
+                                                                        stream_id=stream_id).first()
 
             if teacher_subject:
                 subject_teacher_id = teacher_subject.staff_id
@@ -250,72 +243,30 @@ class UpdateStudentReport(Resource):
                             )
                             db.session.add(new_rubric)
 
+                        # Add the updated rubric details to the list
+                        updated_rubrics.append({
+                            "rubric_id": assessment_rubic.id,
+                            "rubric_name": assessment_rubic.assessment_rubics,
+                            "learning_outcome_id": assessment_rubic.learning_outcome_id,
+                            "learning_outcome": assessment_rubic.learning_outcome.learning_outcomes,
+                            "strand_id": assessment_rubic.strand_id,
+                            "strand_name": assessment_rubic.strand.strand_name,
+                            "substrand_id": assessment_rubic.sub_strand_id,
+                            "substrand_name": assessment_rubic.substrand.substrand_name
+                        })
+
             # Commit changes to the database
             db.session.commit()
 
-            # Fetch the updated report entries again to ensure the latest data
-            updated_report = FormativeReport.query.filter_by(
-                student_id=student_id,
-                grade_id=grade_id,
-                subject_id=subject_id,
-                year_id=year_id,
-                school_id=school_id,
-                stream_id=stream_id
-            ).all()
-
-            # Fetch the related strands, substrands, learning outcomes, and assessment rubrics
-            strands = self.get_strands(subject_id)
-            substrands = self.get_substrands(subject_id)
-            learning_outcomes = self.get_learning_outcomes(subject_id)
-            assessment_rubrics = self.get_assessment_rubrics(subject_id)
-
-            # Serialize the updated report data
-            serialized_report = self.serialize_report(updated_report)
-
-            # Return the serialized report data with additional information
+            # Optionally, you can return the updated report or a success message
             return make_response(jsonify({
-                "updated_report": serialized_report,
-                "strands": strands,
-                "substrands": substrands,
-                "learning_outcomes": learning_outcomes,
-                "assessment_rubrics": assessment_rubrics
+                "message": "Report updated successfully",
+                "updated_rubrics": updated_rubrics
             }), 200)
 
         except Exception as e:
             # Handle exceptions, e.g., if report or rubrics are not found
             return make_response(jsonify({"error": str(e)}), 404)
 
-    def serialize_report(self, reports):
-        serialized_data = []
-        for report in reports:
-            serialized_data.append({
-                "student_id": report.student_id,
-                "grade_id": report.grade_id,
-                "subject_id": report.subject_id,
-                "year_id": report.year_id,
-                "school_id": report.school_id,
-                "stream_id": report.stream_id,
-                "subject_teacher_id": report.subject_teacher_id,
-                "assessment_rubic_id": report.assessment_rubic_id,
-                "single_mark": report.single_mark,
-                "is_selected": report.is_selected
-            })
-        return serialized_data
-
-    def get_strands(self, subject_id):
-        strands = Strand.query.filter_by(subject_id=subject_id).all()
-        return [{"id": strand.id, "name": strand.name} for strand in strands]
-
-    def get_substrands(self, subject_id):
-        substrands = SubStrand.query.filter_by(subject_id=subject_id).all()
-        return [{"id": substrand.id, "name": substrand.name} for substrand in substrands]
-
-    def get_learning_outcomes(self, subject_id):
-        learning_outcomes = LearningOutcome.query.filter_by(subject_id=subject_id).all()
-        return [{"id": outcome.id, "description": outcome.description} for outcome in learning_outcomes]
-
-    def get_assessment_rubrics(self, subject_id):
-        assessment_rubrics = AssessmentRubic.query.filter_by(subject_id=subject_id).all()
-        return [{"id": rubric.id, "name": rubric.name} for rubric in assessment_rubrics]
 
 api.add_resource(UpdateStudentReport, '/update_student_report/<string:grade_id>/<string:subject_id>/<string:student_id>')
